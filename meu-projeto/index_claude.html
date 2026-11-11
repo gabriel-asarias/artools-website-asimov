@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>ARTOOLS Pigmentum 0.1 — Caneta de tinta pigmentada</title>
 <meta name="description" content="ARTOOLS Pigmentum 0.1: ponta 0.1 mm e tinta pigmentada para o detalhe do desenho técnico." />
-<link rel="preload" as="image" href="hero_poster.webp" />
+<link rel="preload" as="image" href="hero_poster_inicio.webp" />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231C1917' stroke-width='1.6'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 3v18M3 12h18'/%3E%3Ccircle cx='12' cy='12' r='2.5' stroke='%23D6A461'/%3E%3C/svg%3E" />
 
 <!-- Fontes do design system (Monólito): Inter 300–600 · Instrument Serif 400 · Geist Mono 300–700 -->
@@ -26,26 +26,21 @@
   --abismo: #050505;        /* Secundária · escuro */
   --lume: #D6A461;          /* Acento · foco/luz */
   --lume-escuro: #7A5522;   /* Texto sobre Lume 20% (badge) */
-  --nevoa: #8A96A3;         /* Decorativa · orbes */
   --pedra-500: #78716C;
   --pedra-400: #A8A29E;
   --pedra-300: #D6D3D1;     /* Bordas */
-  --pedra-200: #E7E5E4;
-  --pedra-100: #F5F5F4;
   --branco: #FFFFFF;
 
   /* Variações de opacidade (DS: 100/80/60/40/20/10) */
-  --grafite-80: rgba(28, 25, 23, .8);   /* texto secundário — 7.8:1 sobre Osso (AAA) */
-  --grafite-40: rgba(28, 25, 23, .4);
-  --grafite-20: rgba(28, 25, 23, .2);
+  --grafite-80: rgba(28, 25, 23, .8);     /* texto secundário — 7.8:1 sobre Osso (AAA) */
   --grafite-10: rgba(28, 25, 23, .1);
   --lume-40: rgba(214, 164, 97, .4);
-  --lume-20: rgba(214, 164, 97, .2);
   --branco-60: rgba(255, 255, 255, .6);
   --branco-55: rgba(255, 255, 255, .55);  /* .glass-light */
-  --branco-10: rgba(255, 255, 255, .1);
-  --linha-grid: rgba(0, 0, 0, .035);      /* .grid-bg */
-  --guia: rgba(214, 211, 209, .4);        /* stone-300/40 */
+  --osso-90: rgba(234, 234, 229, .9);     /* véu de imagem (claro) */
+  --osso-80: rgba(234, 234, 229, .8);
+  --osso-60: rgba(234, 234, 229, .6);
+  --osso-0: rgba(234, 234, 229, 0);
 
   /* Tipografia */
   --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
@@ -57,8 +52,7 @@
   --tracking-overline: 0.25em;
 
   /* Espaçamento (escala 4px do DS) */
-  --s-1: .25rem; --s-2: .5rem; --s-3: .75rem; --s-4: 1rem; --s-5: 1.25rem; --s-6: 1.5rem;
-  --s-8: 2rem; --s-10: 2.5rem; --s-12: 3rem;
+  --s-2: .5rem; --s-3: .75rem; --s-4: 1rem; --s-5: 1.25rem; --s-6: 1.5rem; --s-8: 2rem;
 
   /* Raios */
   --radius-md: 6px;
@@ -67,24 +61,19 @@
 
   /* Sombras / blur */
   --shadow-glow: 0 0 30px rgba(28, 28, 28, .15), 0 0 60px rgba(214, 164, 97, .18);  /* .glow-on-hover */
-  --shadow-float: 0 30px 60px -30px rgba(28, 25, 23, .35);                         /* card 3D */
-  --shadow-lume: 0 0 12px var(--lume);                                              /* ponto Lume do input */
+  --shadow-lume: 0 0 12px var(--lume);
   --blur-glass: 20px;
   --blur-backdrop: 10px;
-  --blur-orb: 70px;
 
   /* Movimento */
   --ease-architect: cubic-bezier(0.16, 1, 0.3, 1);   /* GSAP: "expo.out" */
-  --ease-beam: cubic-bezier(.45, 0, .55, 1);          /* beamFall */
   --dur-fast: .2s;
   --dur-base: .5s;
-  --dur-slow: 1s;
   --dur-reveal: 1.2s;
   --dur-in: .8s;                                      /* animationIn */
 
   /* Layout */
   --nav-h: 88px;
-  --bar-h: 120px;
   --gutter: 40px;
 }
 
@@ -104,11 +93,24 @@ body {
 a { color: inherit; text-decoration: none; }
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 :focus-visible { outline: 2px solid var(--lume); outline-offset: 3px; border-radius: var(--radius-full); }
-.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .skip-link { position: fixed; left: var(--s-4); top: -100px; z-index: 200; background: var(--grafite); color: var(--branco); padding: var(--s-3) var(--s-4); border-radius: var(--radius-full); font-size: .875rem; transition: top var(--dur-base) var(--ease-architect); }
 .skip-link:focus { top: var(--s-4); }
-
 .mono { font-family: var(--font-mono); font-size: .75rem; letter-spacing: var(--tracking-widest); text-transform: uppercase; }
+
+/* =====================================================================
+   BARRA DE PROGRESSO DO TOPO (scroll da página)
+   ===================================================================== */
+.top-progress { position: fixed; z-index: 70; inset: 0 0 auto 0; height: 2px; pointer-events: none; }
+.top-progress .fill {
+  position: absolute; inset: 0; transform-origin: left; transform: scaleX(0);
+  background: linear-gradient(90deg, var(--grafite), var(--lume) 70%, var(--grafite));   /* #scroll-progress do DS */
+  will-change: transform;
+}
+.top-progress .head {
+  position: absolute; top: 50%; left: 0; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: var(--radius-full);
+  background: var(--lume); box-shadow: var(--shadow-lume); opacity: 0; transition: opacity var(--dur-base); will-change: transform;
+}
+.top-progress.moving .head { opacity: 1; }
 
 /* =====================================================================
    NAVBAR
@@ -123,10 +125,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   max-width: 1400px; height: 100%; margin: 0 auto; padding: 0 var(--gutter);
   display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: var(--s-4);
 }
-.wordmark {
-  font-weight: 600; font-size: 1rem; letter-spacing: .42em; padding-left: .42em; margin-left: -.42em;
-  display: inline-flex; align-items: center; gap: var(--s-3); justify-self: start;
-}
+.wordmark { font-weight: 600; font-size: 1rem; letter-spacing: .42em; display: inline-flex; align-items: center; gap: var(--s-3); justify-self: start; }
 .wordmark svg { width: 18px; height: 18px; transition: transform .7s var(--ease-architect); }
 .wordmark:hover svg { transform: rotate(180deg); }
 
@@ -137,37 +136,13 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   background: var(--branco-55);
   backdrop-filter: blur(var(--blur-glass)) saturate(1.2); -webkit-backdrop-filter: blur(var(--blur-glass)) saturate(1.2);
 }
-.pill-menu a {
-  position: relative; z-index: 1; padding: 10px 18px; border-radius: var(--radius-full);
-  font-size: .875rem; font-weight: 500; color: var(--grafite-80);
-  transition: color var(--dur-base) var(--ease-architect);
-}
+.pill-menu a { position: relative; z-index: 1; padding: 10px 18px; border-radius: var(--radius-full); font-size: .875rem; font-weight: 500; color: var(--grafite-80); transition: color var(--dur-base) var(--ease-architect); }
 .pill-menu a:hover { color: var(--tinta); }
 .pill-menu a[aria-current="true"] { color: var(--branco); }
-.pill-indicator {
-  position: absolute; z-index: 0; top: 5px; bottom: 5px; left: 0; width: 0;
-  border-radius: var(--radius-full); background: var(--grafite);
-  transition: transform var(--dur-base) var(--ease-architect), width var(--dur-base) var(--ease-architect);
-}
-.pill-indicator::after { /* brilho Lume no rodapé do item ativo */
-  content: ""; position: absolute; left: 50%; bottom: 4px; width: 4px; height: 4px; margin-left: -2px;
-  border-radius: var(--radius-full); background: var(--lume); box-shadow: var(--shadow-lume);
-}
+.pill-indicator { position: absolute; z-index: 0; top: 5px; bottom: 5px; left: 0; width: 0; border-radius: var(--radius-full); background: var(--grafite); transition: transform var(--dur-base) var(--ease-architect), width var(--dur-base) var(--ease-architect); }
+.pill-indicator::after { content: ""; position: absolute; left: 50%; bottom: 4px; width: 4px; height: 4px; margin-left: -2px; border-radius: var(--radius-full); background: var(--lume); box-shadow: var(--shadow-lume); }
 
 .nav-actions { justify-self: end; display: flex; align-items: center; gap: var(--s-3); }
-
-/* Botão secundário discreto — alterna a grade técnica */
-.btn-ghost {
-  display: inline-flex; align-items: center; gap: var(--s-3); height: 44px; padding: 0 var(--s-5);
-  border: 1px solid var(--pedra-300); border-radius: var(--radius-full);
-  background: var(--branco-55); backdrop-filter: blur(var(--blur-glass)); -webkit-backdrop-filter: blur(var(--blur-glass));
-  font-family: var(--font-mono); font-size: .6875rem; letter-spacing: .2em; text-transform: uppercase; color: var(--grafite-80);
-  transition: border-color var(--dur-base) var(--ease-architect), color var(--dur-base) var(--ease-architect), background var(--dur-base) var(--ease-architect);
-}
-.btn-ghost:hover { border-color: var(--tinta); color: var(--tinta); background: var(--branco); }
-.btn-ghost .dots { display: grid; grid-template-columns: repeat(2, 3px); gap: 3px; }
-.btn-ghost .dots i { width: 3px; height: 3px; border-radius: var(--radius-full); background: currentColor; transition: background var(--dur-base); }
-.btn-ghost[aria-pressed="true"] .dots i { background: var(--lume); box-shadow: var(--shadow-lume); }
 
 /* CTA principal — pílula grafite com seta em círculo */
 .btn-primary {
@@ -177,19 +152,11 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   font-size: .9375rem; font-weight: 500; white-space: nowrap;
   transition: transform .3s ease, box-shadow .3s ease, background .3s ease;     /* .glow-on-hover */
 }
-.btn-primary::before { /* .beam-button — feixe que atravessa */
-  content: ""; position: absolute; inset: 0; left: -100%; width: 100%; z-index: -1;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,.3), transparent);
-  transition: left var(--dur-base);
-}
+.btn-primary::before { content: ""; position: absolute; inset: 0; left: -100%; width: 100%; z-index: -1; background: linear-gradient(90deg, transparent, rgba(255,255,255,.3), transparent); transition: left var(--dur-base); }  /* .beam-button */
 .btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow-glow); }
 .btn-primary:hover::before { left: 100%; }
 .btn-primary:active { transform: scale(.97); }
-.btn-primary .circle {
-  width: 36px; height: 36px; border-radius: var(--radius-full); background: var(--lume); color: var(--grafite);
-  display: grid; place-items: center; overflow: hidden; position: relative;
-  transition: transform var(--dur-base) var(--ease-architect);
-}
+.btn-primary .circle { width: 36px; height: 36px; border-radius: var(--radius-full); background: var(--lume); color: var(--grafite); display: grid; place-items: center; overflow: hidden; position: relative; transition: transform var(--dur-base) var(--ease-architect); }
 .btn-primary .circle svg { width: 16px; height: 16px; transition: transform var(--dur-base) var(--ease-architect); }
 .btn-primary .circle svg + svg { position: absolute; transform: translate(-150%, 150%); }
 .btn-primary:hover .circle { transform: scale(1.06); }
@@ -199,17 +166,18 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* CTA grande com anel beam (cônico) */
 .btn-beam { position: relative; display: inline-flex; border-radius: var(--radius-full); padding: 1px; overflow: hidden; isolation: isolate; }
 .btn-beam .ring { position: absolute; inset: -1000%; z-index: -1; background: conic-gradient(from 0deg, transparent 0 300deg, var(--lume) 330deg, var(--branco) 360deg); animation: spin 2.5s linear infinite; }
-.btn-beam .btn-primary { height: 56px; padding-left: var(--s-8); font-size: 1rem; }
-.btn-beam .btn-primary .circle { width: 44px; height: 44px; }
+.btn-beam .btn-primary { height: 52px; padding-left: var(--s-6); font-size: .9375rem; }
+.btn-beam .btn-primary .circle { width: 40px; height: 40px; }
 .cta-wrap { position: relative; display: inline-flex; }
 .cta-wrap::before { content: ""; position: absolute; inset: -12px; border-radius: var(--radius-full); background: var(--lume-40); filter: blur(24px); opacity: 0; transition: opacity var(--dur-base); z-index: -1; }
 .cta-wrap:hover::before { opacity: 1; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* CTA secundário — pílula outline */
+/* CTA secundário — pílula outline (vidro claro, para ficar legível sobre o vídeo) */
 .btn-outline {
-  display: inline-flex; align-items: center; gap: var(--s-2); height: 56px; padding: 0 var(--s-8);
+  display: inline-flex; align-items: center; gap: var(--s-2); height: 52px; padding: 0 var(--s-6);
   border: 1px solid var(--tinta); border-radius: var(--radius-full);
+  background: var(--branco-55); backdrop-filter: blur(var(--blur-backdrop)); -webkit-backdrop-filter: blur(var(--blur-backdrop));
   font-size: .8125rem; font-weight: 500; letter-spacing: var(--tracking-widest); text-transform: uppercase;
   transition: background var(--dur-base) var(--ease-architect), color var(--dur-base) var(--ease-architect);
 }
@@ -219,8 +187,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .btn-outline:active { transform: scale(.97); }
 
 /* Hambúrguer (mobile) */
-.burger { display: none; width: 44px; height: 44px; border-radius: var(--radius-full); border: 1px solid var(--pedra-300); background: var(--branco-55); place-items: center; }
-.burger span { display: block; width: 16px; height: 1.5px; background: var(--tinta); transition: transform var(--dur-base) var(--ease-architect), opacity var(--dur-fast); }
+.burger { display: none; width: 44px; height: 44px; border-radius: var(--radius-full); border: 1px solid var(--pedra-300); background: var(--branco-55); backdrop-filter: blur(var(--blur-backdrop)); -webkit-backdrop-filter: blur(var(--blur-backdrop)); place-items: center; }
+.burger span { display: block; width: 16px; height: 1.5px; background: var(--tinta); transition: transform var(--dur-base) var(--ease-architect); }
 .burger span + span { margin-top: 5px; }
 .burger[aria-expanded="true"] span:first-child { transform: translateY(3.25px) rotate(45deg); }
 .burger[aria-expanded="true"] span:last-child { transform: translateY(-3.25px) rotate(-45deg); }
@@ -237,147 +205,65 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .mobile-menu .mono { color: var(--grafite-80); }
 
 /* =====================================================================
-   HERO — seção alta + palco sticky
+   HERO — seção alta + vídeo em tela cheia no sticky
    ===================================================================== */
 .hero { position: relative; height: 400vh; }
-.hero-sticky { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; isolation: isolate; }
-.shell { position: relative; max-width: 1400px; height: 100%; margin: 0 auto; border-inline: 1px solid var(--pedra-300); }
+.hero-sticky { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; isolation: isolate; background: var(--osso); }
 
-/* Fundo vivo: guias 3·6·3, grade técnica em deriva, poça de luz, grão */
-.guides { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
-.guides::before, .guides::after { content: ""; position: absolute; top: 0; bottom: 0; width: 1px; background: var(--guia); }
-.guides::before { left: 25%; } .guides::after { left: 75%; }
-.grid-bg {
-  position: absolute; inset: 0; z-index: 0; pointer-events: none;
-  background-size: 40px 40px;
-  background-image: linear-gradient(to right, var(--linha-grid) 1px, transparent 1px), linear-gradient(to bottom, var(--linha-grid) 1px, transparent 1px);
-  -webkit-mask-image: radial-gradient(ellipse 55% 60% at 66% 50%, #000 20%, transparent 75%);
-          mask-image: radial-gradient(ellipse 55% 60% at 66% 50%, #000 20%, transparent 75%);
-  animation: gridPan 30s linear infinite;
+/* Vídeo como fundo da hero. Vídeo e tinta compartilham o mesmo invólucro → escalam juntos. */
+.hero-media {
+  position: absolute; inset: 0; z-index: 0;
+  transform-origin: 0% 50%;                 /* ampliar a partir da esquerda empurra a cena para a direita */
+  transform: scale(var(--media-scale, 1.1)); /* também corta as faixas pretas de 3px dos primeiros frames */
+  opacity: 0; will-change: transform;
 }
-@keyframes gridPan { from { background-position: 0 0; } to { background-position: 40px 40px; } }
-.orb { position: absolute; border-radius: var(--radius-full); filter: blur(var(--blur-orb)); pointer-events: none; z-index: 0; animation: orbDrift 22s ease-in-out infinite alternate; }
-.orb-lume { background: radial-gradient(circle, rgba(214,164,97,.35), transparent 65%); }
-.orb-nevoa { background: radial-gradient(circle, rgba(138,150,163,.35), transparent 65%); }
-@keyframes orbDrift { 0% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(8%,-10%,0) scale(1.15); } 100% { transform: translate3d(-10%,6%,0) scale(.95); } }
+.hero-video, .hero-poster, .ink { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hero-video, .hero-poster { object-fit: cover; object-position: 50% 50%; }   /* = SVG viewBox 1280×720 + xMidYMid slice */
+.hero-poster-final { display: none; }
+.ink { mix-blend-mode: multiply; overflow: visible; pointer-events: none; }
+
+/* Véus (gradientes do DS) para a leitura do texto sobre o vídeo */
+.veil { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+/* véu só atrás do bloco de texto (canto inferior esquerdo): o topo da caneta fica livre */
+.veil-side { background: radial-gradient(ellipse 48% 62% at 0% 80%, var(--osso-90) 0%, var(--osso-80) 45%, var(--osso-0) 100%); }
+.veil-top { background: linear-gradient(180deg, var(--osso-60) 0%, var(--osso-0) 16%); }
 .grain::after {
-  content: ""; position: absolute; inset: -50%; pointer-events: none; z-index: 6; opacity: .07; mix-blend-mode: overlay;
+  content: ""; position: absolute; inset: -50%; pointer-events: none; z-index: 2; opacity: .06; mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   animation: grainShift 1.2s steps(6) infinite;
 }
 @keyframes grainShift { 0%{transform:translate(0,0)} 20%{transform:translate(-4%,3%)} 40%{transform:translate(3%,-5%)} 60%{transform:translate(-6%,-2%)} 80%{transform:translate(5%,4%)} 100%{transform:translate(0,0)} }
-.guide-beam {
-  position: absolute; top: 0; width: 1px; height: 22vh; z-index: 1; pointer-events: none;
-  background: linear-gradient(to bottom, transparent, rgba(214,164,97,.9), transparent);
-  animation: beamFall 7s var(--ease-beam) infinite;
-}
-@keyframes beamFall { 0% { transform: translateY(-25vh); opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { transform: translateY(105vh); opacity: 0; } }
 
-/* Layout das colunas */
-.hero-layout {
-  position: absolute; inset: var(--nav-h) 0 var(--bar-h) 0; z-index: 2;
-  display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: center;
-  padding: 0 var(--gutter);
-}
-
-/* ---------- Coluna de texto ---------- */
-.hero-copy { position: relative; z-index: 4; max-width: 35rem; will-change: transform; }
-.eyebrow { display: inline-flex; align-items: center; gap: var(--s-3); color: var(--tinta); letter-spacing: var(--tracking-overline); font-size: .6875rem; }
+/* ---------- Texto (1ª dobra) ----------
+   Fica FORA do sticky: rola junto com a página e sai de cena. O vídeo continua preso
+   ao fundo, e o final (a caneta escrevendo) acontece na 2ª dobra, só com o vídeo. */
+.hero-layout { position: absolute; z-index: 3; top: 0; left: 0; right: 0; height: 100vh; height: 100svh; padding-top: var(--nav-h); pointer-events: none; }
+.hero-inner { max-width: 1400px; height: 100%; margin: 0 auto; padding: 0 var(--gutter) 9vh; display: flex; align-items: flex-end; }
+.hero-copy { position: relative; max-width: 29rem; pointer-events: auto; will-change: transform; }
+.eyebrow { display: inline-flex; align-items: center; gap: var(--s-3); color: var(--tinta); letter-spacing: var(--tracking-overline); font-size: .6875rem; margin: 0; }
 .pulse { position: relative; width: 6px; height: 6px; border-radius: var(--radius-full); background: var(--lume); }
 .pulse::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: inherit; animation: ping-soft 1.8s cubic-bezier(0,0,.2,1) infinite; }
 @keyframes ping-soft { 0% { transform: scale(1); opacity: .7; } 100% { transform: scale(2.6); opacity: 0; } }
 
-.headline {
-  margin: var(--s-6) 0 var(--s-6);
-  font-weight: 600; letter-spacing: var(--tracking-tighter); line-height: .92;
-  font-size: clamp(3rem, min(7.4vw, 12.5vh), 7.25rem);
-}
+.headline { margin: var(--s-4) 0; font-weight: 600; letter-spacing: var(--tracking-tighter); line-height: .92; font-size: clamp(2.75rem, min(5.2vw, 9vh), 5.25rem); }
 .headline .h-line { display: block; }
 .headline .h-serif {
-  /* Regra de destaque do DS: palavra de ênfase em Instrument Serif 400, cor secundária
-     (Pedra 500 = 3.97:1 sobre Osso → AA para texto grande) + ponto final em Lume. */
-  font-family: var(--font-serif); font-weight: 400; letter-spacing: var(--tracking-tight);
-  color: var(--pedra-500); font-size: 1.12em; line-height: .9;
+  /* Destaque do DS: Instrument Serif 400 em cor secundária (Pedra 500, AA para texto grande) + ponto em Lume */
+  font-family: var(--font-serif); font-weight: 400; letter-spacing: var(--tracking-tight); color: var(--pedra-500); font-size: 1.12em; line-height: .9;
 }
 .headline .lume-dot { color: var(--lume); }
-.lede { margin: 0; max-width: 32.5rem; font-size: 1.125rem; line-height: 1.6; color: var(--grafite-80); }
+.lede { margin: 0; max-width: 27rem; font-size: 1rem; line-height: 1.6; color: var(--grafite-80); }
 
-.hint { margin-top: var(--s-8); display: inline-flex; align-items: center; gap: var(--s-4); color: var(--grafite-80); }
+.hint { margin: var(--s-6) 0 0; display: inline-flex; align-items: center; gap: var(--s-4); color: var(--grafite-80); }
 .hint .mouse { width: 32px; height: 32px; border-radius: var(--radius-full); border: 1px solid var(--pedra-300); display: grid; place-items: center; background: var(--branco-55); }
 .hint .mouse svg { width: 14px; height: 18px; }
 .hint .wheel { animation: wheel 1.8s var(--ease-architect) infinite; }
 @keyframes wheel { 0% { transform: translateY(-2px); opacity: 0; } 30% { opacity: 1; } 100% { transform: translateY(5px); opacity: 0; } }
 
-.ctas { margin-top: var(--s-8); display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-4); }
+.ctas { margin-top: var(--s-6); display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-4); }
 
-/* ---------- Palco do produto ---------- */
-.hero-stage { position: relative; z-index: 2; height: 100%; display: flex; align-items: center; justify-content: center; margin-left: -3vw; }
-.stage-light { /* poça de luz branca: o fundo do vídeo se dissolve no Osso */
-  position: absolute; left: 50%; top: 50%; width: 118%; aspect-ratio: 16 / 10; transform: translate(-50%, -50%);
-  background: radial-gradient(closest-side, var(--branco), var(--branco-60) 45%, transparent 100%);
-  pointer-events: none; z-index: 0;
-}
-.stage-frame {
-  position: relative; z-index: 1; aspect-ratio: 16 / 9;
-  width: min(100%, calc((100svh - var(--nav-h) - var(--bar-h) - 72px) * 16 / 9));
-  will-change: transform;
-}
-.stage-media, .stage-video, .stage-poster, .ink, .decor { position: absolute; inset: 0; width: 100%; height: 100%; }
-.stage-video, .stage-poster {
-  object-fit: cover; /* mesmo enquadramento do SVG (viewBox 1280×720, slice) */
-  /* Bordas em degradê: nenhum retângulo visível e as faixas pretas de 3px dos primeiros frames somem */
-  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 9%, #000 91%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 12%, #000 88%, transparent 100%);
-  -webkit-mask-composite: source-in;
-          mask-image: linear-gradient(to right, transparent 0, #000 9%, #000 91%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 12%, #000 88%, transparent 100%);
-          mask-composite: intersect;
-}
-.stage-poster { display: none; }
-.stage-media { opacity: 0; }
-.ink { mix-blend-mode: multiply; overflow: visible; pointer-events: none; }
-.decor { overflow: visible; pointer-events: none; z-index: 1; transition: opacity var(--dur-base) var(--ease-architect); }
-.decor-off .decor { opacity: 0; }
-.decor .ln { fill: none; stroke: var(--grafite); stroke-opacity: .34; stroke-width: 1; vector-effect: non-scaling-stroke; }
-.decor .ln-strong { stroke-opacity: .55; }
-.decor .ln-dash { stroke-dasharray: 3 7; }
-.decor .ln-lume { stroke: var(--lume); stroke-opacity: .9; }
-.decor text { font-family: var(--font-mono); font-size: 13px; letter-spacing: .12em; fill: var(--grafite); fill-opacity: .62; text-transform: uppercase; }
-.decor .t-strong { fill-opacity: .9; font-weight: 600; }
-.decor .tb-fill { fill: var(--osso); fill-opacity: .7; }
-
-/* ---------- Barra de progresso (player) ---------- */
-.scrub {
-  position: absolute; z-index: 5; left: 50%; bottom: 28px; transform: translateX(-50%);
-  width: min(760px, calc(100% - 32px)); height: 64px; padding: 0 var(--s-5) 0 8px;
-  display: grid; grid-template-columns: auto auto 1fr auto; align-items: center; gap: var(--s-5);
-  border: 1px solid var(--pedra-300); border-radius: var(--radius-full);
-  background: var(--branco-55); backdrop-filter: blur(var(--blur-glass)) saturate(1.2); -webkit-backdrop-filter: blur(var(--blur-glass)) saturate(1.2);
-  box-shadow: var(--shadow-float);
-}
-.scrub-play {
-  width: 48px; height: 48px; border-radius: var(--radius-full); background: var(--grafite); color: var(--branco);
-  display: grid; place-items: center; transition: transform var(--dur-base) var(--ease-architect), box-shadow .3s ease;
-}
-.scrub-play:hover { transform: scale(1.06); box-shadow: var(--shadow-glow); }
-.scrub-play svg { width: 16px; height: 16px; }
-.scrub-play .i-pause { display: none; }
-.scrub-play[aria-pressed="true"] .i-play { display: none; }
-.scrub-play[aria-pressed="true"] .i-pause { display: block; }
-.scrub-stage { display: flex; flex-direction: column; gap: 4px; min-width: 104px; }
-.scrub-label { font-size: .8125rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; overflow: hidden; height: 1.2em; }
-.scrub-label span { display: block; transition: transform var(--dur-base) var(--ease-architect), opacity var(--dur-base); }
-.scrub-sub { font-family: var(--font-mono); font-size: .625rem; letter-spacing: var(--tracking-widest); text-transform: uppercase; color: var(--lume-escuro); }
-.scrub-track { position: relative; height: 36px; cursor: pointer; touch-action: none; }
-.scrub-ticks { position: absolute; inset: 0; display: flex; justify-content: space-between; align-items: center; }
-.scrub-ticks i { width: 1px; height: 8px; background: var(--pedra-400); transition: background var(--dur-fast), height var(--dur-base) var(--ease-architect); }
-.scrub-ticks i.major { height: 14px; }
-.scrub-ticks i.on { background: var(--tinta); }
-.scrub-head { position: absolute; top: 2px; bottom: 2px; left: 0; width: 2px; margin-left: -1px; border-radius: 2px; background: var(--lume); box-shadow: var(--shadow-lume); will-change: transform; }
-.scrub-head::before { content: ""; position: absolute; left: 50%; top: 50%; width: 9px; height: 9px; transform: translate(-50%, -50%); border-radius: var(--radius-full); border: 1px solid var(--lume); background: var(--branco); }
-.scrub-time { font-family: var(--font-mono); font-size: .8125rem; letter-spacing: .06em; font-variant-numeric: tabular-nums; color: var(--tinta); white-space: nowrap; }
-.scrub-time .total { color: var(--grafite-80); }
-
-/* Anel de progresso lateral (indicador de scroll) */
-.ring { position: absolute; z-index: 5; right: 22px; top: 50%; width: 52px; height: 52px; margin-top: -26px; display: grid; place-items: center; }
+/* Anel lateral (indicador de scroll) */
+.ring { position: absolute; z-index: 4; right: 22px; top: 50%; width: 52px; height: 52px; margin-top: -26px; display: grid; place-items: center; border-radius: var(--radius-full); background: var(--branco-55); backdrop-filter: blur(var(--blur-backdrop)); -webkit-backdrop-filter: blur(var(--blur-backdrop)); }
 .ring svg { position: absolute; inset: 0; transform: rotate(-90deg); }
 .ring circle { fill: none; stroke-width: 1.5; }
 .ring .base { stroke: var(--pedra-300); }
@@ -395,7 +281,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .cursor.on { opacity: 1; scale: 1; }
 .cursor span { font-family: var(--font-mono); font-size: .625rem; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; }
 .cursor::after { content: ""; position: absolute; width: 4px; height: 4px; border-radius: var(--radius-full); background: var(--lume); box-shadow: var(--shadow-lume); bottom: 18px; }
-@media (pointer: fine) { .hero-stage.cursor-hide { cursor: none; } }
+@media (pointer: fine) { .hero-sticky.cursor-hide { cursor: none; } }
 
 /* Debug (?debug) */
 .debug-hud { position: fixed; z-index: 300; left: 12px; bottom: 12px; padding: 10px 12px; border-radius: var(--radius-md); background: var(--abismo); color: var(--branco); font: 500 11px/1.6 var(--font-mono); white-space: pre; pointer-events: none; }
@@ -407,8 +293,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 @media (max-width: 1100px) {
   :root { --gutter: 28px; }
   .pill-menu a { padding: 10px 12px; font-size: .8125rem; }
-  .btn-ghost .label { display: none; }
-  .btn-ghost { padding: 0 var(--s-4); }
   .ring { display: none; }
 }
 @media (max-width: 900px) and (min-width: 769px) {
@@ -416,15 +300,16 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .nav-inner { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 768px) {
-  :root { --nav-h: 68px; --bar-h: 84px; --gutter: 16px; }
+  :root { --nav-h: 68px; --gutter: 16px; }
   .hero { height: 300vh; }
-  .shell { border-inline: 0; }
-  .guides, .guide-beam { display: none; }
+  .hero-media { transform-origin: 50% 50%; --media-scale: 1.03; }
+  /* no retrato o texto fica em cima: véu de cima para baixo */
+  .veil-side { background: linear-gradient(180deg, var(--osso-90) 0%, var(--osso-80) 38%, var(--osso-0) 60%); }
   .nav-inner { grid-template-columns: 1fr auto; }
-  .pill-menu, .btn-ghost, .nav-actions .btn-primary { display: none; }
+  .pill-menu, .nav-actions .btn-primary { display: none; }
   .burger { display: grid; }
   .wordmark { font-size: .9375rem; }
-  .hero-layout { display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; gap: var(--s-4); padding: var(--s-4) var(--gutter) 0; }
+  .hero-inner { align-items: flex-start; padding-top: var(--s-4); padding-bottom: 0; }
   .hero-copy { max-width: none; }
   .eyebrow { font-size: .625rem; }
   .headline { margin: var(--s-4) 0; font-size: clamp(2.6rem, 12.5vw, 3.6rem); }
@@ -435,37 +320,28 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .btn-beam .btn-primary { padding-left: var(--s-5); font-size: .9375rem; }
   .btn-beam .btn-primary .circle { width: 38px; height: 38px; }
   .btn-outline { padding: 0 var(--s-5); font-size: .75rem; }
-  .hero-stage { margin: 0; flex: 1; min-height: 0; height: auto; }
-  .stage-frame { width: min(100%, calc((100svh - 360px) * 16 / 9)); }
-  .decor text, .decor .hide-sm { display: none; }
-  .scrub { bottom: 14px; height: 56px; grid-template-columns: auto auto 1fr auto; gap: var(--s-3); padding-right: var(--s-4); }
-  .scrub-play { width: 40px; height: 40px; }
-  .scrub-stage { min-width: 78px; }
-  .scrub-label { font-size: .6875rem; }
-  .scrub-sub { font-size: .5625rem; }
-  .scrub-time { font-size: .6875rem; }
-  .scrub-time .total { display: none; }
 }
-@media (max-width: 768px) and (max-height: 700px) {
-  .lede { display: none; }
-}
+@media (max-width: 768px) and (max-height: 700px) { .lede { display: none; } }
 
 /* Movimento reduzido: sem scrub, último frame estático com a linha já desenhada */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; transition-delay: 0s !important; }
   .hero { height: auto; }
   .hero-sticky { position: relative; }
-  .stage-video { display: none; }
-  .stage-poster { display: block; }
-  .stage-media { opacity: 1; }
+  .hero-video, .hero-poster-start { display: none; }
+  .hero-poster-final { display: block; }
+  .hero-media { opacity: 1; }
   .nav { opacity: 1; transform: none; }
-  .guide-beam, .grain::after, .cursor, .hint { display: none; }
+  .grain::after, .cursor, .hint, .top-progress { display: none; }
 }
 </style>
 </head>
 
 <body>
 <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+<!-- Progresso do scroll da página -->
+<div class="top-progress" id="topProgress" aria-hidden="true"><span class="fill" id="topFill"></span><span class="head" id="topHead"></span></div>
 
 <!-- ============================ NAVBAR ============================ -->
 <header class="nav" id="nav">
@@ -485,9 +361,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     </nav>
 
     <div class="nav-actions">
-      <button class="btn-ghost" id="gridToggle" aria-pressed="true" aria-label="Mostrar ou ocultar a grade técnica">
-        <span class="dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="label">Grade</span>
-      </button>
       <!-- [CONFIRMAR] URL de checkout -->
       <a class="btn-primary" href="#comprar">
         Comprar agora
@@ -509,7 +382,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   <a href="#tinta">Tinta <span class="mono">03</span></a>
   <a href="#especificacoes">Especificações <span class="mono">04</span></a>
   <div style="padding-top: var(--s-4)">
-    <a class="btn-primary" href="#comprar" style="width:100%; justify-content:space-between; border:0; padding-top:0; padding-bottom:0">
+    <a class="btn-primary" href="#comprar" style="width:100%; justify-content:space-between">
       Comprar agora
       <span class="circle" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></span>
     </a>
@@ -519,17 +392,39 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 <!-- ============================ HERO ============================ -->
 <main id="conteudo">
   <section class="hero" id="hero" aria-labelledby="hero-title">
-    <div class="hero-sticky grain">
-      <div class="shell">
-        <div class="guides" aria-hidden="true"></div>
-        <div class="guide-beam" aria-hidden="true" style="left:25%"></div>
-        <div class="guide-beam" aria-hidden="true" style="left:75%; animation-delay:3.5s"></div>
-        <div class="grid-bg" aria-hidden="true"></div>
-        <div class="orb orb-lume" aria-hidden="true" style="width:420px;height:420px;left:58%;bottom:-160px;opacity:.55"></div>
-        <div class="orb orb-nevoa" aria-hidden="true" style="width:360px;height:360px;left:-120px;top:10%;opacity:.35;animation-delay:-9s"></div>
+    <div class="hero-sticky grain" id="sticky">
 
-        <div class="hero-layout">
-          <!-- ---------- Texto ---------- -->
+      <!-- Vídeo em tela cheia + tinta (mesmo enquadramento) -->
+      <div class="hero-media" id="heroMedia">
+        <video class="hero-video" id="video" muted playsinline preload="auto" poster="hero_poster_inicio.webp" disablepictureinpicture aria-label="A caneta ARTOOLS Pigmentum 0.1 é destampada e desce até um caderno com esboços técnicos"></video>
+        <img class="hero-poster hero-poster-final" src="hero_poster.webp" alt="A caneta ARTOOLS Pigmentum 0.1 sobre um caderno aberto com esboços técnicos" width="1280" height="720" />
+
+        <svg class="ink" id="ink" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <path id="inkPath" d="" fill="none" stroke="#1C1C1C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle id="inkHead" r="2.2" fill="#1C1C1C" opacity="0"/>
+          <!-- cota de espessura (aparece quando o traço termina) -->
+          <g id="inkCota" opacity="0">
+            <path id="inkCotaPath" d="" fill="none" stroke="#1C1C1C" stroke-opacity=".55" stroke-width="1" vector-effect="non-scaling-stroke"/>
+            <rect id="inkCotaBg" rx="4" fill="#EAEAE5" fill-opacity=".85"/>
+            <text id="inkCotaText" font-family="Geist Mono, ui-monospace, monospace" font-size="15" letter-spacing="1.6" fill="#1C1C1C">0.1 MM</text>
+          </g>
+          <g id="debugLayer"></g>
+        </svg>
+      </div>
+
+      <div class="veil veil-side" aria-hidden="true"></div>
+      <div class="veil veil-top" aria-hidden="true"></div>
+
+      <!-- Indicador de scroll lateral -->
+      <div class="ring" aria-hidden="true">
+        <svg viewBox="0 0 52 52"><circle class="base" cx="26" cy="26" r="24"/><circle class="prog" id="ringProg" cx="26" cy="26" r="24" stroke-dasharray="150.8" stroke-dashoffset="150.8"/></svg>
+        <span id="ringPct">00</span>
+      </div>
+    </div>
+
+      <!-- ---------- Texto: 1ª dobra (rola para fora; a 2ª dobra é só o vídeo) ---------- -->
+      <div class="hero-layout">
+        <div class="hero-inner">
           <div class="hero-copy" id="heroCopy">
             <p class="eyebrow mono" id="eyebrow"><span class="pulse" aria-hidden="true"></span>Pigment ink pen · 0.1 mm</p>
 
@@ -540,8 +435,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
                 B) "Onde o detalhe / começa."
             -->
             <h1 class="headline" id="hero-title">
-              <span class="h-line" id="hLine1">Cada traço,</span>
-              <span class="h-line h-serif" id="hLine2">preciso<span class="lume-dot">.</span></span>
+              <span class="h-line">Cada traço,</span>
+              <span class="h-line h-serif">preciso<span class="lume-dot">.</span></span>
             </h1>
 
             <p class="lede" id="lede">Ponta de 0.1 mm para o detalhe que o desenho técnico exige. Tinta pigmentada, linha Pigmentum da ARTOOLS.</p>
@@ -574,99 +469,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
               </a>
             </div>
           </div>
-
-          <!-- ---------- Palco ---------- -->
-          <div class="hero-stage" id="stage">
-            <div class="stage-light" aria-hidden="true"></div>
-            <div class="stage-frame" id="stageFrame">
-
-              <!-- Camada de desenho técnico (sistema 1280×720, pode transbordar o quadro) -->
-              <svg class="decor" id="decor" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-                <g class="decor-far" id="decorFar">
-                  <!-- marcas de corte -->
-                  <path class="ln ln-strong" id="dCrop" d="M-46 0H-14M0-46V-14M1294 0H1326M1280-46V-14M-46 720H-14M0 734V766M1294 720H1326M1280 734V766"/>
-                  <!-- régua superior -->
-                  <path class="ln" id="dRulerTopBase" d="M0 -26H1280"/>
-                  <path class="ln" id="dRulerTop" d=""/>
-                  <g id="dRulerTopLabels"></g>
-                  <!-- régua lateral -->
-                  <path class="ln hide-sm" id="dRulerSideBase" d="M1306 0V720"/>
-                  <path class="ln hide-sm" id="dRulerSide" d=""/>
-                  <!-- cota inferior -->
-                  <path class="ln" id="dCota" d="M0 736V778M880 736V778M0 762H392M488 762H880M0 762l14-5M0 762l14 5M880 762l-14-5M880 762l-14 5"/>
-                  <text id="dCotaLabel" x="440" y="767" text-anchor="middle">0.1 mm</text>
-                  <!-- carimbo da folha -->
-                  <g id="dTitle" class="hide-sm">
-                    <rect class="tb-fill" x="960" y="736" width="320" height="64"/>
-                    <path class="ln ln-strong" id="dTitleBox" d="M960 736H1280V800H960ZM960 768H1280M1120 736V800"/>
-                    <text class="t-strong" x="972" y="758">ARTOOLS</text>
-                    <text x="1132" y="758">Folha 01</text>
-                    <text x="972" y="790">Pigmentum 0.1</text>
-                    <text x="1132" y="790">Esc. 1:1</text>
-                  </g>
-                </g>
-                <g class="decor-near" id="decorNear">
-                  <!-- linhas de construção -->
-                  <path class="ln ln-dash" id="dConstH" d=""/>
-                  <path class="ln ln-dash" id="dConstD" d=""/>
-                  <!-- compasso -->
-                  <path class="ln" id="dArc" d=""/>
-                  <circle class="ln" id="dCircle" r="220"/>
-                  <path class="ln ln-strong" id="dLegs" d=""/>
-                  <circle class="ln ln-strong" id="dHinge" r="7"/>
-                  <!-- cruz de centro -->
-                  <path class="ln ln-strong" id="dCross" d=""/>
-                  <circle class="ln ln-strong" id="dCrossC" r="5"/>
-                  <!-- círculo de detalhe na ponta -->
-                  <circle class="ln ln-lume ln-dash" id="dDetail" r="34"/>
-                </g>
-              </svg>
-
-              <div class="stage-media" id="stageMedia">
-                <video class="stage-video" id="video" muted playsinline preload="auto" poster="hero_poster.webp" disablepictureinpicture aria-label="A caneta ARTOOLS Pigmentum 0.1 é destampada e desce até um caderno com esboços técnicos"></video>
-                <img class="stage-poster" src="hero_poster.webp" alt="A caneta ARTOOLS Pigmentum 0.1 sobre um caderno aberto com esboços técnicos" width="1280" height="720" />
-
-                <!-- Tinta: linha que sai da ponta da caneta (mesmo enquadramento do vídeo) -->
-                <svg class="ink" id="ink" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-                  <path id="inkPath" d="" fill="none" stroke="#1C1C1C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <circle id="inkHead" r="2.2" fill="#1C1C1C" opacity="0"/>
-                  <!-- cota de espessura (aparece quando o traço termina) -->
-                  <g id="inkCota" opacity="0">
-                    <path id="inkCotaPath" d="" fill="none" stroke="#1C1C1C" stroke-opacity=".55" stroke-width="1" vector-effect="non-scaling-stroke"/>
-                    <rect id="inkCotaBg" rx="4" fill="#EAEAE5" fill-opacity=".85"/>
-                    <text id="inkCotaText" font-family="Geist Mono, ui-monospace, monospace" font-size="15" letter-spacing="1.6" fill="#1C1C1C">0.1 MM</text>
-                  </g>
-                  <g id="debugLayer"></g>
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ---------- Barra de progresso ---------- -->
-        <div class="scrub" id="scrub" role="group" aria-label="Linha do tempo da demonstração">
-          <button class="scrub-play" id="playBtn" aria-pressed="false" aria-label="Reproduzir demonstração">
-            <svg class="i-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.4-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5Z"/></svg>
-            <svg class="i-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
-          </button>
-          <div class="scrub-stage">
-            <span class="scrub-label" aria-live="polite"><span id="stageLabel">Flutuar</span></span>
-            <span class="scrub-sub" id="stageSub">Etapa 01 / 03</span>
-          </div>
-          <div class="scrub-track" id="track" role="slider" tabindex="0" aria-label="Progresso do vídeo" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0%">
-            <div class="scrub-ticks" id="ticks"></div>
-            <div class="scrub-head" id="head"></div>
-          </div>
-          <div class="scrub-time"><span id="tcNow">00:00</span><span class="total"> / <span id="tcTotal">00:07</span></span></div>
-        </div>
-
-        <!-- Indicador de scroll lateral -->
-        <div class="ring" aria-hidden="true">
-          <svg viewBox="0 0 52 52"><circle class="base" cx="26" cy="26" r="24"/><circle class="prog" id="ringProg" cx="26" cy="26" r="24" stroke-dasharray="150.8" stroke-dashoffset="150.8"/></svg>
-          <span id="ringPct">00</span>
         </div>
       </div>
-    </div>
   </section>
 </main>
 
@@ -688,8 +492,7 @@ const PEN_TIP_Y = 490;      // ponta da caneta no ÚLTIMO frame (y)
 const LINE_START = 0.9;     // progresso do scroll em que a tinta começa a sair
 
 // Trajetória da ponta medida quadro a quadro (tempo do vídeo em s, x, y).
-// A tinta segue exatamente esse caminho; o último ponto é ancorado em PEN_TIP_X/Y,
-// então ajustar as duas constantes acima desloca o traço inteiro junto.
+// O último ponto é ancorado em PEN_TIP_X/Y: ajustar as constantes acima desloca o traço inteiro.
 const TIP_TRACK = [
   [7.125, 646.5, 527.3],
   [7.250, 635.3, 526.0],
@@ -700,12 +503,10 @@ const TIP_TRACK = [
   [7.875, 557.3, 490.0],
 ];
 
-// Etapas do vídeo (segundos) → rótulo da barra
-const STAGES = [
-  { until: 1.00, label: 'Flutuar' },     // caneta inteira pairando
-  { until: 2.45, label: 'Destampar' },   // tampa se solta e cai
-  { until: Infinity, label: 'Traçar' },  // gira, desce ao caderno e escreve
-];
+// Ampliação do vídeo de fundo (desktop: a partir da esquerda; mobile: do centro).
+// 1.1 é o máximo em que a caneta inteira cabe no início do vídeo em 1440px.
+const MEDIA_SCALE_DESKTOP = 1.1;
+const MEDIA_SCALE_MOBILE = 1.03;
 
 const VIDEO_SRC = 'hero_scroll.mp4';
 const FPS = 24;
@@ -715,80 +516,40 @@ const params = new URLSearchParams(location.search);
 const DEBUG = params.has('debug');
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const FINE = matchMedia('(pointer: fine)').matches;
+const MOBILE = () => innerWidth <= 768;
 const $ = (s) => document.querySelector(s);
 
 gsap.registerPlugin(ScrollTrigger, SplitText, DrawSVGPlugin);
 
 const hero = $('#hero');
 const video = $('#video');
-const state = { progress: 0, target: 0, smooth: 0, lastSet: -1, duration: 7.916667, ready: false, playing: false };
+const state = { progress: 0, target: 0, smooth: 0, lastSet: -1, duration: 7.916667, ready: false };
 window.__hero = state;
 
-/* ---------- Geometria do desenho técnico ---------- */
+const mediaScale = () => (MOBILE() ? MEDIA_SCALE_MOBILE : MEDIA_SCALE_DESKTOP);
+gsap.set('#heroMedia', { scale: mediaScale() });
+
+/* ---------- Traço de tinta ---------- */
 const DX = PEN_TIP_X - TIP_TRACK[TIP_TRACK.length - 1][1];
 const DY = PEN_TIP_Y - TIP_TRACK[TIP_TRACK.length - 1][2];
 const TRACK = TIP_TRACK.map(([t, x, y]) => [t, x + DX, y + DY]);
-const C = { x: PEN_TIP_X, y: PEN_TIP_Y };
-const R = 220;
-
-function buildDecor() {
-  const svgNS = 'http://www.w3.org/2000/svg';
-  // régua superior: 40 divisões, maior a cada 5
-  let d = '';
-  for (let i = 0; i <= 40; i++) { const x = i * 32; d += `M${x} -26V${i % 5 ? -32 : -40}`; }
-  $('#dRulerTop').setAttribute('d', d);
-  const labels = $('#dRulerTopLabels');
-  for (let i = 0; i <= 8; i++) {
-    const t = document.createElementNS(svgNS, 'text');
-    t.setAttribute('x', i * 160 + 4); t.setAttribute('y', -46); t.textContent = i;
-    t.classList.add('ruler-label'); labels.appendChild(t);
-  }
-  // régua lateral: 30 divisões
-  d = '';
-  for (let i = 0; i <= 30; i++) { const y = i * 24; d += `M1306 ${y}H${i % 5 ? 1312 : 1320}`; }
-  $('#dRulerSide').setAttribute('d', d);
-  // linhas de construção pelo centro (ponta final)
-  $('#dConstH').setAttribute('d', `M-24 ${C.y}H1304`);
-  const a = Math.PI / 6, L1 = 420, L2 = 380;
-  $('#dConstD').setAttribute('d', `M${C.x - Math.cos(a) * L2} ${C.y + Math.sin(a) * L2}L${C.x + Math.cos(a) * L1} ${C.y - Math.sin(a) * L1}`);
-  // compasso: círculo, arco auxiliar e pernas
-  const circ = $('#dCircle'); circ.setAttribute('cx', C.x); circ.setAttribute('cy', C.y);
-  circ.setAttribute('transform', `rotate(-90 ${C.x} ${C.y})`);
-  const ang = -24 * Math.PI / 180;
-  const E = { x: C.x + R * Math.cos(ang), y: C.y + R * Math.sin(ang) };
-  const mid = { x: (C.x + E.x) / 2, y: (C.y + E.y) / 2 };
-  const ux = (E.x - C.x) / R, uy = (E.y - C.y) / R;
-  const P = { x: mid.x + 250 * uy, y: mid.y - 250 * ux };
-  $('#dLegs').setAttribute('d', `M${P.x} ${P.y - 40}V${P.y - 7}M${P.x} ${P.y}L${C.x} ${C.y}M${P.x} ${P.y}L${E.x} ${E.y}`);
-  const hinge = $('#dHinge'); hinge.setAttribute('cx', P.x); hinge.setAttribute('cy', P.y);
-  const R2 = 290, a0 = -150 * Math.PI / 180, a1 = -30 * Math.PI / 180;
-  $('#dArc').setAttribute('d', `M${C.x + R2 * Math.cos(a0)} ${C.y + R2 * Math.sin(a0)}A${R2} ${R2} 0 0 1 ${C.x + R2 * Math.cos(a1)} ${C.y + R2 * Math.sin(a1)}`);
-  // cruz de centro
-  $('#dCross').setAttribute('d', `M${C.x - 34} ${C.y}H${C.x + 34}M${C.x} ${C.y - 34}V${C.y + 34}`);
-  const cc = $('#dCrossC'); cc.setAttribute('cx', C.x); cc.setAttribute('cy', C.y);
-  const det = $('#dDetail'); det.setAttribute('cx', C.x); det.setAttribute('cy', C.y);
-}
-
-/* ---------- Traço de tinta ---------- */
 const ink = { lengths: [0], total: 0 };
+
 function buildInk() {
   const pts = TRACK.map(([, x, y]) => [x, y]);
   $('#inkPath').setAttribute('d', 'M' + pts.map((p) => p.join(' ')).join('L'));
-  for (let i = 1; i < pts.length; i++) {
-    ink.lengths[i] = ink.lengths[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
-  }
+  for (let i = 1; i < pts.length; i++) ink.lengths[i] = ink.lengths[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
   ink.total = ink.lengths[ink.lengths.length - 1];
-  // cota de espessura no meio do traço, do lado do papel (normal apontando para baixo-esquerda)
+  // cota de espessura no meio do traço, com a etiqueta no papel livre (abaixo/à esquerda)
   const m = pts[3], d = [pts[4][0] - pts[2][0], pts[4][1] - pts[2][1]], l = Math.hypot(...d);
-  const u = [d[0] / l, d[1] / l], n = [u[1], -u[0]];          // normal "para cima"
-  const s = (k) => [m[0] - n[0] * k, m[1] - n[1] * k];          // lado do papel
+  const u = [d[0] / l, d[1] / l], n = [u[1], -u[0]];
+  const s = (k) => [m[0] - n[0] * k, m[1] - n[1] * k];
   const o = (k) => [m[0] + n[0] * k, m[1] + n[1] * k];
   const arrow = (from, to) => {
     const v = [to[0] - from[0], to[1] - from[1]], vl = Math.hypot(...v), w = [v[0] / vl, v[1] / vl], q = [-w[1], w[0]];
     const b = [to[0] - w[0] * 7, to[1] - w[1] * 7];
     return `M${from.join(' ')}L${to.join(' ')}M${(b[0] + q[0] * 3).toFixed(1)} ${(b[1] + q[1] * 3).toFixed(1)}L${to.join(' ')}L${(b[0] - q[0] * 3).toFixed(1)} ${(b[1] - q[1] * 3).toFixed(1)}`;
   };
-  // o(k) aponta para baixo/esquerda, onde o papel está livre (longe da tampa e do corpo da caneta)
   const elbow = o(64), shoulder = [elbow[0] - 96, elbow[1]];
   $('#inkCotaPath').setAttribute('d', arrow(o(26), o(3)) + arrow(s(26), s(3)) + `M${o(26).join(' ')}L${elbow.join(' ')}L${shoulder.join(' ')}`);
   const tx = shoulder[0] + 4, ty = shoulder[1] - 8;
@@ -807,102 +568,66 @@ function inkLengthAt(t) {
 }
 let lastInk = -1;
 function renderInk(t, progress) {
-  // tinta só depois de LINE_START; antes disso nada aparece
   const L = progress < LINE_START ? 0 : inkLengthAt(t);
   if (Math.abs(L - lastInk) < 0.05) return;
   lastInk = L;
   gsap.set('#inkPath', { drawSVG: `0 ${Math.max(L, 0.001)}`, visibility: L > 0.05 ? 'visible' : 'hidden' });
-  const path = $('#inkPath');
   const head = $('#inkHead');
-  if (L > 0.5) { const pt = path.getPointAtLength(L); head.setAttribute('cx', pt.x); head.setAttribute('cy', pt.y); head.setAttribute('opacity', 1); }
+  if (L > 0.5) { const pt = $('#inkPath').getPointAtLength(L); head.setAttribute('cx', pt.x); head.setAttribute('cy', pt.y); head.setAttribute('opacity', 1); }
   else head.setAttribute('opacity', 0);
-  const done = L >= ink.total - 0.5;
-  gsap.to('#inkCota', { opacity: done ? 1 : 0, duration: 0.6, ease: 'expo.out', overwrite: true });
+  gsap.to('#inkCota', { opacity: L >= ink.total - 0.5 ? 1 : 0, duration: 0.6, ease: 'expo.out', overwrite: true });
 }
 
-/* ---------- Barra de progresso ---------- */
-const TICKS = 64;
-const ticksEl = $('#ticks');
-for (let i = 0; i <= TICKS; i++) {
-  const el = document.createElement('i');
-  const t = (i / TICKS) * state.duration;
-  if (i === 0 || i === TICKS || STAGES.some((s) => Math.abs(s.until - t) < state.duration / TICKS / 2)) el.classList.add('major');
-  ticksEl.appendChild(el);
-}
-const tickEls = [...ticksEl.children];
-const fmt = (s) => `00:${String(Math.floor(s)).padStart(2, '0')}`;
-$('#tcTotal').textContent = fmt(state.duration);
-let lastTick = -1, lastStage = -1, lastSec = -1;
-function renderUI(t, p) {
-  const on = Math.round(p * TICKS);
-  if (on !== lastTick) { tickEls.forEach((el, i) => el.classList.toggle('on', i <= on)); lastTick = on; }
-  const track = $('#track');
-  $('#head').style.transform = `translateX(${p * track.clientWidth}px)`;
-  const si = STAGES.findIndex((s) => t < s.until);
-  if (si !== lastStage) {
-    const lbl = $('#stageLabel');
-    if (lastStage !== -1 && !REDUCED) {
-      gsap.fromTo(lbl, { yPercent: si > lastStage ? 100 : -100, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.5, ease: 'expo.out' });
-    }
-    lbl.textContent = STAGES[si].label;
-    $('#stageSub').textContent = `Etapa 0${si + 1} / 03`;
-    $('#cursorText').textContent = si === 2 ? 'Traçar' : 'Role';
-    lastStage = si;
-  }
-  const sec = Math.floor(t + 1e-3);
-  if (sec !== lastSec) { $('#tcNow').textContent = fmt(sec); lastSec = sec; }
-  const pct = Math.round(p * 100);
-  track.setAttribute('aria-valuenow', pct); track.setAttribute('aria-valuetext', `${pct}% — ${STAGES[si].label}`);
-  $('#ringProg').style.strokeDashoffset = 150.8 * (1 - p);
-  $('#ringPct').textContent = String(Math.min(pct, 99)).padStart(2, '0');
+/* ---------- Progresso: barra do topo + anel + cursor ---------- */
+let lastStageTxt = '';
+function renderUI(t) {
+  const max = document.documentElement.scrollHeight - innerHeight;
+  const page = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;   // progresso do scroll da página
+  $('#topFill').style.transform = `scaleX(${page})`;
+  $('#topHead').style.transform = `translateX(${page * innerWidth}px)`;
+  $('#topProgress').classList.toggle('moving', page > 0.002 && page < 0.998);
+  $('#ringProg').style.strokeDashoffset = 150.8 * (1 - page);
+  $('#ringPct').textContent = String(Math.min(Math.round(page * 100), 99)).padStart(2, '0');
+  const txt = t >= 2.45 ? 'Traçar' : 'Role';
+  if (txt !== lastStageTxt) { $('#cursorText').textContent = txt; lastStageTxt = txt; }
 }
 
 /* ---------- Debug (?debug) ---------- */
 let hud;
 function setupDebug() {
-  const ns = 'http://www.w3.org/2000/svg', g = $('#debugLayer');
-  g.innerHTML = `<g stroke="#D6A461" stroke-width="1" vector-effect="non-scaling-stroke" fill="none">
+  $('#debugLayer').innerHTML = `<g stroke="#D6A461" stroke-width="1" vector-effect="non-scaling-stroke" fill="none">
       <circle cx="${PEN_TIP_X}" cy="${PEN_TIP_Y}" r="14"/><path d="M${PEN_TIP_X - 26} ${PEN_TIP_Y}H${PEN_TIP_X + 26}M${PEN_TIP_X} ${PEN_TIP_Y - 26}V${PEN_TIP_Y + 26}"/></g>` +
     TRACK.map(([, x, y]) => `<circle cx="${x}" cy="${y}" r="2.5" fill="#D6A461"/>`).join('');
   hud = document.createElement('div'); hud.className = 'debug-hud'; document.body.appendChild(hud);
-  // clique no palco → coordenadas no sistema 1280×720
-  $('#stage').addEventListener('click', (e) => {
+  // clique no vídeo → coordenadas no sistema 1280×720
+  $('#sticky').addEventListener('click', (e) => {
+    if (e.target.closest('a, button')) return;
     const svg = $('#ink'), pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
     const p = pt.matrixTransform(svg.getScreenCTM().inverse());
-    const msg = `const PEN_TIP_X = ${Math.round(p.x)};\nconst PEN_TIP_Y = ${Math.round(p.y)};`;
-    console.log('[debug] clique em', msg); state.lastClick = msg;
+    state.lastClick = `const PEN_TIP_X = ${Math.round(p.x)};\nconst PEN_TIP_Y = ${Math.round(p.y)};`;
+    console.log('[debug] clique em\n' + state.lastClick);
   });
 }
-function renderDebug(t, p) {
+function renderDebug(t) {
   if (!hud) return;
   hud.innerHTML = `<b>?debug</b>  scroll ${(state.progress * 100).toFixed(1)}%\n` +
     `vídeo   ${t.toFixed(3)}s · frame ${Math.round(t * FPS)}/${Math.round(state.duration * FPS)}\n` +
     `alvo    ${state.target.toFixed(3)}s · seeking ${video.seeking}\n` +
-    `ponta   ${PEN_TIP_X}, ${PEN_TIP_Y} · tinta ${p >= LINE_START ? 'ON' : 'off'}\n` +
-    (state.lastClick ? `clique  ${state.lastClick.replace(/\n/g, ' ')}` : 'clique no palco para medir');
+    `ponta   ${PEN_TIP_X}, ${PEN_TIP_Y} · tinta ${state.progress >= LINE_START ? 'ON' : 'off'}\n` +
+    (state.lastClick ? `clique  ${state.lastClick.replace(/\n/g, ' ')}` : 'clique no vídeo para medir');
 }
 
 /* ---------- Vídeo: carrega inteiro em memória (seek instantâneo) ---------- */
 async function loadVideo() {
-  const sub = $('#stageSub');
   try {
     const res = await fetch(VIDEO_SRC);
-    if (!res.ok || !res.body) throw new Error('fetch');
-    const total = +res.headers.get('content-length') || 0;
-    const reader = res.body.getReader(); const chunks = []; let got = 0;
-    for (;;) {
-      const { done, value } = await reader.read(); if (done) break;
-      chunks.push(value); got += value.length;
-      if (total) sub.textContent = `Carregando ${Math.round((got / total) * 100)}%`;
-    }
-    video.src = URL.createObjectURL(new Blob(chunks, { type: 'video/mp4' }));
+    if (!res.ok) throw new Error('fetch');
+    video.src = URL.createObjectURL(await res.blob());
   } catch (e) {
     video.src = VIDEO_SRC;   // fallback (ex.: file://)
   }
   if (video.readyState < 1) await new Promise((r) => video.addEventListener('loadedmetadata', r, { once: true }));
   state.duration = video.duration || state.duration;
-  $('#tcTotal').textContent = fmt(state.duration);
-  lastStage = -1;   // força o rótulo "Etapa 0X / 03" a voltar no próximo frame
 }
 
 // iOS/Safari: play() + pause() na primeira interação para liberar o seek
@@ -913,25 +638,22 @@ function unlockVideo() {
 
 /* ---------- Loop único de render (rAF) ---------- */
 function loop() {
-  // lerp do tempo do vídeo em direção ao alvo do scroll
   const diff = state.target - state.smooth;
-  state.smooth = Math.abs(diff) < 0.0005 ? state.target : state.smooth + diff * 0.2;
+  state.smooth = Math.abs(diff) < 0.0005 ? state.target : state.smooth + diff * 0.2;   // lerp
   const t = state.smooth;
-  const p = t / state.duration;
-  // só faz seek quando mudou ao menos meio frame e o seek anterior terminou
-  if (state.ready && !video.seeking && Math.abs(t - state.lastSet) > 0.5 / FPS) {
+  if (state.ready && !video.seeking && Math.abs(t - state.lastSet) > 0.5 / FPS) {   // seek só quando muda ≥ ½ frame
     video.currentTime = Math.min(t, state.duration - 0.001);
     state.lastSet = t;
   }
   renderInk(t, state.progress);
-  renderUI(t, p);
+  renderUI(t);
   renderCursor();
-  if (DEBUG) renderDebug(t, state.progress);
+  if (DEBUG) renderDebug(t);
   requestAnimationFrame(loop);
 }
 
-/* ---------- Cursor customizado ---------- */
-const cur = { x: innerWidth / 2, y: innerHeight / 2, tx: innerWidth / 2, ty: innerHeight / 2, on: false };
+/* ---------- Cursor customizado (só sobre o vídeo, fora do texto) ---------- */
+const cur = { x: 0, y: 0, tx: 0, ty: 0, on: false };
 function renderCursor() {
   if (!cur.on) return;
   cur.x += (cur.tx - cur.x) * 0.18; cur.y += (cur.ty - cur.y) * 0.18;
@@ -939,11 +661,15 @@ function renderCursor() {
 }
 function setupCursor() {
   if (!FINE || REDUCED) return;
-  const stage = $('#stage'), el = $('#cursor');
-  stage.classList.add('cursor-hide');
-  stage.addEventListener('pointerenter', (e) => { cur.x = cur.tx = e.clientX; cur.y = cur.ty = e.clientY; cur.on = true; el.classList.add('on'); });
-  stage.addEventListener('pointermove', (e) => { cur.tx = e.clientX; cur.ty = e.clientY; });
-  stage.addEventListener('pointerleave', () => { el.classList.remove('on'); setTimeout(() => { if (!el.classList.contains('on')) cur.on = false; }, 500); });
+  const area = $('#hero'), el = $('#cursor');
+  const show = (v) => { el.classList.toggle('on', v); area.classList.toggle('cursor-hide', v); };
+  area.addEventListener('pointermove', (e) => {
+    const overUI = !!e.target.closest('.hero-copy, a, button, .ring');
+    if (!cur.on) { cur.x = e.clientX; cur.y = e.clientY; }
+    cur.tx = e.clientX; cur.ty = e.clientY; cur.on = true;
+    show(!overUI);
+  });
+  area.addEventListener('pointerleave', () => show(false));
 }
 
 /* ---------- Navegação ---------- */
@@ -971,12 +697,6 @@ function setupNav() {
   });
   mm.querySelectorAll('a').forEach((a) => a.addEventListener('click', close));
   addEventListener('keydown', (e) => { if (e.key === 'Escape' && mm.classList.contains('open')) { close(); burger.focus(); } });
-
-  const gt = $('#gridToggle');
-  gt.addEventListener('click', () => {
-    const on = gt.getAttribute('aria-pressed') !== 'true';
-    gt.setAttribute('aria-pressed', String(on)); $('#stageFrame').classList.toggle('decor-off', !on);
-  });
 }
 
 /* ---------- Botões magnéticos (DS) ---------- */
@@ -999,16 +719,12 @@ function intro() {
   const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });   // expo.out = --ease-architect
   const h1 = SplitText.create('#hero-title', { type: 'words', mask: 'words' });
   const lede = SplitText.create('#lede', { type: 'lines', mask: 'lines' });
-  tl.from('#eyebrow', { y: 30, opacity: 0, filter: 'blur(10px)', duration: 0.8, ease: 'power1.out' }, 0.2)          // animationIn
-    .from(h1.words, { yPercent: 110, opacity: 0, duration: 1.2, stagger: 0.08 }, 0.3)                              // text-reveal
-    .from(lede.lines, { yPercent: 110, opacity: 0, duration: 1.2, stagger: 0.1, onComplete: () => lede.revert() }, 0.6)
-    .from(['#hint', '#ctas > *'], { y: 30, opacity: 0, filter: 'blur(10px)', duration: 0.8, stagger: 0.1, ease: 'power1.out', clearProps: 'filter' }, 0.85)
-    .fromTo('#stageMedia', { opacity: 0, scale: 0.96, filter: 'blur(10px)' }, { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 1.2, clearProps: 'filter' }, 0.4)
-    .from('#dCrop', { drawSVG: '0%', duration: 1.2 }, 0.7)
-    .from('#dRulerTopBase', { drawSVG: '0%', duration: 1.2 }, 0.8)
-    .from('#scrub', { y: 24, opacity: 0, duration: 1, clearProps: 'transform' }, 1)
+  tl.to('#heroMedia', { opacity: 1, duration: 1.6, ease: 'power1.out' }, 0)                                         // vídeo surge do Osso
+    .from('#eyebrow', { y: 30, opacity: 0, filter: 'blur(10px)', duration: 0.8, ease: 'power1.out', clearProps: 'filter' }, 0.3)   // animationIn
+    .from(h1.words, { yPercent: 110, opacity: 0, duration: 1.2, stagger: 0.08 }, 0.4)                                             // text-reveal
+    .from(lede.lines, { yPercent: 110, opacity: 0, duration: 1.2, stagger: 0.1, onComplete: () => lede.revert() }, 0.7)
+    .from(['#hint', '#ctas > *'], { y: 30, opacity: 0, filter: 'blur(10px)', duration: 0.8, stagger: 0.1, ease: 'power1.out', clearProps: 'filter' }, 0.95)
     .from('.ring', { scale: 0.6, opacity: 0, duration: 1 }, 1.1);
-  gsap.set('#scrub', { xPercent: -50, left: '50%' });
 }
 
 /* ---------- Scroll: Lenis + ScrollTrigger ---------- */
@@ -1029,77 +745,29 @@ function setupTriggers() {
     scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom bottom', scrub: true },
     onUpdate: () => { state.progress = proxy.p; state.target = proxy.p * state.duration; },
   });
-
-  // 2) Desenho técnico + parallax (velocidades diferentes do vídeo)
-  const tl = gsap.timeline({ defaults: { ease: 'none' }, scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom bottom', scrub: 0.8 } });
-  const draw = (sel, at, dur) => tl.fromTo(sel, { drawSVG: '0%' }, { drawSVG: '100%', duration: dur }, at);
-  draw('#dRulerTop', 0.0, 0.3);
-  tl.fromTo('#dRulerTopLabels text', { opacity: 0 }, { opacity: 1, stagger: 0.03, duration: 0.05 }, 0.05);
-  draw('#dRulerSideBase', 0.12, 0.2); draw('#dRulerSide', 0.15, 0.3);
-  draw('#dConstH', 0.28, 0.25); draw('#dConstD', 0.36, 0.25);
-  draw('#dCircle', 0.45, 0.35); draw('#dArc', 0.55, 0.25);
-  draw('#dLegs', 0.5, 0.2); tl.fromTo('#dHinge', { opacity: 0 }, { opacity: 1, duration: 0.05 }, 0.55);
-  draw('#dCross', 0.66, 0.12); draw('#dCrossC', 0.7, 0.1);
-  draw('#dCota', 0.72, 0.18); tl.fromTo('#dCotaLabel', { opacity: 0 }, { opacity: 1, duration: 0.06 }, 0.84);
-  draw('#dTitleBox', 0.78, 0.14); tl.fromTo('#dTitle text, #dTitle rect', { opacity: 0 }, { opacity: 1, stagger: 0.02, duration: 0.05 }, 0.86);
-  draw('#dDetail', 0.88, 0.1);
-  tl.to('#decorFar', { y: -26, duration: 1 }, 0)             // camada distante
-    .to('#heroCopy', { y: () => (innerWidth <= 768 ? -14 : -56), duration: 1 }, 0)   // texto mais rápido
-    .to('#stageFrame', { scale: 1.035, duration: 1 }, 0)     // vídeo quase fixo
-    .to('.orb-lume', { yPercent: -30, duration: 1 }, 0)
-    .to('#hintWrap', { opacity: 0, duration: 0.12 }, 0.02);   // invólucro: não briga com a entrada do #hint
-}
-
-/* ---------- Play: percorre a hero em tempo real ---------- */
-function setupPlay() {
-  const btn = $('#playBtn');
-  const heroTop = () => hero.offsetTop, heroEnd = () => hero.offsetTop + hero.offsetHeight - innerHeight;
-  const stop = () => { state.playing = false; btn.setAttribute('aria-pressed', 'false'); btn.setAttribute('aria-label', 'Reproduzir demonstração'); };
-  btn.addEventListener('click', () => {
-    if (state.playing) { lenis.scrollTo(window.scrollY, { immediate: true, force: true }); stop(); return; }
-    if (state.progress > 0.995) lenis.scrollTo(heroTop(), { immediate: true, force: true });
-    state.playing = true; btn.setAttribute('aria-pressed', 'true'); btn.setAttribute('aria-label', 'Pausar demonstração');
-    const remaining = (1 - state.progress) * state.duration;
-    lenis.scrollTo(heroEnd(), { duration: Math.max(remaining, 0.5), easing: (x) => x, force: true, onComplete: stop });
-  });
-  ['wheel', 'touchstart'].forEach((ev) => addEventListener(ev, () => { if (state.playing) stop(); }, { passive: true }));
-
-  // trilho clicável / arrastável + teclado
-  const track = $('#track');
-  const seekTo = (clientX) => {
-    const r = track.getBoundingClientRect(), p = Math.min(1, Math.max(0, (clientX - r.left) / r.width));
-    lenis.scrollTo(heroTop() + p * (heroEnd() - heroTop()), { duration: 0.6 });
-  };
-  let dragging = false;
-  track.addEventListener('pointerdown', (e) => { dragging = true; track.setPointerCapture(e.pointerId); seekTo(e.clientX); });
-  track.addEventListener('pointermove', (e) => { if (dragging) seekTo(e.clientX); });
-  track.addEventListener('pointerup', () => { dragging = false; });
-  track.addEventListener('keydown', (e) => {
-    const step = { ArrowRight: 0.05, ArrowUp: 0.05, ArrowLeft: -0.05, ArrowDown: -0.05 }[e.key];
-    if (step === undefined && e.key !== 'Home' && e.key !== 'End') return;
-    e.preventDefault();
-    const p = e.key === 'Home' ? 0 : e.key === 'End' ? 1 : Math.min(1, Math.max(0, state.progress + step));
-    lenis.scrollTo(heroTop() + p * (heroEnd() - heroTop()), { duration: 0.6 });
-  });
+  // 2) 1ª → 2ª dobra. O texto rola para fora com a página (100vh de scroll); `leave` é a
+  //    fração do progresso em que isso acontece. Nesse trecho o texto sobe um pouco mais rápido
+  //    (parallax) e os véus somem, deixando a 2ª dobra só com o vídeo. O vídeo só "respira".
+  const base = mediaScale();
+  const leave = Math.min(1, innerHeight / (hero.offsetHeight - innerHeight));
+  gsap.timeline({ defaults: { ease: 'none' }, scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom bottom', scrub: 0.8 } })
+    .to('#heroCopy', { y: MOBILE() ? -24 : -80, opacity: 0, duration: leave }, 0)
+    .to('.veil', { opacity: 0, duration: leave * 0.75 }, leave * 0.25)
+    .to('#hintWrap', { opacity: 0, duration: 0.12 }, 0.02)
+    .fromTo('#heroMedia', { scale: base }, { scale: base * 1.035, duration: 1 }, 0);
 }
 
 /* ---------- Movimento reduzido: estado final estático ---------- */
 function staticFinal() {
   state.smooth = state.target = state.duration; state.progress = 1;
   gsap.set('#inkPath', { drawSVG: '100%' }); gsap.set('#inkCota', { opacity: 1 });
-  renderUI(state.duration, 1);
-  $('#playBtn').disabled = true;
-  $('#playBtn').style.visibility = 'hidden';          // mantém a grade da barra intacta
-  $('#track').setAttribute('aria-disabled', 'true');
 }
 
 /* ---------- Boot ---------- */
-buildDecor();
 buildInk();
 setupNav();
 setupMagnetic();
 if (DEBUG) setupDebug();
-
 document.fonts.ready.then(intro);
 
 if (REDUCED) {
@@ -1108,18 +776,15 @@ if (REDUCED) {
   setupScroll();
   setupCursor();
   unlockVideo();
-  renderUI(0, 0);
   requestAnimationFrame(loop);
   loadVideo().then(() => {
     state.ready = true;
     setupTriggers();
-    setupPlay();
     ScrollTrigger.refresh();
     // ?debug&p=0.5 → pula direto para um ponto do scroll (para calibrar / testar)
     if (params.has('p')) {
       const p = Math.min(1, Math.max(0, parseFloat(params.get('p')) || 0));
-      const y = hero.offsetTop + p * (hero.offsetHeight - innerHeight);
-      lenis.scrollTo(y, { immediate: true, force: true });
+      lenis.scrollTo(hero.offsetTop + p * (hero.offsetHeight - innerHeight), { immediate: true, force: true });
       ScrollTrigger.update();
     }
   });
