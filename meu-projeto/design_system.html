@@ -1,0 +1,1752 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Monólito — Design System</title>
+<!-- Scripts (mesmos das referências) -->
+<script src="assets/resource_3fa48481346f.js"></script>
+<script src="assets/iconify-icon_d39ffc6e4c56.js"></script>
+<!-- Fontes locais: Inter (Digital Architect) + Instrument Serif + Geist Mono (Animations Gemini) -->
+<link href="assets/css2_19fd9cc6b396.css" rel="stylesheet"/>
+<link href="assets/css2_2b2d87bc82d8.css" id="all-fonts-link-font-instrument-serif" rel="stylesheet"/>
+<link href="assets/css2_62759cd015bd.css" id="all-fonts-link-font-geist-mono" rel="stylesheet"/>
+<style id="all-fonts-style-font-instrument-serif">.font-instrument-serif { font-family: 'Instrument Serif', serif !important; }</style>
+<style id="all-fonts-style-font-geist-mono">.font-geist-mono { font-family: 'Geist Mono', monospace !important; }</style>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+        serif: ['"Instrument Serif"', 'ui-serif', 'Georgia', 'Cambria', 'serif'],
+        mono: ['"Geist Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
+      },
+      colors: {
+        osso: '#EAEAE5',
+        abismo: '#050505',
+        lume: '#D6A461',
+        nevoa: '#8A96A3',
+      },
+      animation: {
+        'spin-slow': 'spin 12s linear infinite',
+      },
+    },
+  },
+  plugins: [
+    // Utilitários 3D (mesmo plugin do Animations Gemini, versão compacta)
+    function ({ addUtilities }) {
+      const t = 'translate3d(var(--tw-translate-x,0),var(--tw-translate-y,0),0) rotateX(var(--tw-rotate-x,0)) rotateY(var(--tw-rotate-y,0)) rotateZ(var(--tw-rotate-z,0))';
+      const u = {};
+      [0, 5, 10, 15, 20, 30, 45, 75].forEach(v => {
+        ['x', 'y', 'z'].forEach(a => {
+          u[`.rotate-${a}-${v}`] = { [`--tw-rotate-${a}`]: `${v}deg`, transform: t };
+          if (v) u[`.-rotate-${a}-${v}`] = { [`--tw-rotate-${a}`]: `-${v}deg`, transform: t };
+        });
+      });
+      addUtilities({
+        ...u,
+        '.perspective-none': { perspective: 'none' },
+        '.perspective-dramatic': { perspective: '100px' },
+        '.perspective-near': { perspective: '300px' },
+        '.perspective-normal': { perspective: '500px' },
+        '.perspective-midrange': { perspective: '800px' },
+        '.perspective-distant': { perspective: '1200px' },
+        '.transform-style-preserve-3d': { 'transform-style': 'preserve-3d' },
+        '.transform-style-flat': { 'transform-style': 'flat' },
+      });
+    },
+  ],
+};
+</script>
+<style>
+/* =========================================================
+   TOKENS
+   ========================================================= */
+:root {
+  --osso: #EAEAE5;
+  --tinta: #1C1C1C;
+  --grafite: #1C1917;
+  --abismo: #050505;
+  --lume: #D6A461;
+  --nevoa: #8A96A3;
+  --ease-architect: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: .2s;
+  --dur-base: .5s;
+  --dur-slow: 1s;
+  --dur-reveal: 1.2s;
+}
+body { font-family: 'Inter', sans-serif; background-color: #EAEAE5; color: #1C1C1C; overflow-x: hidden; }
+
+/* =========================================================
+   DIGITAL ARCHITECT — classes originais
+   ========================================================= */
+.reveal { opacity: 0; transform: translateY(2rem); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.text-reveal-wrapper { overflow: hidden; display: inline-block; vertical-align: bottom; }
+.text-reveal-content { transform: translateY(110%); opacity: 0; transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 1.2s ease; display: block; }
+.reveal-active .text-reveal-content { transform: translateY(0); opacity: 1; }
+.delay-100 { transition-delay: .1s; } .delay-200 { transition-delay: .2s; } .delay-300 { transition-delay: .3s; }
+.delay-500 { transition-delay: .5s; } .delay-700 { transition-delay: .7s; } .delay-900 { transition-delay: .9s; }
+.carousel-slide { position: absolute; inset: 0; transition: opacity 1.5s ease-in-out; opacity: 0; overflow: hidden; }
+.carousel-slide.active { opacity: 1; }
+.carousel-slide img { transform: scale(1); transition: transform 10s ease-out; }
+.carousel-slide.active img { transform: scale(1.1); }
+@keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+.animate-marquee { animation: marquee 40s linear infinite; }
+.marquee-container { display: flex; overflow: hidden; user-select: none; }
+.marquee-content { flex-shrink: 0; display: flex; justify-content: space-around; align-items: center; min-width: 100%; animation: scroll 40s linear infinite; }
+.marquee-reverse .marquee-content { animation-direction: reverse; }
+@keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+.nav-load { opacity: 0; transform: translateY(-10px); transition: all .8s ease-out; }
+.nav-load.loaded { opacity: 1; transform: translateY(0); }
+iconify-icon { display: inline-flex; align-items: center; justify-content: center; vertical-align: middle; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.parallax-element, .parallax-img { will-change: transform; }
+
+/* =========================================================
+   ANIMATIONS GEMINI — classes originais
+   ========================================================= */
+@keyframes animationIn { 0% { opacity: 0; transform: translateY(30px); filter: blur(10px); } 100% { opacity: 1; transform: translateY(0); filter: blur(0px); } }
+@keyframes shimmer { from { transform: translateX(-100%) skewX(-15deg); } to { transform: translateX(200%) skewX(-15deg); } }
+@keyframes textSlide { 0% { transform: translateY(110%); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+.animate-on-scroll { animation-play-state: paused !important; }
+.animate-on-scroll.animate { animation-play-state: running !important; }
+.text-clip-anim { display: inline-flex; overflow: hidden; }
+.text-clip-anim span { display: inline-block; animation: textSlide .9s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+.flashlight-card { position: relative; background: rgba(255, 255, 255, 0.01); }
+.flashlight-card::before {
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), var(--flash, rgba(255,255,255,.08)), transparent 40%);
+  opacity: 0; transition: opacity .5s; pointer-events: none; z-index: 2;
+}
+.flashlight-card:hover::before { opacity: 1; }
+.flashlight-light { --flash: rgba(214, 164, 97, .16); }
+.glass-panel { background: rgba(23, 23, 23, 0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+.glass-light { background: rgba(255, 255, 255, .55); backdrop-filter: blur(20px) saturate(1.2); -webkit-backdrop-filter: blur(20px) saturate(1.2); }
+[style*="--border-gradient"]::before {
+  content: ""; position: absolute; inset: 0; padding: 1px;
+  border-radius: var(--border-radius-before, inherit);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  background: var(--border-gradient); pointer-events: none;
+}
+/* design_system4: beam-button / glow-on-hover / grid-bg */
+.beam-button { position: relative; overflow: hidden; }
+.beam-button::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.3), transparent); transition: left .5s; }
+.beam-button:hover::before { left: 100%; }
+.glow-on-hover { transition: all .3s ease; }
+.glow-on-hover:hover { box-shadow: 0 0 30px rgba(28,28,28,.15), 0 0 60px rgba(214,164,97,.18); transform: translateY(-2px); }
+.grid-bg {
+  background-size: 40px 40px;
+  background-image: linear-gradient(to right, rgba(0,0,0,.035) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,.035) 1px, transparent 1px);
+}
+.grid-bg-dark {
+  background-size: 40px 40px;
+  background-image: linear-gradient(to right, rgba(255,255,255,.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.04) 1px, transparent 1px);
+}
+
+/* =========================================================
+   MONÓLITO — novas classes (combinação)
+   ========================================================= */
+/* Lettering transparente */
+.text-outline { color: transparent; -webkit-text-stroke: 1px rgba(28, 28, 28, .32); }
+.text-outline-light { color: transparent; -webkit-text-stroke: 1px rgba(255, 255, 255, .45); }
+.text-outline-fill {
+  color: transparent; -webkit-text-stroke: 1px rgba(28,28,28,.4);
+  background: linear-gradient(90deg, #1C1C1C 0 50%, transparent 50% 100%);
+  background-size: 200% 100%; background-position: 100% 0;
+  -webkit-background-clip: text; background-clip: text;
+  transition: background-position 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.text-outline-fill:hover, .text-outline-fill.is-filled { background-position: 0 0; }
+.text-lume-gradient {
+  background: linear-gradient(100deg, #1C1C1C 20%, #D6A461 45%, #1C1C1C 70%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: lumeSweep 6s ease-in-out infinite;
+}
+@keyframes lumeSweep { 0%,100% { background-position: 100% 0; } 50% { background-position: 0 0; } }
+
+/* Grão de filme animado */
+.grain::after {
+  content: ""; position: absolute; inset: -50%; pointer-events: none; z-index: 3; opacity: .09; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grainShift 1.2s steps(6) infinite;
+}
+@keyframes grainShift {
+  0% { transform: translate(0,0); } 20% { transform: translate(-4%,3%); } 40% { transform: translate(3%,-5%); }
+  60% { transform: translate(-6%,-2%); } 80% { transform: translate(5%,4%); } 100% { transform: translate(0,0); }
+}
+
+/* Orbes de luz à deriva (fundo das seções) */
+.orb { position: absolute; border-radius: 9999px; filter: blur(70px); pointer-events: none; z-index: 0; animation: orbDrift 22s ease-in-out infinite alternate; }
+.orb-lume { background: radial-gradient(circle, rgba(214,164,97,.35), transparent 65%); }
+.orb-nevoa { background: radial-gradient(circle, rgba(138,150,163,.35), transparent 65%); }
+.orb-white { background: radial-gradient(circle, rgba(255,255,255,.9), transparent 65%); }
+@keyframes orbDrift {
+  0% { transform: translate3d(0,0,0) scale(1); }
+  50% { transform: translate3d(8%, -10%, 0) scale(1.15); }
+  100% { transform: translate3d(-10%, 6%, 0) scale(.95); }
+}
+.section-shell { position: relative; overflow: hidden; isolation: isolate; }
+.section-shell > .grid-bg, .section-shell > .grid-bg-dark {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  -webkit-mask-image: radial-gradient(ellipse at 50% 0%, #000 10%, transparent 70%);
+  mask-image: radial-gradient(ellipse at 50% 0%, #000 10%, transparent 70%);
+  animation: gridPan 30s linear infinite;
+}
+@keyframes gridPan { from { background-position: 0 0; } to { background-position: 40px 40px; } }
+
+/* Feixes que percorrem as guias verticais */
+.guide-beam {
+  position: fixed; top: 0; width: 1px; height: 22vh; z-index: 1; pointer-events: none;
+  background: linear-gradient(to bottom, transparent, rgba(214,164,97,.9), transparent);
+  animation: beamFall 7s cubic-bezier(.45,0,.55,1) infinite;
+  left: calc(50% - min(700px, 50vw) + min(1400px, 100vw) * var(--col));
+}
+@keyframes beamFall { 0% { transform: translateY(-25vh); opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { transform: translateY(105vh); opacity: 0; } }
+
+/* Botão Beam (conic) — Animations Gemini adaptado ao tema claro */
+.beam-ring { position: absolute; inset: -1000%; background: conic-gradient(from 0deg, transparent 0 300deg, #D6A461 330deg, #fff 360deg); animation: spin 2.5s linear infinite; }
+
+/* Sublinhado que cresce */
+.link-grow { background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size .5s cubic-bezier(0.16, 1, 0.3, 1); }
+.link-grow:hover { background-size: 100% 1px; }
+
+/* Indicadores do carrossel */
+.slide-bar { position: relative; height: 2px; background: rgba(255,255,255,.25); overflow: hidden; }
+.slide-bar span { position: absolute; inset: 0; background: #fff; transform: scaleX(0); transform-origin: left; }
+.slide-bar.active span { animation: barFill 5s linear forwards; }
+@keyframes barFill { to { transform: scaleX(1); } }
+
+/* Curva de easing desenhada */
+.draw-path { stroke-dasharray: 260; stroke-dashoffset: 260; animation: drawPath 2.4s cubic-bezier(0.16, 1, 0.3, 1) 1.2s forwards; }
+@keyframes drawPath { to { stroke-dashoffset: 0; } }
+.ease-dot { offset-path: path('M4 76 C 16 76, 22 4, 116 4'); animation: easeRun 2.4s cubic-bezier(0.16, 1, 0.3, 1) infinite 1.2s; }
+@keyframes easeRun { 0% { offset-distance: 0%; } 70%,100% { offset-distance: 100%; } }
+
+/* Flutuar / pulsar */
+@keyframes floatY { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+.animate-float { animation: floatY 6s ease-in-out infinite; }
+@keyframes ping-soft { 0% { transform: scale(1); opacity: .7; } 100% { transform: scale(2.6); opacity: 0; } }
+.pulse-ring { position: relative; }
+.pulse-ring::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: inherit; animation: ping-soft 1.8s cubic-bezier(0,0,.2,1) infinite; }
+
+/* Linha de varredura */
+@keyframes scanY { 0% { top: -10%; } 100% { top: 110%; } }
+.scanline { position: absolute; left: 0; right: 0; height: 80px; pointer-events: none; z-index: 4;
+  background: linear-gradient(to bottom, transparent, rgba(255,255,255,.08), transparent); animation: scanY 6s linear infinite; }
+
+/* Inputs */
+.field { position: relative; }
+.field input, .field textarea, .field select { width: 100%; background: transparent; border: 0; border-bottom: 1px solid #D6D3D1; padding: 1.4rem 0 .6rem; font-size: 1rem; outline: none; color: #1C1C1C; border-radius: 0; transition: border-color .3s; }
+.field label { position: absolute; left: 0; top: 1.3rem; font-size: 1rem; color: #78716C; pointer-events: none; transition: all .4s cubic-bezier(0.16, 1, 0.3, 1); }
+.field input:focus + label, .field input:not(:placeholder-shown) + label,
+.field textarea:focus + label, .field textarea:not(:placeholder-shown) + label { top: 0; font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; font-family: 'Geist Mono', monospace; color: #1C1C1C; }
+.field .bar { position: absolute; left: 0; bottom: 0; height: 1px; width: 100%; background: #1C1C1C; transform: scaleX(0); transform-origin: left; transition: transform .6s cubic-bezier(0.16, 1, 0.3, 1); }
+.field .bar::after { content: ""; position: absolute; right: 0; top: -2px; width: 5px; height: 5px; border-radius: 9999px; background: #D6A461; box-shadow: 0 0 12px #D6A461; opacity: 0; transition: opacity .3s .3s; }
+.field input:focus ~ .bar, .field textarea:focus ~ .bar { transform: scaleX(1); }
+.field input:focus ~ .bar::after, .field textarea:focus ~ .bar::after { opacity: 1; }
+.field.is-error input { border-color: #B4432F; }
+.field.is-error .bar { background: #B4432F; transform: scaleX(1); }
+.field input:disabled { color: #A8A29E; border-bottom-style: dashed; cursor: not-allowed; }
+.field input:disabled + label { color: #A8A29E; }
+
+/* Toggle */
+.toggle input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.toggle .track { width: 46px; height: 26px; border-radius: 9999px; background: #D6D3D1; position: relative; transition: background .4s; }
+.toggle .thumb { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 9999px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.2); transition: transform .5s cubic-bezier(0.16, 1, 0.3, 1); }
+.toggle input:checked + .track { background: #1C1917; }
+.toggle input:checked + .track .thumb { transform: translateX(20px); box-shadow: 0 0 14px rgba(214,164,97,.8); }
+.toggle input:focus-visible + .track { outline: 2px solid #D6A461; outline-offset: 3px; }
+
+/* Checkbox */
+.check input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.check .box { width: 20px; height: 20px; border: 1px solid #A8A29E; display: inline-flex; align-items: center; justify-content: center; transition: all .3s; }
+.check .box svg { stroke-dasharray: 20; stroke-dashoffset: 20; transition: stroke-dashoffset .4s cubic-bezier(0.16, 1, 0.3, 1) .05s; }
+.check input:checked + .box { background: #1C1917; border-color: #1C1917; }
+.check input:checked + .box svg { stroke-dashoffset: 0; }
+.check input:focus-visible + .box { outline: 2px solid #D6A461; outline-offset: 2px; }
+
+/* Tooltip */
+[data-tip] { position: relative; }
+[data-tip]::after {
+  content: attr(data-tip); position: absolute; left: 50%; bottom: calc(100% + 10px); white-space: nowrap;
+  transform: translate(-50%, 6px); filter: blur(4px); opacity: 0; pointer-events: none;
+  background: #1C1917; color: #F5F5F4; font: 500 11px/1 'Geist Mono', monospace; letter-spacing: .08em; text-transform: uppercase;
+  padding: 8px 10px; transition: all .35s cubic-bezier(0.16, 1, 0.3, 1); z-index: 30;
+}
+[data-tip]::before {
+  content: ""; position: absolute; left: 50%; bottom: calc(100% + 5px); width: 8px; height: 8px; background: #1C1917;
+  transform: translate(-50%, 6px) rotate(45deg); opacity: 0; transition: all .35s cubic-bezier(0.16, 1, 0.3, 1); z-index: 29;
+}
+[data-tip]:hover::after, [data-tip]:focus-visible::after { opacity: 1; transform: translate(-50%, 0); filter: blur(0); }
+[data-tip]:hover::before, [data-tip]:focus-visible::before { opacity: 1; transform: translate(-50%, 0) rotate(45deg); }
+[data-tip-pos="bottom"]::after { bottom: auto; top: calc(100% + 10px); transform: translate(-50%, -6px); }
+[data-tip-pos="bottom"]::before { bottom: auto; top: calc(100% + 5px); transform: translate(-50%, -6px) rotate(45deg); }
+[data-tip-pos="bottom"]:hover::after { transform: translate(-50%, 0); }
+[data-tip-pos="bottom"]:hover::before { transform: translate(-50%, 0) rotate(45deg); }
+[data-tip-tone="lume"]::after, [data-tip-tone="lume"]::before { background: #D6A461; color: #1C1917; }
+
+/* Modal */
+.modal { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 16px; visibility: hidden; }
+.modal.open { visibility: visible; }
+.modal-backdrop { position: absolute; inset: 0; background: rgba(28,25,23,.45); backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px); opacity: 0; transition: all .5s cubic-bezier(0.16, 1, 0.3, 1); }
+.modal.open .modal-backdrop { opacity: 1; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.modal-panel { position: relative; width: 100%; max-width: 560px; opacity: 0; transform: translateY(30px) scale(.97); filter: blur(10px); transition: all .7s cubic-bezier(0.16, 1, 0.3, 1); }
+.modal.open .modal-panel { opacity: 1; transform: none; filter: blur(0); }
+
+/* Toast */
+.toast { position: fixed; left: 50%; bottom: 28px; z-index: 120; transform: translate(-50%, 30px); opacity: 0; filter: blur(8px); transition: all .6s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none; }
+.toast.show { transform: translate(-50%, 0); opacity: 1; filter: blur(0); }
+
+/* Barra de progresso de rolagem */
+#scroll-progress { transform-origin: left; transform: scaleX(0); }
+
+/* Navegação por pontos (Gemini) */
+.nav-dot { background: rgba(28,28,28,.2); }
+.nav-dot.is-active { background: #1C1C1C; transform: scale(1.4); box-shadow: 0 0 0 4px rgba(214,164,97,.25); }
+
+/* Cartão inclinado */
+.tilt { transition: transform .6s cubic-bezier(0.16, 1, 0.3, 1); transform-style: preserve-3d; }
+
+/* Foco acessível */
+:focus-visible { outline: 2px solid #D6A461; outline-offset: 3px; }
+
+/* Movimento reduzido */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; transition-delay: 0s !important; scroll-behavior: auto !important; }
+  .reveal, .text-reveal-content { opacity: 1 !important; transform: none !important; }
+  .guide-beam, .grain::after, .scanline { display: none; }
+}
+</style>
+</head>
+
+<body class="antialiased min-h-screen selection:bg-stone-800 selection:text-white">
+
+<!-- Feixes de luz nas guias (desktop) -->
+<div class="guide-beam hidden md:block" style="--col: .25"></div>
+<div class="guide-beam hidden md:block" style="--col: .75; animation-delay: 3.5s"></div>
+
+<!-- Navegação por pontos -->
+<nav aria-label="Seções" class="fixed right-5 top-1/2 -translate-y-1/2 z-[60] hidden lg:flex flex-col gap-4" id="nav-dots">
+  <a aria-label="Hero" class="nav-dot w-2 h-2 rounded-full transition-all duration-300" data-tip="Hero" href="#hero" style="--x:0"></a>
+  <a aria-label="Tipografia" class="nav-dot w-2 h-2 rounded-full transition-all duration-300" href="#tipografia"></a>
+  <a aria-label="Cores" class="nav-dot w-2 h-2 rounded-full transition-all duration-300" href="#cores"></a>
+  <a aria-label="Componentes" class="nav-dot w-2 h-2 rounded-full transition-all duration-300" href="#componentes"></a>
+  <a aria-label="Ícones" class="nav-dot w-2 h-2 rounded-full transition-all duration-300" href="#icones"></a>
+  <a aria-label="Animações" class="nav-dot w-2 h-2 rounded-full transition-all duration-300" href="#animacoes"></a>
+</nav>
+
+<!-- Container principal -->
+<div class="max-w-[1400px] mx-auto border-x border-stone-300 relative bg-[#EAEAE5]">
+
+  <!-- Guias verticais do grid -->
+  <div class="absolute inset-0 pointer-events-none grid grid-cols-1 md:grid-cols-12 gap-0 z-0 h-full w-full">
+    <div class="hidden md:block md:col-span-3 border-r border-stone-300/40 h-full"></div>
+    <div class="hidden md:block md:col-span-6 border-r border-stone-300/40 h-full"></div>
+    <div class="hidden md:block md:col-span-3 h-full"></div>
+  </div>
+
+  <!-- ===================== NAVBAR ===================== -->
+  <header class="relative z-50 border-b border-stone-300 sticky top-0 bg-[#EAEAE5]/85 backdrop-blur-xl nav-load">
+    <div class="flex justify-between items-center px-4 md:px-6 py-5">
+      <div class="flex items-center gap-6 lg:gap-10">
+        <a class="text-xs font-medium tracking-widest uppercase hover:text-stone-500 transition-colors" href="#tipografia">Tipografia</a>
+        <a class="text-xs font-medium tracking-widest uppercase hidden md:block hover:text-stone-500 transition-colors" href="#cores">Cores</a>
+        <a class="text-xs font-medium tracking-widest uppercase hidden lg:block hover:text-stone-500 transition-colors" href="#componentes">Componentes</a>
+      </div>
+      <a class="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 group cursor-pointer" href="#hero">
+        <iconify-icon class="text-xl group-hover:rotate-180 transition-transform duration-700" icon="solar:atom-linear"></iconify-icon>
+        <span class="font-bold tracking-tighter text-lg">MONÓLITO</span>
+        <span class="hidden sm:inline font-mono text-[10px] text-stone-500 border border-stone-300 rounded-full px-1.5 py-0.5">DS</span>
+      </a>
+      <div class="flex items-center gap-6 lg:gap-10">
+        <a class="text-xs font-medium tracking-widest uppercase hidden lg:block hover:text-stone-500 transition-colors" href="#icones">Ícones</a>
+        <a class="text-xs font-medium tracking-widest uppercase hidden md:block hover:text-stone-500 transition-colors" href="#animacoes">Movimento</a>
+        <button class="beam-button hidden sm:inline-flex items-center gap-2 bg-stone-900 text-white text-[11px] font-medium tracking-widest uppercase rounded-full pl-4 pr-3 py-2 hover:bg-stone-700 transition-colors group" data-open-modal="modal-demo">
+          Abrir modal
+          <iconify-icon class="text-sm group-hover:rotate-45 transition-transform duration-500" icon="solar:arrow-right-up-linear"></iconify-icon>
+        </button>
+        <a class="sm:hidden text-xs font-medium tracking-widest uppercase" href="#animacoes">Motion</a>
+      </div>
+    </div>
+    <div class="absolute left-0 bottom-[-1px] h-px w-full bg-gradient-to-r from-stone-900 via-[#D6A461] to-stone-900" id="scroll-progress"></div>
+  </header>
+
+  <!-- ===================== HERO ===================== -->
+  <section class="relative z-10 grid grid-cols-1 md:grid-cols-12 border-b border-stone-300 md:min-h-[860px]" id="hero">
+
+    <!-- Área visual -->
+    <div class="col-span-1 md:col-span-9 border-b md:border-b-0 md:border-r border-stone-300 relative group overflow-hidden bg-stone-900 min-h-[640px] grain flashlight-card" data-flashlight id="hero-stage" style="--flash: rgba(255, 236, 205, .14)">
+
+      <!-- Carrossel Ken Burns -->
+      <div class="absolute inset-0" id="hero-carousel">
+        <div class="carousel-slide active" data-label="Cubo de Luz" data-palette="#5E6B78,#D6A461,#EAEAE5">
+          <img alt="Cubo de concreto iluminado por dentro sobre a grama" class="w-full h-[115%] object-cover grayscale contrast-125 parallax-img" data-speed="0.05" src="assets/c7fa69dd-d7fb-48f2-a866-ef3663_f6b789593f38.webp"/>
+        </div>
+        <div class="carousel-slide" data-label="Monólito" data-palette="#050505,#FFFFFF,#78716C">
+          <img alt="Portal branco entre montanhas escuras" class="w-full h-[115%] object-cover grayscale contrast-125 parallax-img" data-speed="0.05" src="assets/62cc53b7-3355-4618-b7fa-3283f6_a6d3415bc434.webp"/>
+        </div>
+        <div class="carousel-slide" data-label="Órbita" data-palette="#1C1917,#8A96A3,#D6D3D1">
+          <img alt="Pavilhão escuro circular perto do mar" class="w-full h-[115%] object-cover grayscale contrast-125 parallax-img" data-speed="0.05" src="assets/6c710de5-9712-4c8e-a7db-59ac54_b647957b5aa5.webp"/>
+        </div>
+      </div>
+
+      <!-- Camadas de luz -->
+      <div class="absolute inset-0 bg-gradient-to-b from-stone-900/30 via-transparent to-stone-900/70 pointer-events-none z-[1]"></div>
+      <div class="orb orb-lume w-[420px] h-[420px] -bottom-32 left-1/3 z-[1] mix-blend-screen opacity-70"></div>
+      <div class="scanline"></div>
+
+      <!-- Lettering transparente gigante -->
+      <div aria-hidden="true" class="absolute top-16 md:top-20 left-0 w-full z-[2] pointer-events-none select-none overflow-hidden parallax-element" data-speed="-0.08">
+        <div class="marquee-container">
+          <div class="marquee-content" style="animation-duration: 60s">
+            <span class="text-[7rem] md:text-[12rem] font-semibold tracking-tighter leading-none text-outline-light px-6">MONÓLITO</span>
+            <span class="text-[7rem] md:text-[12rem] font-serif leading-none text-outline-light px-6">sistema</span>
+          </div>
+          <div class="marquee-content" style="animation-duration: 60s">
+            <span class="text-[7rem] md:text-[12rem] font-semibold tracking-tighter leading-none text-outline-light px-6">MONÓLITO</span>
+            <span class="text-[7rem] md:text-[12rem] font-serif leading-none text-outline-light px-6">sistema</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Topo: status + contador -->
+      <div class="absolute top-5 left-5 right-5 md:top-8 md:left-10 md:right-10 z-20 flex justify-between items-start text-white">
+        <div class="flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.25em] text-white/80 animate-on-scroll [animation:animationIn_0.8s_ease-out_0.6s_both]">
+          <span class="w-1.5 h-1.5 bg-[#D6A461] rounded-full pulse-ring"></span>
+          Sistema ativo · v2.0
+        </div>
+        <div class="flex flex-col items-end gap-3 animate-on-scroll [animation:animationIn_0.8s_ease-out_0.8s_both]">
+          <span class="font-mono text-[11px] tracking-[0.25em] text-white/80"><span id="slide-index">01</span> / 03 — <span id="slide-label">Cubo de Luz</span></span>
+          <div class="flex gap-2 w-40">
+            <button aria-label="Slide 1" class="slide-bar flex-1 active" data-slide="0"><span></span></button>
+            <button aria-label="Slide 2" class="slide-bar flex-1" data-slide="1"><span></span></button>
+            <button aria-label="Slide 3" class="slide-bar flex-1" data-slide="2"><span></span></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Painel de tokens ao vivo -->
+      <aside aria-label="Tokens do slide atual" class="hidden lg:block absolute top-36 right-10 z-20 w-64 glass-panel text-white p-5 rounded-xl animate-on-scroll [animation:animationIn_0.8s_ease-out_1.1s_both] animate-float" style="--border-gradient: linear-gradient(135deg, rgba(255,255,255,.35), rgba(255,255,255,0) 40%, rgba(214,164,97,.5)); --border-radius-before: 12px">
+        <div class="flex items-center justify-between mb-4">
+          <span class="font-mono text-[10px] uppercase tracking-[0.25em] text-white/60">Tokens ao vivo</span>
+          <iconify-icon class="text-white/60" icon="solar:pallete-2-bold-duotone"></iconify-icon>
+        </div>
+        <div class="flex gap-2 mb-4" id="token-swatches">
+          <span class="flex-1 h-10 rounded-md ring-1 ring-white/20 transition-colors duration-1000" style="background:#5E6B78"></span>
+          <span class="flex-1 h-10 rounded-md ring-1 ring-white/20 transition-colors duration-1000" style="background:#D6A461"></span>
+          <span class="flex-1 h-10 rounded-md ring-1 ring-white/20 transition-colors duration-1000" style="background:#EAEAE5"></span>
+        </div>
+        <div class="font-mono text-[10px] text-white/70 flex justify-between mb-5" id="token-hex"><span>#5E6B78</span><span>#D6A461</span><span>#EAEAE5</span></div>
+        <div class="border-t border-white/10 pt-4">
+          <div class="flex justify-between font-mono text-[10px] uppercase tracking-widest text-white/60 mb-2"><span>ease-architect</span><span>1.2s</span></div>
+          <svg class="w-full h-20" fill="none" viewBox="0 0 120 80">
+            <path d="M4 76 H116 M4 76 V4" stroke="rgba(255,255,255,.12)"/>
+            <path class="draw-path" d="M4 76 C 16 76, 22 4, 116 4" stroke="#D6A461" stroke-width="1.5"/>
+            <circle class="ease-dot" fill="#fff" r="3"></circle>
+          </svg>
+          <div class="font-mono text-[10px] text-white/50 mt-1">cubic-bezier(0.16, 1, 0.3, 1)</div>
+        </div>
+      </aside>
+
+      <!-- Texto do hero -->
+      <div class="absolute bottom-6 left-5 right-5 md:bottom-12 md:left-10 md:right-10 z-20 text-white">
+        <span class="block font-mono text-[11px] uppercase tracking-[0.25em] text-white/70 mb-5 reveal delay-300 hero-badge">00 — Design System para arquitetos digitais</span>
+        <h1 class="text-[3.4rem] sm:text-7xl md:text-8xl xl:text-[8.5rem] font-semibold tracking-tighter leading-[0.9] mix-blend-difference" id="hero-title">
+          <span class="text-reveal-wrapper"><span class="text-reveal-content delay-200">Forma</span></span>
+          <span class="text-reveal-wrapper"><span class="text-reveal-content delay-300 font-serif font-normal tracking-tight text-white/90">segue</span></span><br/>
+          <span class="text-reveal-wrapper"><span class="text-reveal-content delay-500">função<span class="text-[#D6A461]">.</span></span></span>
+        </h1>
+        <div class="mt-6 flex flex-wrap items-center gap-2 md:gap-3 reveal delay-500 hero-badge">
+          <span class="px-3 py-1 border border-white/40 rounded-full text-xs font-mono uppercase backdrop-blur-md">Tipografia</span>
+          <span class="px-3 py-1 border border-white/40 rounded-full text-xs font-mono uppercase backdrop-blur-md">Cor</span>
+          <span class="px-3 py-1 border border-white/40 rounded-full text-xs font-mono uppercase backdrop-blur-md">Componentes</span>
+          <span class="px-3 py-1 border border-[#D6A461]/60 text-[#F1D3A6] rounded-full text-xs font-mono uppercase backdrop-blur-md">Movimento</span>
+        </div>
+
+        <div class="mt-8 flex flex-wrap items-center gap-4 reveal delay-700 hero-badge">
+          <!-- Beam CTA -->
+          <div class="group relative" data-magnetic>
+            <div class="absolute -inset-3 rounded-full bg-[#D6A461]/40 blur-2xl opacity-0 group-hover:opacity-100 transition duration-500"></div>
+            <a class="group relative z-10 flex items-center justify-center overflow-hidden rounded-full p-[1px] leading-none" href="#tipografia">
+              <span class="beam-ring"></span>
+              <span class="relative flex items-center rounded-full bg-stone-950 px-7 md:px-9 py-4 ring-1 ring-white/10">
+                <span class="absolute inset-0 overflow-hidden rounded-full">
+                  <span class="absolute top-0 left-0 h-full w-full -skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:animate-[shimmer_1.5s_infinite] group-hover:opacity-100"></span>
+                </span>
+                <span class="relative z-10 text-sm md:text-base font-medium tracking-wide text-white">Explorar o sistema</span>
+                <span class="relative z-10 ml-4 flex items-center text-stone-400 transition duration-300 group-hover:translate-x-1 group-hover:text-[#D6A461]">
+                  <iconify-icon class="text-2xl" icon="solar:arrow-right-bold-duotone"></iconify-icon>
+                </span>
+              </span>
+            </a>
+          </div>
+          <!-- Glass CTA -->
+          <a class="inline-flex items-center gap-2 text-xs md:text-sm font-medium uppercase tracking-widest border border-white/40 rounded-full px-6 md:px-8 py-4 backdrop-blur-md hover:bg-white hover:text-stone-900 transition-all duration-500 group" data-magnetic href="#componentes">
+            Ver componentes
+            <iconify-icon class="text-lg group-hover:rotate-45 transition-transform duration-500" icon="solar:arrow-right-up-linear"></iconify-icon>
+          </a>
+        </div>
+      </div>
+
+      <!-- Coordenadas (detalhe) -->
+      <div class="hidden md:flex absolute bottom-12 right-10 z-20 flex-col items-end gap-1 font-mono text-[10px] text-white/50 tracking-widest animate-on-scroll [animation:animationIn_0.8s_ease-out_1.3s_both]">
+        <span>X <span id="coord-x">000</span> · Y <span id="coord-y">000</span></span>
+        <span>GRID 12 COL · 1400PX</span>
+      </div>
+    </div>
+
+    <!-- Coluna de métricas -->
+    <div class="col-span-1 md:col-span-3 grid grid-rows-3 h-full">
+      <div class="row-span-1 border-b border-stone-300 p-8 flex flex-col justify-between gap-8 reveal delay-500 hero-stat group hover:bg-white transition-colors duration-500 relative overflow-hidden flashlight-card flashlight-light" data-flashlight>
+        <div class="flex justify-between items-start">
+          <iconify-icon class="text-3xl text-stone-400 group-hover:text-stone-800 transition-colors" icon="solar:layers-minimalistic-linear"></iconify-icon>
+          <span class="font-mono text-[10px] text-stone-400">/01</span>
+        </div>
+        <div>
+          <h2 class="text-5xl font-medium tracking-tighter"><span data-count="32">0</span></h2>
+          <span class="text-xs font-mono text-stone-500 mt-1 block">COMPONENTES COM ESPECIFICAÇÃO</span>
+        </div>
+      </div>
+      <div class="row-span-1 border-b border-stone-300 p-8 flex flex-col justify-between gap-8 reveal delay-700 hero-stat group hover:bg-white transition-colors duration-500 relative overflow-hidden flashlight-card flashlight-light" data-flashlight>
+        <div class="flex justify-between items-start">
+          <iconify-icon class="text-3xl text-stone-400 group-hover:text-stone-800 transition-colors" icon="solar:palette-linear"></iconify-icon>
+          <span class="font-mono text-[10px] text-stone-400">/02</span>
+        </div>
+        <div>
+          <h2 class="text-5xl font-medium tracking-tighter"><span data-count="16">0</span></h2>
+          <span class="text-xs font-mono text-stone-500 mt-1 block">TOKENS DE COR</span>
+        </div>
+      </div>
+      <div class="row-span-1 p-8 flex flex-col justify-between gap-8 reveal delay-900 hero-stat group hover:bg-stone-900 hover:text-white transition-colors duration-500 relative overflow-hidden">
+        <div class="flex justify-between items-start">
+          <iconify-icon class="text-3xl text-stone-400 group-hover:text-[#D6A461] transition-colors" icon="solar:clock-circle-linear"></iconify-icon>
+          <span class="font-mono text-[10px] text-stone-400">/03</span>
+        </div>
+        <div class="relative z-10">
+          <h2 class="text-5xl font-medium tracking-tighter"><span data-count="18">0</span></h2>
+          <span class="text-xs font-mono text-stone-500 group-hover:text-stone-400 mt-1 block transition-colors">ANIMAÇÕES CATALOGADAS</span>
+        </div>
+        <div class="absolute top-4 right-4 animate-spin-slow">
+          <iconify-icon class="text-stone-700 text-6xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" icon="solar:star-fall-linear"></iconify-icon>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Marquee de lettering transparente -->
+  <div class="relative z-10 border-b border-stone-300 overflow-hidden py-8 bg-stone-100/50">
+    <div class="marquee-container">
+      <div class="marquee-content">
+        <span class="text-5xl md:text-7xl font-semibold tracking-tighter text-outline mx-6">Tipografia</span>
+        <iconify-icon class="text-3xl text-[#D6A461] mx-2" icon="solar:star-shine-bold-duotone"></iconify-icon>
+        <span class="text-5xl md:text-7xl font-serif text-stone-900 mx-6">Cores</span>
+        <iconify-icon class="text-3xl text-[#D6A461] mx-2" icon="solar:star-shine-bold-duotone"></iconify-icon>
+        <span class="text-5xl md:text-7xl font-semibold tracking-tighter text-outline mx-6">Componentes</span>
+        <iconify-icon class="text-3xl text-[#D6A461] mx-2" icon="solar:star-shine-bold-duotone"></iconify-icon>
+        <span class="text-5xl md:text-7xl font-serif text-stone-900 mx-6">Ícones</span>
+        <iconify-icon class="text-3xl text-[#D6A461] mx-2" icon="solar:star-shine-bold-duotone"></iconify-icon>
+        <span class="text-5xl md:text-7xl font-semibold tracking-tighter text-outline mx-6">Movimento</span>
+        <iconify-icon class="text-3xl text-[#D6A461] mx-2" icon="solar:star-shine-bold-duotone"></iconify-icon>
+      </div>
+      <div aria-hidden="true" class="marquee-content">
+        <span class="text-5xl md:text-7xl font-semibold tracking-tighter text-outline mx-6">Tipografia</span>
+        <iconify-icon class="text-3xl text-[#D6A461] mx-2" icon="solar:star-shine-bold-duotone"></iconify-icon>
+        <span class="text-5xl md:text-7xl font-serif text-stone-900 mx-6">Cores</span>
+        <iconify-icon class="text-3xl text-[#D6A461] mx-2" icon="solar:star-shine-bold-duotone"></iconify-icon>
+        <span class="text-5xl md:text-7xl font-semibold tracking-tighter text-outline mx-6">Componentes</span>
+        <iconify-icon class="text-3xl text-[#D6A461] mx-2" icon="solar:star-shine-bold-duotone"></iconify-icon>
+        <span class="text-5xl md:text-7xl font-serif text-stone-900 mx-6">Ícones</span>
+        <iconify-icon class="text-3xl text-[#D6A461] mx-2" icon="solar:star-shine-bold-duotone"></iconify-icon>
+        <span class="text-5xl md:text-7xl font-semibold tracking-tighter text-outline mx-6">Movimento</span>
+        <iconify-icon class="text-3xl text-[#D6A461] mx-2" icon="solar:star-shine-bold-duotone"></iconify-icon>
+      </div>
+    </div>
+  </div>
+
+  <!-- Manifesto -->
+  <section class="section-shell z-10 py-24 md:py-32 border-b border-stone-300">
+    <div class="grid-bg"></div>
+    <div class="orb orb-white w-[520px] h-[520px] -top-40 left-1/4"></div>
+    <div class="orb orb-lume w-[380px] h-[380px] bottom-0 right-10 opacity-60" style="animation-delay:-8s"></div>
+    <div class="relative z-10 flex flex-col items-center gap-2 px-4">
+      <div class="flex items-center gap-4 md:gap-8">
+        <h2 class="text-6xl md:text-8xl lg:text-9xl font-semibold tracking-tighter text-stone-900">
+          <span class="text-reveal-wrapper"><span class="text-reveal-content">Luz</span></span>
+        </h2>
+        <a aria-label="Ir para tipografia" class="w-12 h-12 md:w-20 md:h-20 border border-stone-800 rounded-full flex items-center justify-center mt-2 md:mt-4 bg-transparent hover:bg-stone-900 hover:text-white transition-all duration-500 group" href="#tipografia">
+          <iconify-icon class="text-2xl md:text-4xl group-hover:translate-y-1 transition-transform duration-500" icon="solar:arrow-down-linear"></iconify-icon>
+        </a>
+        <h2 class="text-6xl md:text-8xl lg:text-9xl font-serif text-stone-900">
+          <span class="text-reveal-wrapper"><span class="text-reveal-content delay-100">&amp;</span></span>
+        </h2>
+      </div>
+      <h2 class="text-6xl md:text-8xl lg:text-9xl font-semibold tracking-tighter text-outline-fill is-filled-on-view">
+        <span class="text-reveal-wrapper"><span class="text-reveal-content delay-200">Estrutura</span></span>
+      </h2>
+      <p class="mt-10 max-w-xl text-center text-lg leading-relaxed text-stone-600 reveal delay-300">
+        Monólito une a <span class="text-stone-900 font-medium">precisão editorial</span> do Digital Architect com a <span class="font-serif text-xl text-stone-900">física do movimento</span> do Animations Gemini: superfícies claras, lettering transparente e luz âmbar como único acento.
+      </p>
+    </div>
+    <div class="absolute top-1/2 left-0 w-full h-px bg-stone-300 -z-10"></div>
+    <div class="absolute top-10 right-[10%] opacity-20 parallax-element" data-speed="-0.02">
+      <iconify-icon class="text-9xl" icon="solar:record-circle-linear"></iconify-icon>
+    </div>
+  </section>
+
+  <!-- ===================== 01 TIPOGRAFIA ===================== -->
+  <section class="section-shell z-10 border-b border-stone-300" id="tipografia">
+    <div class="grid-bg"></div>
+    <div class="orb orb-nevoa w-[500px] h-[500px] top-40 -right-40 opacity-50"></div>
+
+    <div class="relative z-10 grid grid-cols-1 md:grid-cols-12 border-b border-stone-300 bg-stone-100/50">
+      <div class="md:col-span-8 p-8 md:p-12">
+        <span class="text-xs font-mono uppercase text-stone-500 block mb-2 reveal">01 / Fundamentos</span>
+        <h2 class="text-4xl md:text-6xl font-medium tracking-tighter">
+          <span class="text-reveal-wrapper"><span class="text-reveal-content">Tipografia</span></span>
+          <span class="text-reveal-wrapper"><span class="text-reveal-content delay-100 font-serif font-normal text-stone-400">&amp; ritmo</span></span>
+        </h2>
+      </div>
+      <div class="md:col-span-4 p-8 md:p-12 md:border-l border-stone-300 flex items-end reveal delay-200">
+        <p class="text-sm leading-relaxed text-stone-500">Uma sans neutra para estrutura, uma serifa para emoção e uma mono para dados técnicos. Tracking negativo nos títulos, positivo nos rótulos.</p>
+      </div>
+    </div>
+
+    <!-- Famílias -->
+    <div class="relative z-10 grid grid-cols-1 md:grid-cols-3 border-b border-stone-300">
+      <article class="p-8 md:p-10 border-b md:border-b-0 md:border-r border-stone-300 group hover:bg-white transition-colors duration-500 flashlight-card flashlight-light relative overflow-hidden reveal" data-flashlight>
+        <div class="flex justify-between items-start mb-10">
+          <span class="font-mono text-[11px] uppercase tracking-widest text-stone-500">Primária · Sans</span>
+          <span class="px-2 py-0.5 border border-stone-300 rounded-full text-[10px] font-mono uppercase">300–600</span>
+        </div>
+        <div class="text-8xl font-semibold tracking-tighter leading-none mb-6 group-hover:translate-x-2 transition-transform duration-500">Aa</div>
+        <h3 class="text-2xl font-medium tracking-tight mb-2">Inter</h3>
+        <p class="font-mono text-[11px] text-stone-500 leading-relaxed">'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif</p>
+        <div class="mt-6 flex gap-3 text-xl"><span class="font-light">Ag</span><span class="font-normal">Ag</span><span class="font-medium">Ag</span><span class="font-semibold">Ag</span></div>
+      </article>
+      <article class="p-8 md:p-10 border-b md:border-b-0 md:border-r border-stone-300 group hover:bg-white transition-colors duration-500 flashlight-card flashlight-light relative overflow-hidden reveal delay-100" data-flashlight>
+        <div class="flex justify-between items-start mb-10">
+          <span class="font-mono text-[11px] uppercase tracking-widest text-stone-500">Acento · Serif</span>
+          <span class="px-2 py-0.5 border border-stone-300 rounded-full text-[10px] font-mono uppercase">400</span>
+        </div>
+        <div class="text-8xl font-serif leading-none mb-6 group-hover:translate-x-2 transition-transform duration-500">Aa</div>
+        <h3 class="text-2xl font-medium tracking-tight mb-2">Instrument Serif</h3>
+        <p class="font-mono text-[11px] text-stone-500 leading-relaxed">'Instrument Serif', ui-serif, Georgia, Cambria, serif</p>
+        <p class="mt-6 font-serif text-2xl text-stone-600">Usada em palavras de ênfase dentro de títulos.</p>
+      </article>
+      <article class="p-8 md:p-10 group hover:bg-stone-900 hover:text-white transition-colors duration-500 relative overflow-hidden reveal delay-200">
+        <div class="flex justify-between items-start mb-10">
+          <span class="font-mono text-[11px] uppercase tracking-widest text-stone-500">Técnica · Mono</span>
+          <span class="px-2 py-0.5 border border-stone-300 group-hover:border-stone-700 rounded-full text-[10px] font-mono uppercase">300–700</span>
+        </div>
+        <div class="text-8xl font-mono leading-none mb-6 group-hover:translate-x-2 transition-transform duration-500">Aa</div>
+        <h3 class="text-2xl font-medium tracking-tight mb-2">Geist Mono</h3>
+        <p class="font-mono text-[11px] text-stone-500 leading-relaxed">'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace</p>
+        <p class="mt-6 font-mono text-xs uppercase tracking-widest text-stone-500 group-hover:text-[#D6A461] transition-colors">01 / 08 — #EAEAE5 — 1.2s</p>
+      </article>
+    </div>
+
+    <!-- Estratégia de carregamento -->
+    <div class="relative z-10 grid grid-cols-1 md:grid-cols-12 border-b border-stone-300">
+      <div class="md:col-span-3 p-8 md:p-10 md:border-r border-stone-300 reveal">
+        <iconify-icon class="text-4xl text-stone-800 mb-4" icon="solar:download-minimalistic-linear"></iconify-icon>
+        <h3 class="text-sm font-bold uppercase tracking-widest">Carregamento</h3>
+        <p class="text-sm text-stone-500 mt-3 leading-relaxed">Arquivos <span class="font-mono">woff2</span> locais, servidos de <span class="font-mono">/assets</span>, sem dependência de CDN de fontes.</p>
+      </div>
+      <div class="md:col-span-9 grid grid-cols-1 sm:grid-cols-3">
+        <div class="p-8 md:p-10 border-t md:border-t-0 sm:border-r border-stone-300 reveal delay-100">
+          <span class="font-mono text-[10px] uppercase tracking-widest text-stone-400">Estratégia</span>
+          <p class="mt-2 text-lg font-medium tracking-tight">@font-face local</p>
+          <p class="text-sm text-stone-500 mt-1">font-display: swap · subsets latin + latin-ext via unicode-range</p>
+        </div>
+        <div class="p-8 md:p-10 border-t md:border-t-0 sm:border-r border-stone-300 reveal delay-200">
+          <span class="font-mono text-[10px] uppercase tracking-widest text-stone-400">Arquivos CSS</span>
+          <p class="mt-2 font-mono text-xs leading-6 text-stone-700">css2_19fd9cc6b396.css<br/>css2_2b2d87bc82d8.css<br/>css2_62759cd015bd.css</p>
+        </div>
+        <div class="p-8 md:p-10 border-t md:border-t-0 border-stone-300 reveal delay-300">
+          <span class="font-mono text-[10px] uppercase tracking-widest text-stone-400">Faixas de peso</span>
+          <p class="mt-2 text-sm text-stone-700 leading-6">Inter 300 · 400 · 500 · 600<br/>Instrument Serif 400<br/>Geist Mono 300 → 700</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Escala tipográfica -->
+    <div class="relative z-10">
+      <div class="hidden md:grid grid-cols-12 px-12 py-4 border-b border-stone-300 font-mono text-[10px] uppercase tracking-widest text-stone-400 bg-stone-100/50">
+        <span class="col-span-2">Papel</span><span class="col-span-6">Amostra</span><span class="col-span-4 grid grid-cols-5 gap-2 text-right"><span>Família</span><span>Peso</span><span>Tam./Alt.</span><span>Tracking</span><span>Caixa</span></span>
+      </div>
+      <div id="type-scale"></div>
+    </div>
+  </section>
+
+  <!-- ===================== 02 CORES ===================== -->
+  <section class="section-shell z-10 border-b border-stone-300" id="cores">
+    <div class="grid-bg"></div>
+    <div class="orb orb-lume w-[560px] h-[560px] -top-40 -left-40 opacity-40"></div>
+
+    <div class="relative z-10 grid grid-cols-1 md:grid-cols-12 border-b border-stone-300 bg-stone-100/50">
+      <div class="md:col-span-8 p-8 md:p-12">
+        <span class="text-xs font-mono uppercase text-stone-500 block mb-2 reveal">02 / Fundamentos</span>
+        <h2 class="text-4xl md:text-6xl font-medium tracking-tighter">
+          <span class="text-reveal-wrapper"><span class="text-reveal-content">Cores</span></span>
+          <span class="text-reveal-wrapper"><span class="text-reveal-content delay-100 font-serif font-normal text-stone-400">&amp; superfícies</span></span>
+        </h2>
+      </div>
+      <div class="md:col-span-4 p-8 md:p-12 md:border-l border-stone-300 flex items-end reveal delay-200">
+        <p class="text-sm leading-relaxed text-stone-500">Paleta pedra quase monocromática. O âmbar <span class="font-mono text-stone-800">Lume</span> é a única cor quente: luz, foco e destaque. Valores RGB, HSL e contraste são calculados ao vivo.</p>
+      </div>
+    </div>
+
+    <!-- Swatches -->
+    <div class="relative z-10 grid grid-cols-2 md:grid-cols-4" id="swatches"></div>
+
+    <!-- Opacidade -->
+    <div class="relative z-10 grid grid-cols-1 md:grid-cols-12 border-t border-stone-300">
+      <div class="md:col-span-3 p-8 md:p-10 md:border-r border-stone-300 reveal">
+        <h3 class="text-sm font-bold uppercase tracking-widest">Variações de opacidade</h3>
+        <p class="text-sm text-stone-500 mt-3 leading-relaxed">Usadas em bordas (<span class="font-mono">/40</span>), vidro (<span class="font-mono">/60</span>) e sobreposições (<span class="font-mono">/10</span>).</p>
+      </div>
+      <div class="md:col-span-9 p-8 md:p-10 space-y-4" id="opacity-rows"></div>
+    </div>
+
+    <!-- Gradientes -->
+    <div class="relative z-10 border-t border-stone-300">
+      <div class="p-8 md:p-10 border-b border-stone-300 flex flex-wrap justify-between items-end gap-4 reveal">
+        <h3 class="text-sm font-bold uppercase tracking-widest">Participação em gradientes</h3>
+        <span class="font-mono text-[11px] text-stone-500 uppercase tracking-widest">Passe o mouse para animar</span>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-4">
+        <div class="group p-8 md:p-10 border-b md:border-b-0 md:border-r border-stone-300 reveal">
+          <div class="h-40 rounded-lg bg-gradient-to-b from-transparent to-stone-900/80 bg-stone-300 relative overflow-hidden mb-4">
+            <img alt="" class="absolute inset-0 w-full h-full object-cover grayscale mix-blend-multiply group-hover:scale-110 transition-transform duration-[2s]" src="assets/ede50f82-0ad0-4579-a4ae-3a9428_fd09ad4bf2a1.jpg"/>
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent to-stone-900/70"></div>
+          </div>
+          <p class="text-sm font-medium">Véu de imagem</p>
+          <p class="font-mono text-[11px] text-stone-500 mt-1">transparent → stone-900/40·70</p>
+        </div>
+        <div class="group p-8 md:p-10 border-b md:border-b-0 md:border-r border-stone-300 reveal delay-100">
+          <div class="h-40 rounded-lg mb-4 relative overflow-hidden" style="background: linear-gradient(100deg, #1C1917, #D6A461, #EAEAE5); background-size: 200% 100%; transition: background-position 1.5s cubic-bezier(0.16,1,0.3,1)" onmouseenter="this.style.backgroundPosition='100% 0'" onmouseleave="this.style.backgroundPosition='0 0'"></div>
+          <p class="text-sm font-medium">Feixe Lume</p>
+          <p class="font-mono text-[11px] text-stone-500 mt-1">grafite → lume → osso</p>
+        </div>
+        <div class="group p-8 md:p-10 border-b md:border-b-0 md:border-r border-stone-300 reveal delay-200">
+          <div class="h-40 rounded-lg mb-4 bg-stone-900 relative overflow-hidden flex items-center justify-center">
+            <div class="w-24 h-24 rounded-xl bg-gradient-to-br from-white/10 to-white/0 backdrop-blur-md relative group-hover:scale-110 transition-transform duration-700" style="--border-gradient: linear-gradient(135deg, rgba(255,255,255,.35), rgba(255,255,255,0)); --border-radius-before: 12px">
+              <iconify-icon class="absolute inset-0 m-auto text-3xl text-white" icon="solar:stars-minimalistic-bold-duotone"></iconify-icon>
+            </div>
+          </div>
+          <p class="text-sm font-medium">Vidro com borda gradiente</p>
+          <p class="font-mono text-[11px] text-stone-500 mt-1">white/10 → white/0 · --border-gradient</p>
+        </div>
+        <div class="group p-8 md:p-10 reveal delay-300">
+          <div class="h-40 rounded-lg mb-4 bg-[#EAEAE5] border border-stone-300 relative overflow-hidden flex items-center justify-center">
+            <span class="text-6xl font-semibold tracking-tighter text-lume-gradient">Lume</span>
+          </div>
+          <p class="text-sm font-medium">Texto com varredura</p>
+          <p class="font-mono text-[11px] text-stone-500 mt-1">background-clip: text · 6s</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Uso contextual -->
+    <div class="relative z-10 border-t border-stone-300">
+      <div class="p-8 md:p-10 border-b border-stone-300 reveal">
+        <h3 class="text-sm font-bold uppercase tracking-widest">Regras de uso contextual</h3>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="p-8 border-b sm:border-r border-stone-300 reveal">
+          <span class="font-mono text-[10px] uppercase tracking-widest text-stone-400">Texto</span>
+          <p class="mt-3 text-stone-900 font-medium">Tinta #1C1C1C — títulos e corpo</p>
+          <p class="text-stone-500 text-sm mt-1">Pedra 500 #78716C — secundário · Pedra 400 — apenas ≥ 18px</p>
+        </div>
+        <div class="p-8 border-b lg:border-r border-stone-300 reveal delay-100">
+          <span class="font-mono text-[10px] uppercase tracking-widest text-stone-400">Fundo</span>
+          <div class="mt-3 flex gap-2"><span class="w-8 h-8 rounded bg-[#EAEAE5] border border-stone-300"></span><span class="w-8 h-8 rounded bg-white border border-stone-300"></span><span class="w-8 h-8 rounded bg-stone-100 border border-stone-300"></span><span class="w-8 h-8 rounded bg-stone-900"></span></div>
+          <p class="text-stone-500 text-sm mt-2">Osso é a base; Branco é elevação/hover; Grafite é inversão (footer, CTA).</p>
+        </div>
+        <div class="p-8 border-b sm:border-r lg:border-r-0 border-stone-300 reveal delay-200">
+          <span class="font-mono text-[10px] uppercase tracking-widest text-stone-400">Borda</span>
+          <div class="mt-3 h-8 border border-stone-300 rounded flex items-center px-3 text-xs font-mono text-stone-500">stone-300 · 1px</div>
+          <p class="text-stone-500 text-sm mt-2">Guias: stone-300/40. Em escuro: white/10 ou ring-white/5.</p>
+        </div>
+        <div class="p-8 border-b lg:border-b-0 lg:border-r border-stone-300 reveal">
+          <span class="font-mono text-[10px] uppercase tracking-widest text-stone-400">Hover</span>
+          <button class="mt-3 w-full h-10 border border-stone-300 bg-[#EAEAE5] hover:bg-white transition-colors duration-500 text-sm">bg osso → branco</button>
+          <p class="text-stone-500 text-sm mt-2">Escuro: stone-900 → stone-700. Ícone: stone-400 → stone-800.</p>
+        </div>
+        <div class="p-8 border-b sm:border-b-0 sm:border-r border-stone-300 reveal delay-100">
+          <span class="font-mono text-[10px] uppercase tracking-widest text-stone-400">Ativo / foco</span>
+          <button class="mt-3 w-full h-10 bg-stone-900 text-white text-sm active:scale-[.97] transition-transform ring-2 ring-[#D6A461] ring-offset-2 ring-offset-[#EAEAE5]">Lume = foco visível</button>
+          <p class="text-stone-500 text-sm mt-2">Pressionado: scale .97. Foco: anel Lume 2px, offset 3px.</p>
+        </div>
+        <div class="p-8 reveal delay-200">
+          <span class="font-mono text-[10px] uppercase tracking-widest text-stone-400">Desabilitado</span>
+          <button class="mt-3 w-full h-10 bg-stone-200 text-stone-400 text-sm cursor-not-allowed border border-dashed border-stone-300" disabled>Indisponível</button>
+          <p class="text-stone-500 text-sm mt-2">Fundo stone-200, texto stone-400, borda tracejada. Nunca só opacidade.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Matriz de contraste -->
+    <div class="relative z-10 border-t border-stone-300">
+      <div class="p-8 md:p-10 border-b border-stone-300 flex flex-wrap justify-between items-end gap-4 reveal">
+        <h3 class="text-sm font-bold uppercase tracking-widest">Intenção de contraste (WCAG 2.1)</h3>
+        <span class="font-mono text-[11px] text-stone-500">AA ≥ 4.5 · AA Grande ≥ 3 · AAA ≥ 7</span>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" id="contrast-grid"></div>
+    </div>
+  </section>
+
+  <!-- ===================== 03 COMPONENTES ===================== -->
+  <section class="section-shell z-10 border-b border-stone-300" id="componentes">
+    <div class="grid-bg"></div>
+    <div class="orb orb-white w-[600px] h-[600px] top-1/3 -left-60"></div>
+    <div class="orb orb-lume w-[420px] h-[420px] top-2/3 -right-40 opacity-40" style="animation-delay:-11s"></div>
+
+    <div class="relative z-10 grid grid-cols-1 md:grid-cols-12 border-b border-stone-300 bg-stone-100/50">
+      <div class="md:col-span-8 p-8 md:p-12">
+        <span class="text-xs font-mono uppercase text-stone-500 block mb-2 reveal">03 / Elementos de UI</span>
+        <h2 class="text-4xl md:text-6xl font-medium tracking-tighter">
+          <span class="text-reveal-wrapper"><span class="text-reveal-content">Componentes</span></span>
+          <span class="text-reveal-wrapper"><span class="text-reveal-content delay-100 font-serif font-normal text-stone-400">vivos</span></span>
+        </h2>
+      </div>
+      <div class="md:col-span-4 p-8 md:p-12 md:border-l border-stone-300 flex items-end reveal delay-200">
+        <p class="text-sm leading-relaxed text-stone-500">Cada componente traz anatomia, estados e tokens. Todos entram com <span class="font-mono text-stone-800">.reveal</span> e reagem com a curva <span class="font-mono text-stone-800">ease-architect</span>.</p>
+      </div>
+    </div>
+
+    <!-- ---------- Botões ---------- -->
+    <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 border-b border-stone-300">
+      <div class="lg:col-span-3 p-8 md:p-10 lg:border-r border-stone-300 reveal">
+        <span class="font-mono text-[10px] text-stone-400">3.1</span>
+        <h3 class="text-2xl font-medium tracking-tight mt-1 mb-4">Botões</h3>
+        <dl class="space-y-2 text-xs font-mono text-stone-500">
+          <div class="flex justify-between border-b border-stone-300 pb-2"><dt>Altura</dt><dd class="text-stone-800">44px / 52px</dd></div>
+          <div class="flex justify-between border-b border-stone-300 pb-2"><dt>Raio</dt><dd class="text-stone-800">6px · full</dd></div>
+          <div class="flex justify-between border-b border-stone-300 pb-2"><dt>Texto</dt><dd class="text-stone-800">14/500</dd></div>
+          <div class="flex justify-between border-b border-stone-300 pb-2"><dt>Transição</dt><dd class="text-stone-800">300–500ms</dd></div>
+          <div class="flex justify-between"><dt>Ícone</dt><dd class="text-stone-800">18px · gap 8</dd></div>
+        </dl>
+      </div>
+      <div class="lg:col-span-9 grid grid-cols-1 md:grid-cols-2">
+        <div class="p-8 md:p-10 border-t lg:border-t-0 md:border-r border-b border-stone-300 flex flex-col gap-6 reveal delay-100">
+          <span class="font-mono text-[10px] uppercase tracking-widest text-stone-400">Primário · beam-button + glow</span>
+          <div class="flex flex-wrap items-center gap-4">
+            <button class="beam-button glow-on-hover px-6 py-3 bg-stone-900 text-white rounded-md text-sm font-medium hover:bg-stone-700 transition-all flex items-center gap-2 group active:scale-[.97]">
+              Baixar kit
+              <iconify-icon class="text-lg group-hover:translate-y-1 transition-transform" icon="solar:file-download-linear"></iconify-icon>
+            </button>
+            <button class="px-6 py-3 bg-stone-900 text-white rounded-md text-sm font-medium flex items-center gap-2 ring-2 ring-[#D6A461] ring-offset-2 ring-offset-[#EAEAE5]">Foco</button>
+            <button class="px-6 py-3 bg-stone-200 text-stone-400 rounded-md text-sm font-medium cursor-not-allowed border border-dashed border-stone-300" disabled>Desabilitado</button>
+          </div>
+          <button class="self-start px-6 py-3 bg-stone-900 text-white rounded-md text-sm font-medium flex items-center gap-3" data-loading-btn>
+            <span class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin hidden" data-spinner></span>
+            <span data-label>Clique para carregar</span>
+          </button>
+        </div>
+        <div class="p-8 md:p-10 border-b border-stone-300 flex flex-col gap-6 bg-stone-950 text-white relative overflow-hidden reveal delay-200">
+          <div class="absolute inset-0 grid-bg-dark"></div>
+          <span class="relative font-mono text-[10px] uppercase tracking-widest text-stone-500">Beam · conic + shimmer (Gemini)</span>
+          <div class="relative group self-start" data-magnetic>
+            <div class="absolute -inset-2 rounded-full bg-[#D6A461]/30 blur-xl opacity-0 group-hover:opacity-100 transition duration-500"></div>
+            <button class="group relative z-10 flex items-center justify-center overflow-hidden rounded-full p-[1px] leading-none">
+              <span class="beam-ring"></span>
+              <span class="relative flex items-center rounded-full bg-black px-8 py-4 ring-1 ring-white/10">
+                <span class="absolute inset-0 overflow-hidden rounded-full"><span class="absolute top-0 left-0 h-full w-full -skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:animate-[shimmer_1.5s_infinite] group-hover:opacity-100"></span></span>
+                <span class="relative z-10 font-medium tracking-wide">Obter acesso</span>
+                <span class="relative z-10 ml-4 flex items-center text-neutral-500 transition duration-200 group-hover:translate-x-1 group-hover:text-white"><iconify-icon class="text-2xl" icon="solar:arrow-right-bold-duotone"></iconify-icon></span>
+              </span>
+            </button>
+          </div>
+          <button class="relative w-full group flex items-center justify-center gap-3 bg-white text-black py-4 overflow-hidden hover:bg-neutral-200 transition-colors">
+            <span class="text-xs font-bold uppercase tracking-widest z-10">Bloco largo</span>
+            <iconify-icon class="text-xl z-10 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" icon="solar:arrow-right-up-bold-duotone"></iconify-icon>
+          </button>
+        </div>
+        <div class="p-8 md:p-10 md:border-r border-b md:border-b-0 border-stone-300 flex flex-col gap-6 reveal delay-100">
+          <span class="font-mono text-[10px] uppercase tracking-widest text-stone-400">Secundário · pílula outline</span>
+          <a class="self-start inline-flex items-center gap-2 text-sm font-medium uppercase tracking-widest border border-stone-900 rounded-full px-8 py-3 hover:bg-stone-900 hover:text-white transition-all group" href="#componentes">
+            Ver todos
+            <iconify-icon class="text-lg group-hover:translate-x-1 transition-transform" icon="solar:arrow-right-linear"></iconify-icon>
+          </a>
+          <div class="flex items-center gap-6">
+            <a class="text-sm font-medium text-stone-600 hover:text-stone-900 border-b border-stone-400 hover:border-stone-900 pb-0.5 transition-colors" href="#componentes">Link de texto</a>
+            <a class="text-sm font-medium text-stone-900 link-grow pb-0.5" href="#componentes">Link que cresce</a>
+          </div>
+        </div>
+        <div class="p-8 md:p-10 flex flex-col gap-6 reveal delay-200">
+          <span class="font-mono text-[10px] uppercase tracking-widest text-stone-400">Ícone · circular · tooltip</span>
+          <div class="flex flex-wrap items-center gap-4">
+            <button aria-label="Descer" class="w-14 h-14 border border-stone-800 rounded-full flex items-center justify-center hover:bg-stone-900 hover:text-white transition-all duration-500 group" data-tip="Descer">
+              <iconify-icon class="text-2xl group-hover:translate-y-1 transition-transform" icon="solar:arrow-down-linear"></iconify-icon>
+            </button>
+            <button aria-label="Anterior" class="relative w-14 h-14 rounded-full flex items-center justify-center bg-stone-900 text-stone-400 hover:bg-white hover:text-black transition-colors" data-tip="Anterior" style="--border-gradient: linear-gradient(135deg, rgba(255,255,255,.3), rgba(255,255,255,0)); --border-radius-before: 9999px">
+              <iconify-icon class="text-xl" icon="solar:arrow-left-bold-duotone"></iconify-icon>
+            </button>
+            <button aria-label="Favoritar" class="w-14 h-14 rounded-full flex items-center justify-center border border-stone-300 hover:border-[#D6A461] hover:text-[#B9853F] transition-colors group" data-tip="Favoritar" data-tip-tone="lume">
+              <iconify-icon class="text-xl group-hover:scale-125 transition-transform duration-500" icon="solar:heart-bold-duotone"></iconify-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- Inputs ---------- -->
+    <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 border-b border-stone-300">
+      <div class="lg:col-span-3 p-8 md:p-10 lg:border-r border-b lg:border-b-0 border-stone-300 reveal">
+        <span class="font-mono text-[10px] text-stone-400">3.2</span>
+        <h3 class="text-2xl font-medium tracking-tight mt-1 mb-4">Inputs</h3>
+        <dl class="space-y-2 text-xs font-mono text-stone-500">
+          <div class="flex justify-between border-b border-stone-300 pb-2"><dt>Estilo</dt><dd class="text-stone-800">linha inferior</dd></div>
+          <div class="flex justify-between border-b border-stone-300 pb-2"><dt>Label</dt><dd class="text-stone-800">flutuante → mono 11px</dd></div>
+          <div class="flex justify-between border-b border-stone-300 pb-2"><dt>Foco</dt><dd class="text-stone-800">barra 600ms + ponto lume</dd></div>
+          <div class="flex justify-between"><dt>Erro</dt><dd class="text-[#B4432F]">#B4432F</dd></div>
+        </dl>
+      </div>
+      <form class="lg:col-span-9 p-8 md:p-10 grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8" onsubmit="event.preventDefault(); showToast('Formulário enviado (demo)')">
+        <div class="field reveal">
+          <input id="f-nome" placeholder=" " type="text"/>
+          <label for="f-nome">Nome completo</label>
+          <span class="bar"></span>
+          <p class="text-xs text-stone-500 mt-2">Texto de ajuda: como aparecerá no crachá.</p>
+        </div>
+        <div class="field reveal delay-100">
+          <input id="f-email" placeholder=" " type="email"/>
+          <label for="f-email">E-mail</label>
+          <span class="bar"></span>
+          <iconify-icon class="absolute right-0 top-6 text-stone-400" icon="solar:letter-linear"></iconify-icon>
+        </div>
+        <div class="field is-error reveal delay-200">
+          <input id="f-senha" placeholder=" " type="password" value="123"/>
+          <label for="f-senha">Senha</label>
+          <span class="bar"></span>
+          <p class="text-xs text-[#B4432F] mt-2 flex items-center gap-1"><iconify-icon icon="solar:danger-circle-linear"></iconify-icon> Mínimo de 8 caracteres.</p>
+        </div>
+        <div class="field reveal delay-300">
+          <input disabled id="f-off" placeholder=" " type="text" value="Campo bloqueado"/>
+          <label for="f-off">Desabilitado</label>
+          <span class="bar"></span>
+        </div>
+        <div class="field md:col-span-2 reveal">
+          <textarea id="f-msg" placeholder=" " rows="2"></textarea>
+          <label for="f-msg">Mensagem</label>
+          <span class="bar"></span>
+        </div>
+        <div class="flex flex-wrap items-center gap-8 reveal delay-100">
+          <label class="toggle inline-flex items-center gap-3 cursor-pointer text-sm">
+            <input checked type="checkbox"/><span class="track"><span class="thumb"></span></span> Notificações
+          </label>
+          <label class="check inline-flex items-center gap-3 cursor-pointer text-sm">
+            <input checked type="checkbox"/><span class="box"><svg fill="none" height="12" stroke="#fff" stroke-width="2" viewBox="0 0 12 12" width="12"><path d="M2 6.5 5 9l5-6"/></svg></span> Aceito os termos
+          </label>
+        </div>
+        <div class="flex md:justify-end reveal delay-200">
+          <button class="beam-button glow-on-hover px-6 py-3 bg-stone-900 text-white rounded-md text-sm font-medium hover:bg-stone-700 transition-all flex items-center gap-2 group" type="submit">
+            Enviar <iconify-icon class="text-lg group-hover:translate-x-1 transition-transform" icon="solar:plain-linear"></iconify-icon>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- ---------- Cards ---------- -->
+    <div class="relative z-10 border-b border-stone-300">
+      <div class="p-8 md:p-10 border-b border-stone-300 flex flex-wrap justify-between items-end gap-4 reveal">
+        <div><span class="font-mono text-[10px] text-stone-400">3.3</span><h3 class="text-2xl font-medium tracking-tight mt-1">Cards</h3></div>
+        <span class="font-mono text-[11px] text-stone-500">Projeto · Lanterna · Vidro · Inclinação 3D</span>
+      </div>
+      <!-- Card de projeto (Digital Architect) -->
+      <div class="group border-b border-stone-300 bg-[#EAEAE5] hover:bg-white transition-colors duration-500 cursor-pointer overflow-hidden">
+        <div class="grid grid-cols-1 md:grid-cols-12 min-h-[260px]">
+          <div class="col-span-1 md:col-span-5 p-8 md:p-12 md:border-r border-stone-300 reveal flex flex-col justify-center">
+            <div class="flex items-center gap-3 mb-4">
+              <span class="text-xs font-mono text-stone-500">01</span>
+              <div class="h-px w-8 bg-stone-300 group-hover:w-16 group-hover:bg-[#D6A461] transition-all duration-700"></div>
+              <span class="text-xs font-bold uppercase tracking-wider text-stone-900">Fintech</span>
+            </div>
+            <h4 class="text-4xl md:text-5xl font-medium tracking-tight mb-4 group-hover:translate-x-2 transition-transform duration-500">Nova Finance</h4>
+            <p class="text-stone-500 text-sm leading-relaxed max-w-sm">Card de projeto: o fundo vai de osso a branco, o título desliza 8px e a imagem ganha cor e escala 1.05.</p>
+          </div>
+          <div class="col-span-7 relative overflow-hidden min-h-[220px]">
+            <div class="absolute inset-0 bg-stone-100 flex items-center justify-center p-6 md:p-8">
+              <img alt="Prévia de interface financeira" class="w-full h-full object-cover grayscale opacity-80 group-hover:scale-105 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700" src="assets/4b7d31e6-5b45-47eb-9853-96bbb9_bf1aa5f9d2cf.webp"/>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3">
+        <!-- Lanterna -->
+        <div class="p-8 md:p-10 border-b md:border-b-0 md:border-r border-stone-300 bg-stone-950 reveal">
+          <div class="flashlight-card aspect-square bg-neutral-900/60 ring-1 ring-white/5 p-6 flex flex-col justify-end group overflow-hidden" data-flashlight>
+            <div class="absolute inset-0 grid-bg-dark"></div>
+            <iconify-icon class="relative text-5xl text-neutral-500 mb-4 group-hover:text-[#D6A461] transition-colors duration-500" icon="solar:cpu-bold-duotone"></iconify-icon>
+            <div class="relative text-sm text-neutral-300 font-medium tracking-wide">Card lanterna</div>
+            <div class="relative font-mono text-[10px] text-neutral-500 mt-1">.flashlight-card · --mouse-x/y</div>
+          </div>
+        </div>
+        <!-- Vidro sobre imagem -->
+        <div class="p-8 md:p-10 border-b md:border-b-0 md:border-r border-stone-300 reveal delay-100">
+          <div class="aspect-square relative overflow-hidden group">
+            <img alt="Arquitetura minimalista" class="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-[1.5s]" src="assets/ddab06d9-9060-42a5-9052-32121a_7062a2506669.webp"/>
+            <div class="absolute bottom-4 left-4 right-4 glass-panel text-white p-5 translate-y-3 group-hover:translate-y-0 transition-transform duration-700" style="--border-gradient: linear-gradient(135deg, rgba(255,255,255,.3), rgba(255,255,255,0)); --border-radius-before: 0">
+              <span class="font-mono text-[10px] uppercase tracking-widest text-white/60">E-commerce</span>
+              <p class="text-lg font-medium tracking-tight mt-1">Canvas Supply</p>
+            </div>
+          </div>
+        </div>
+        <!-- Inclinação 3D -->
+        <div class="p-8 md:p-10 perspective-midrange reveal delay-200">
+          <div class="tilt aspect-square bg-white border border-stone-300 p-6 flex flex-col justify-between shadow-[0_30px_60px_-30px_rgba(28,25,23,.35)]" data-tilt>
+            <div class="flex justify-between items-start" style="transform: translateZ(40px)">
+              <div class="w-12 h-12 rounded-lg bg-stone-900 text-[#D6A461] flex items-center justify-center"><iconify-icon class="text-2xl" icon="solar:database-bold-duotone"></iconify-icon></div>
+              <span class="px-2 py-0.5 border border-stone-300 rounded-full text-[10px] font-mono uppercase">3D</span>
+            </div>
+            <div style="transform: translateZ(60px)">
+              <h2 class="text-5xl font-medium tracking-tighter">99<span class="text-stone-400">.9%</span></h2>
+              <span class="text-xs font-mono text-stone-500 mt-1 block">CARD INCLINÁVEL · PERSPECTIVE 800PX</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- Navbars ---------- -->
+    <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 border-b border-stone-300">
+      <div class="lg:col-span-3 p-8 md:p-10 lg:border-r border-b lg:border-b-0 border-stone-300 reveal">
+        <span class="font-mono text-[10px] text-stone-400">3.4</span>
+        <h3 class="text-2xl font-medium tracking-tight mt-1 mb-4">Navbars</h3>
+        <p class="text-sm text-stone-500 leading-relaxed">Entrada com <span class="font-mono">.nav-load</span> (−10px → 0, 800ms). Sticky, borda inferior stone-300, logo central com ícone que gira 180°.</p>
+      </div>
+      <div class="lg:col-span-9 p-8 md:p-10 space-y-6">
+        <div class="border border-stone-300 bg-[#EAEAE5] reveal">
+          <div class="relative flex justify-between items-center px-5 py-4">
+            <div class="flex gap-6"><a class="text-xs font-medium tracking-widest uppercase hover:text-stone-500 transition-colors" href="#componentes">Projetos</a><a class="text-xs font-medium tracking-widest uppercase hidden sm:block hover:text-stone-500 transition-colors" href="#componentes">Diário</a></div>
+            <div class="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 group cursor-pointer"><iconify-icon class="text-xl group-hover:rotate-180 transition-transform duration-700" icon="solar:atom-linear"></iconify-icon><span class="font-bold tracking-tighter">ESTÚDIO</span></div>
+            <div class="flex gap-6"><a class="text-xs font-medium tracking-widest uppercase hidden sm:block hover:text-stone-500 transition-colors" href="#componentes">Sobre</a><a class="text-xs font-medium tracking-widest uppercase hover:text-stone-500 transition-colors" href="#componentes">Contato</a></div>
+          </div>
+        </div>
+        <div class="bg-stone-900 p-4 md:p-6 relative overflow-hidden reveal delay-100">
+          <img alt="" class="absolute inset-0 w-full h-full object-cover grayscale opacity-40" src="assets/87e5e02b-a5b6-43ff-b9a4-5e299f_665111a88a86.jpg"/>
+          <div class="relative flex justify-between items-center gap-3">
+            <span class="text-xs md:text-sm font-semibold tracking-tight text-white uppercase backdrop-blur-md px-3 md:px-4 py-2 bg-black/40">Slides</span>
+            <div class="flex items-center gap-1 backdrop-blur-md p-1.5 rounded-full bg-black/40">
+              <a class="px-3 py-1.5 rounded-full text-xs text-white bg-white/15" href="#componentes">Início</a>
+              <a class="px-3 py-1.5 rounded-full text-xs text-white/70 hover:text-white hover:bg-white/10 transition-colors hidden sm:block" href="#componentes">Galeria</a>
+              <div class="w-px h-4 bg-white/10 mx-1"></div>
+              <button aria-label="Anterior" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors text-white/70 hover:text-white"><iconify-icon icon="solar:alt-arrow-up-bold-duotone" width="18"></iconify-icon></button>
+              <button aria-label="Próximo" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors text-white/70 hover:text-white"><iconify-icon icon="solar:alt-arrow-down-bold-duotone" width="18"></iconify-icon></button>
+            </div>
+          </div>
+        </div>
+        <p class="font-mono text-[11px] text-stone-500 reveal delay-200">Variante 3 · pontos laterais fixos: veja à direita desta página (≥ 1024px) — o ponto ativo ganha escala 1.4 e halo Lume.</p>
+      </div>
+    </div>
+
+    <!-- ---------- Sections ---------- -->
+    <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 border-b border-stone-300">
+      <div class="lg:col-span-3 p-8 md:p-10 lg:border-r border-b lg:border-b-0 border-stone-300 reveal">
+        <span class="font-mono text-[10px] text-stone-400">3.5</span>
+        <h3 class="text-2xl font-medium tracking-tight mt-1 mb-4">Seções</h3>
+        <p class="text-sm text-stone-500 leading-relaxed">Anatomia: <span class="font-mono">.section-shell</span> + <span class="font-mono">.grid-bg</span> mascarado + 1–2 <span class="font-mono">.orb</span> + cabeçalho "0X / Rótulo" + grid de 12 colunas com bordas.</p>
+      </div>
+      <div class="lg:col-span-9 p-8 md:p-10">
+        <div class="section-shell border border-stone-300 bg-stone-100/60 reveal">
+          <div class="grid-bg"></div>
+          <div class="orb orb-lume w-64 h-64 -top-20 right-10 opacity-60"></div>
+          <div class="relative z-10 grid grid-cols-12 text-[10px] font-mono uppercase tracking-widest text-stone-400">
+            <div class="col-span-12 sm:col-span-4 p-6 border-b sm:border-b-0 sm:border-r border-dashed border-stone-300">
+              <span class="block mb-2">Cabeçalho</span>
+              <span class="text-xs text-stone-500 block mb-1 normal-case tracking-normal">02 / Diário</span>
+              <p class="text-3xl font-sans normal-case tracking-tight text-stone-900 font-medium">Escrita</p>
+            </div>
+            <div class="col-span-12 sm:col-span-8 p-6">
+              <span class="block mb-3">Conteúdo · padding 32 / 48px</span>
+              <div class="grid grid-cols-3 gap-2 h-20">
+                <div class="bg-stone-300/50 rounded animate-on-scroll [animation:animationIn_0.8s_ease-out_0.2s_both]"></div>
+                <div class="bg-stone-300/50 rounded animate-on-scroll [animation:animationIn_0.8s_ease-out_0.35s_both]"></div>
+                <div class="bg-stone-300/50 rounded animate-on-scroll [animation:animationIn_0.8s_ease-out_0.5s_both]"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-6 grid grid-cols-12 gap-2 h-16 reveal delay-100">
+          <div class="col-span-3 bg-stone-900/80 rounded flex items-center justify-center text-[10px] font-mono text-white">3</div>
+          <div class="col-span-6 bg-stone-300/60 rounded flex items-center justify-center text-[10px] font-mono">6</div>
+          <div class="col-span-3 bg-[#D6A461]/70 rounded flex items-center justify-center text-[10px] font-mono">3</div>
+        </div>
+        <p class="mt-2 font-mono text-[10px] text-stone-400 reveal delay-200">Divisão 3 · 6 · 3 — a mesma das guias verticais da página.</p>
+      </div>
+    </div>
+
+    <!-- ---------- Modais, Badges, Tooltips ---------- -->
+    <div class="relative z-10 grid grid-cols-1 md:grid-cols-3">
+      <div class="p-8 md:p-10 border-b md:border-b-0 md:border-r border-stone-300 reveal">
+        <span class="font-mono text-[10px] text-stone-400">3.6</span>
+        <h3 class="text-2xl font-medium tracking-tight mt-1 mb-4">Modais</h3>
+        <p class="text-sm text-stone-500 leading-relaxed mb-6">Fundo com desfoque 0 → 10px; painel entra com <span class="font-mono">animationIn</span> (blur 10px, +30px, 700ms). Fecha com Esc, botão ou clique fora.</p>
+        <button class="beam-button glow-on-hover px-6 py-3 bg-stone-900 text-white rounded-md text-sm font-medium hover:bg-stone-700 transition-all flex items-center gap-2 group" data-open-modal="modal-demo">
+          Abrir modal <iconify-icon class="text-lg group-hover:scale-110 transition-transform" icon="solar:window-frame-linear"></iconify-icon>
+        </button>
+      </div>
+      <div class="p-8 md:p-10 border-b md:border-b-0 md:border-r border-stone-300 reveal delay-100">
+        <span class="font-mono text-[10px] text-stone-400">3.7</span>
+        <h3 class="text-2xl font-medium tracking-tight mt-1 mb-6">Badges</h3>
+        <div class="flex flex-wrap gap-3 items-center">
+          <span class="px-3 py-1 border border-stone-300 rounded-full text-xs font-mono uppercase">Padrão</span>
+          <span class="px-3 py-1 bg-stone-900 text-white rounded-full text-xs font-mono uppercase">Sólido</span>
+          <span class="px-3 py-1 bg-[#D6A461]/20 text-[#7A5522] border border-[#D6A461]/50 rounded-full text-xs font-mono uppercase">Lume</span>
+          <span class="inline-flex items-center gap-2 px-3 py-1 border border-stone-300 rounded-full text-xs font-mono uppercase"><span class="w-1.5 h-1.5 bg-[#3F7D58] rounded-full pulse-ring"></span>Online</span>
+          <span class="px-2 py-0.5 bg-[#B4432F] text-white rounded-full text-[10px] font-mono">12</span>
+        </div>
+        <div class="mt-5 inline-flex items-center gap-3 bg-stone-900 p-3 rounded">
+          <span class="px-3 py-1 border border-white/40 rounded-full text-xs font-mono uppercase backdrop-blur-md text-white">Vidro</span>
+          <span class="px-3 py-1 border border-white/40 rounded-full text-xs font-mono uppercase backdrop-blur-md text-white">UI/UX</span>
+        </div>
+        <dl class="mt-6 text-xs font-mono text-stone-500 space-y-1"><div>Mono 12px · uppercase · px 12 / py 4 · raio full</div></dl>
+      </div>
+      <div class="p-8 md:p-10 reveal delay-200">
+        <span class="font-mono text-[10px] text-stone-400">3.8</span>
+        <h3 class="text-2xl font-medium tracking-tight mt-1 mb-6">Tooltips</h3>
+        <div class="flex flex-wrap gap-4 pt-8">
+          <button class="px-4 py-2 border border-stone-300 text-sm hover:bg-white transition-colors" data-tip="Topo · padrão">Topo</button>
+          <button class="px-4 py-2 border border-stone-300 text-sm hover:bg-white transition-colors" data-tip="Abaixo" data-tip-pos="bottom">Abaixo</button>
+          <button class="px-4 py-2 bg-stone-900 text-white text-sm" data-tip="Destaque Lume" data-tip-tone="lume">Lume</button>
+        </div>
+        <p class="mt-12 text-xs font-mono text-stone-500">Entrada: blur 4px → 0, deslocamento 6px, 350ms. Mono 11px · uppercase · tracking .08em.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 04 ÍCONES ===================== -->
+  <section class="section-shell z-10 border-b border-stone-300" id="icones">
+    <div class="grid-bg"></div>
+    <div class="orb orb-nevoa w-[480px] h-[480px] -bottom-40 left-1/3 opacity-50"></div>
+    <div class="relative z-10 grid grid-cols-1 md:grid-cols-12 border-b border-stone-300 bg-stone-100/50">
+      <div class="md:col-span-8 p-8 md:p-12">
+        <span class="text-xs font-mono uppercase text-stone-500 block mb-2 reveal">04 / Ativos</span>
+        <h2 class="text-4xl md:text-6xl font-medium tracking-tighter">
+          <span class="text-reveal-wrapper"><span class="text-reveal-content">Ícones</span></span>
+          <span class="text-reveal-wrapper"><span class="text-reveal-content delay-100 font-serif font-normal text-stone-400">Solar</span></span>
+        </h2>
+      </div>
+      <div class="md:col-span-4 p-8 md:p-12 md:border-l border-stone-300 flex flex-col justify-end gap-4 reveal delay-200">
+        <p class="text-sm leading-relaxed text-stone-500">Iconify + Solar. <span class="font-mono text-stone-800">-linear</span> em superfícies claras, <span class="font-mono text-stone-800">-bold-duotone</span> em superfícies escuras. Clique para copiar.</p>
+        <div class="inline-flex self-start border border-stone-300 rounded-full p-1 text-xs font-mono uppercase" role="tablist">
+          <button aria-selected="true" class="px-4 py-1.5 rounded-full bg-stone-900 text-white transition-colors" data-icon-style="linear" role="tab">Linear</button>
+          <button aria-selected="false" class="px-4 py-1.5 rounded-full text-stone-500 transition-colors" data-icon-style="bold-duotone" role="tab">Duotone</button>
+        </div>
+      </div>
+    </div>
+    <div class="relative z-10 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-8" id="icon-grid"></div>
+    <!-- Logos -->
+    <div class="relative z-10 border-t border-stone-300 py-12 bg-stone-950 overflow-hidden">
+      <div class="text-center mb-8"><span class="text-xs font-mono uppercase text-stone-500 tracking-widest">simple-icons · marquee com máscara alfa</span></div>
+      <div class="relative">
+        <div class="absolute left-0 top-0 bottom-0 w-24 z-10 bg-gradient-to-r from-stone-950 to-transparent"></div>
+        <div class="absolute right-0 top-0 bottom-0 w-24 z-10 bg-gradient-to-l from-stone-950 to-transparent"></div>
+        <div class="flex overflow-hidden w-full">
+          <div class="flex animate-marquee whitespace-nowrap gap-16 items-center">
+            <iconify-icon class="text-3xl text-neutral-500 hover:text-white transition-colors" icon="simple-icons:airbnb"></iconify-icon>
+            <iconify-icon class="text-3xl text-neutral-500 hover:text-white transition-colors" icon="simple-icons:spotify"></iconify-icon>
+            <iconify-icon class="text-3xl text-neutral-500 hover:text-white transition-colors" icon="simple-icons:notion"></iconify-icon>
+            <iconify-icon class="text-3xl text-neutral-500 hover:text-white transition-colors" icon="simple-icons:linear"></iconify-icon>
+            <iconify-icon class="text-3xl text-neutral-500 hover:text-white transition-colors" icon="simple-icons:vercel"></iconify-icon>
+            <iconify-icon class="text-4xl text-neutral-500 hover:text-white transition-colors" icon="simple-icons:stripe"></iconify-icon>
+            <iconify-icon class="text-3xl text-neutral-500 hover:text-white transition-colors" icon="simple-icons:figma"></iconify-icon>
+            <iconify-icon class="text-3xl text-neutral-500 hover:text-white transition-colors" icon="simple-icons:framer"></iconify-icon>
+            <iconify-icon class="text-3xl text-neutral-500 hover:text-white transition-colors" icon="simple-icons:airbnb"></iconify-icon>
+            <iconify-icon class="text-3xl text-neutral-500 hover:text-white transition-colors" icon="simple-icons:spotify"></iconify-icon>
+            <iconify-icon class="text-3xl text-neutral-500 hover:text-white transition-colors" icon="simple-icons:notion"></iconify-icon>
+            <iconify-icon class="text-3xl text-neutral-500 hover:text-white transition-colors" icon="simple-icons:linear"></iconify-icon>
+            <iconify-icon class="text-3xl text-neutral-500 hover:text-white transition-colors" icon="simple-icons:vercel"></iconify-icon>
+            <iconify-icon class="text-4xl text-neutral-500 hover:text-white transition-colors" icon="simple-icons:stripe"></iconify-icon>
+            <iconify-icon class="text-3xl text-neutral-500 hover:text-white transition-colors" icon="simple-icons:figma"></iconify-icon>
+            <iconify-icon class="text-3xl text-neutral-500 hover:text-white transition-colors" icon="simple-icons:framer"></iconify-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 05 ANIMAÇÕES ===================== -->
+  <section class="section-shell z-10 border-b border-stone-300" id="animacoes">
+    <div class="grid-bg"></div>
+    <div class="orb orb-lume w-[520px] h-[520px] top-20 right-1/4 opacity-40"></div>
+    <div class="relative z-10 grid grid-cols-1 md:grid-cols-12 border-b border-stone-300 bg-stone-100/50">
+      <div class="md:col-span-8 p-8 md:p-12">
+        <span class="text-xs font-mono uppercase text-stone-500 block mb-2 reveal">05 / Interação</span>
+        <h2 class="text-4xl md:text-6xl font-medium tracking-tighter">
+          <span class="text-reveal-wrapper"><span class="text-reveal-content">Movimento</span></span>
+          <span class="text-reveal-wrapper"><span class="text-reveal-content delay-100 font-serif font-normal text-stone-400">&amp; física</span></span>
+        </h2>
+      </div>
+      <div class="md:col-span-4 p-8 md:p-12 md:border-l border-stone-300 flex items-end reveal delay-200">
+        <p class="text-sm leading-relaxed text-stone-500">Cada demonstração tem um botão de repetir. Tudo respeita <span class="font-mono text-stone-800">prefers-reduced-motion</span>.</p>
+      </div>
+    </div>
+
+    <!-- Tokens de movimento -->
+    <div class="relative z-10 grid grid-cols-2 md:grid-cols-5 border-b border-stone-300">
+      <div class="p-6 md:p-8 border-r border-b md:border-b-0 border-stone-300 reveal"><span class="font-mono text-[10px] uppercase tracking-widest text-stone-400">--dur-fast</span><p class="text-3xl font-medium tracking-tighter mt-2">200ms</p><p class="text-xs text-stone-500 mt-1">ícones, cor</p></div>
+      <div class="p-6 md:p-8 md:border-r border-b md:border-b-0 border-stone-300 reveal delay-100"><span class="font-mono text-[10px] uppercase tracking-widest text-stone-400">--dur-base</span><p class="text-3xl font-medium tracking-tighter mt-2">500ms</p><p class="text-xs text-stone-500 mt-1">hover de cards</p></div>
+      <div class="p-6 md:p-8 border-r border-b md:border-b-0 border-stone-300 reveal delay-200"><span class="font-mono text-[10px] uppercase tracking-widest text-stone-400">--dur-slow</span><p class="text-3xl font-medium tracking-tighter mt-2">1s</p><p class="text-xs text-stone-500 mt-1">.reveal</p></div>
+      <div class="p-6 md:p-8 md:border-r border-b md:border-b-0 border-stone-300 reveal delay-300"><span class="font-mono text-[10px] uppercase tracking-widest text-stone-400">--dur-reveal</span><p class="text-3xl font-medium tracking-tighter mt-2">1.2s</p><p class="text-xs text-stone-500 mt-1">texto mascarado</p></div>
+      <div class="col-span-2 md:col-span-1 p-6 md:p-8 reveal delay-500"><span class="font-mono text-[10px] uppercase tracking-widest text-stone-400">--ease-architect</span><p class="text-sm font-mono mt-3">cubic-bezier<br/>(0.16, 1, 0.3, 1)</p></div>
+    </div>
+
+    <!-- Catálogo -->
+    <div class="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" id="anim-catalog">
+
+      <article class="anim-card p-8 border-b sm:border-r border-stone-300 reveal">
+        <header class="flex justify-between items-start mb-6"><div><h4 class="text-lg font-medium tracking-tight">Scroll reveal</h4><p class="font-mono text-[10px] text-stone-400 mt-1">.reveal → .active · 1s · ease-architect</p></div><button aria-label="Repetir" class="replay w-8 h-8 rounded-full border border-stone-300 hover:bg-stone-900 hover:text-white transition-colors flex items-center justify-center" data-replay="reveal"><iconify-icon icon="solar:restart-linear"></iconify-icon></button></header>
+        <div class="h-32 flex items-center justify-center gap-3 bg-white/60 border border-stone-300" data-stage>
+          <div class="w-12 h-16 bg-stone-900 reveal"></div><div class="w-12 h-16 bg-stone-500 reveal delay-200"></div><div class="w-12 h-16 bg-[#D6A461] reveal delay-500"></div>
+        </div>
+      </article>
+
+      <article class="anim-card p-8 border-b lg:border-r border-stone-300 reveal delay-100">
+        <header class="flex justify-between items-start mb-6"><div><h4 class="text-lg font-medium tracking-tight">Texto mascarado</h4><p class="font-mono text-[10px] text-stone-400 mt-1">.text-reveal-wrapper · 1.2s</p></div><button aria-label="Repetir" class="replay w-8 h-8 rounded-full border border-stone-300 hover:bg-stone-900 hover:text-white transition-colors flex items-center justify-center" data-replay="mask"><iconify-icon icon="solar:restart-linear"></iconify-icon></button></header>
+        <div class="h-32 flex items-center justify-center bg-white/60 border border-stone-300" data-stage>
+          <h2 class="text-5xl font-semibold tracking-tighter"><span class="text-reveal-wrapper"><span class="text-reveal-content">Animação</span></span></h2>
+        </div>
+      </article>
+
+      <article class="anim-card p-8 border-b sm:border-r lg:border-r-0 border-stone-300 reveal delay-200">
+        <header class="flex justify-between items-start mb-6"><div><h4 class="text-lg font-medium tracking-tight">Blur in</h4><p class="font-mono text-[10px] text-stone-400 mt-1">animationIn · 0.8s ease-out · blur 10px</p></div><button aria-label="Repetir" class="replay w-8 h-8 rounded-full border border-stone-300 hover:bg-stone-900 hover:text-white transition-colors flex items-center justify-center" data-replay="anim"><iconify-icon icon="solar:restart-linear"></iconify-icon></button></header>
+        <div class="h-32 flex items-center justify-center gap-3 bg-stone-950 text-white" data-stage>
+          <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-white/20 to-white/0 flex items-center justify-center animate-on-scroll [animation:animationIn_0.8s_ease-out_0.1s_both]"><iconify-icon class="text-2xl" icon="solar:stars-minimalistic-bold-duotone"></iconify-icon></div>
+          <span class="text-3xl font-semibold tracking-tighter animate-on-scroll [animation:animationIn_0.8s_ease-out_0.3s_both]">Gemini</span>
+        </div>
+      </article>
+
+      <article class="anim-card p-8 border-b lg:border-r border-stone-300 sm:border-r reveal">
+        <header class="flex justify-between items-start mb-6"><div><h4 class="text-lg font-medium tracking-tight">Letra a letra</h4><p class="font-mono text-[10px] text-stone-400 mt-1">textSlide · 0.9s · stagger 40ms</p></div><button aria-label="Repetir" class="replay w-8 h-8 rounded-full border border-stone-300 hover:bg-stone-900 hover:text-white transition-colors flex items-center justify-center" data-replay="letters"><iconify-icon icon="solar:restart-linear"></iconify-icon></button></header>
+        <div class="h-32 flex items-center justify-center bg-white/60 border border-stone-300" data-stage>
+          <span class="text-clip-anim text-5xl font-semibold tracking-tighter" data-letters="Clip-path"></span>
+        </div>
+      </article>
+
+      <article class="anim-card p-8 border-b lg:border-r border-stone-300 reveal delay-100">
+        <header class="flex justify-between items-start mb-6"><div><h4 class="text-lg font-medium tracking-tight">Beam + shimmer</h4><p class="font-mono text-[10px] text-stone-400 mt-1">spin 2.5s linear · shimmer 1.5s</p></div></header>
+        <div class="h-32 flex items-center justify-center bg-stone-950" data-stage>
+          <button class="group relative flex items-center justify-center overflow-hidden rounded-full p-[1px]"><span class="beam-ring"></span><span class="relative rounded-full bg-black px-6 py-3 text-white text-sm ring-1 ring-white/10 overflow-hidden"><span class="absolute top-0 left-0 h-full w-full -skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_1.5s_infinite]"></span><span class="relative">Passe o mouse</span></span></button>
+        </div>
+      </article>
+
+      <article class="anim-card p-8 border-b sm:border-r lg:border-r-0 border-stone-300 reveal delay-200">
+        <header class="flex justify-between items-start mb-6"><div><h4 class="text-lg font-medium tracking-tight">Ken Burns</h4><p class="font-mono text-[10px] text-stone-400 mt-1">.carousel-slide · scale 1 → 1.1 · 10s</p></div></header>
+        <div class="h-32 relative overflow-hidden group" data-stage>
+          <img alt="" class="w-full h-full object-cover grayscale contrast-125 scale-100 group-hover:scale-125 transition-transform duration-[10s] ease-out" src="assets/2700a02e-2471-497e-8ca2-3196fc_50242a508302.webp"/>
+          <span class="absolute bottom-2 left-2 font-mono text-[10px] text-white bg-black/40 px-2 py-1 backdrop-blur-md">hover = zoom lento</span>
+        </div>
+      </article>
+
+      <article class="anim-card p-8 border-b sm:border-r border-stone-300 reveal">
+        <header class="flex justify-between items-start mb-6"><div><h4 class="text-lg font-medium tracking-tight">Lanterna</h4><p class="font-mono text-[10px] text-stone-400 mt-1">radial-gradient 600px · opacity .5s</p></div></header>
+        <div class="h-32 flashlight-card bg-neutral-900 ring-1 ring-white/5 flex items-center justify-center overflow-hidden" data-flashlight data-stage>
+          <div class="absolute inset-0 grid-bg-dark"></div>
+          <span class="relative font-mono text-xs text-neutral-400 uppercase tracking-widest">mova o cursor</span>
+        </div>
+      </article>
+
+      <article class="anim-card p-8 border-b lg:border-r border-stone-300 reveal delay-100">
+        <header class="flex justify-between items-start mb-6"><div><h4 class="text-lg font-medium tracking-tight">Lettering preenchível</h4><p class="font-mono text-[10px] text-stone-400 mt-1">.text-outline-fill · 1.2s</p></div></header>
+        <div class="h-32 flex items-center justify-center bg-white/60 border border-stone-300" data-stage>
+          <span class="text-6xl font-semibold tracking-tighter text-outline-fill">Hover</span>
+        </div>
+      </article>
+
+      <article class="anim-card p-8 border-b sm:border-r lg:border-r-0 border-stone-300 reveal delay-200">
+        <header class="flex justify-between items-start mb-6"><div><h4 class="text-lg font-medium tracking-tight">Contador</h4><p class="font-mono text-[10px] text-stone-400 mt-1">data-count · 1.6s · easeOutExpo</p></div><button aria-label="Repetir" class="replay w-8 h-8 rounded-full border border-stone-300 hover:bg-stone-900 hover:text-white transition-colors flex items-center justify-center" data-replay="count"><iconify-icon icon="solar:restart-linear"></iconify-icon></button></header>
+        <div class="h-32 flex items-center justify-center bg-white/60 border border-stone-300" data-stage>
+          <span class="text-6xl font-medium tracking-tighter"><span data-count="1400">0</span><span class="text-stone-400 text-3xl">px</span></span>
+        </div>
+      </article>
+
+      <article class="anim-card p-8 border-b sm:border-b-0 sm:border-r border-stone-300 reveal">
+        <header class="flex justify-between items-start mb-6"><div><h4 class="text-lg font-medium tracking-tight">Pulso · Giro · Flutuar</h4><p class="font-mono text-[10px] text-stone-400 mt-1">ping-soft 1.8s · spin 12s · floatY 6s</p></div></header>
+        <div class="h-32 flex items-center justify-around bg-white/60 border border-stone-300" data-stage>
+          <span class="w-3 h-3 bg-[#D6A461] rounded-full pulse-ring"></span>
+          <iconify-icon class="text-5xl text-stone-800 animate-spin-slow" icon="solar:star-fall-linear"></iconify-icon>
+          <iconify-icon class="text-5xl text-stone-800 animate-float" icon="solar:atom-linear"></iconify-icon>
+          <iconify-icon class="text-3xl text-stone-800 animate-bounce" icon="solar:arrow-down-bold-duotone"></iconify-icon>
+        </div>
+      </article>
+
+      <article class="anim-card p-8 border-b sm:border-b-0 lg:border-r border-stone-300 reveal delay-100">
+        <header class="flex justify-between items-start mb-6"><div><h4 class="text-lg font-medium tracking-tight">Marquee</h4><p class="font-mono text-[10px] text-stone-400 mt-1">scroll 40s linear infinite</p></div></header>
+        <div class="h-32 flex items-center bg-white/60 border border-stone-300 overflow-hidden" data-stage>
+          <div class="marquee-container w-full">
+            <div class="marquee-content" style="animation-duration: 14s"><span class="text-sm font-mono uppercase tracking-widest text-stone-500 mx-6">Easing · 0.16, 1, 0.3, 1</span><span class="text-[#D6A461]">•</span><span class="text-sm font-mono uppercase tracking-widest text-stone-500 mx-6">1.2s</span><span class="text-[#D6A461]">•</span></div>
+            <div aria-hidden="true" class="marquee-content" style="animation-duration: 14s"><span class="text-sm font-mono uppercase tracking-widest text-stone-500 mx-6">Easing · 0.16, 1, 0.3, 1</span><span class="text-[#D6A461]">•</span><span class="text-sm font-mono uppercase tracking-widest text-stone-500 mx-6">1.2s</span><span class="text-[#D6A461]">•</span></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="anim-card p-8 reveal delay-200">
+        <header class="flex justify-between items-start mb-6"><div><h4 class="text-lg font-medium tracking-tight">Fundo vivo</h4><p class="font-mono text-[10px] text-stone-400 mt-1">orbDrift 22s · gridPan 30s · grain 1.2s</p></div></header>
+        <div class="h-32 section-shell bg-stone-900 grain" data-stage>
+          <div class="grid-bg-dark"></div>
+          <div class="orb orb-lume w-40 h-40 top-0 left-6" style="animation-duration: 8s"></div>
+          <div class="orb orb-nevoa w-40 h-40 bottom-0 right-6" style="animation-duration: 10s"></div>
+          <div class="scanline"></div>
+        </div>
+      </article>
+    </div>
+
+    <!-- Parallax -->
+    <div class="relative z-10 grid grid-cols-2 md:grid-cols-4 border-t border-stone-300 h-[260px] overflow-hidden">
+      <img alt="" class="w-full h-[130%] object-cover grayscale opacity-80 border-r border-stone-300 parallax-img hover:grayscale-0 transition-[filter] duration-700" data-speed="0.05" data-parallax-local src="assets/ede50f82-0ad0-4579-a4ae-3a9428_fd09ad4bf2a1.jpg"/>
+      <img alt="" class="w-full h-[130%] object-cover grayscale opacity-80 border-r border-stone-300 parallax-img hover:grayscale-0 transition-[filter] duration-700" data-speed="0.1" data-parallax-local src="assets/e9d001f3-ebe3-45c2-b556-b53a55_6b8718ffa723.jpg"/>
+      <img alt="" class="hidden md:block w-full h-[130%] object-cover grayscale opacity-80 border-r border-stone-300 parallax-img hover:grayscale-0 transition-[filter] duration-700" data-speed="0.03" data-parallax-local src="assets/87e5e02b-a5b6-43ff-b9a4-5e299f_665111a88a86.jpg"/>
+      <img alt="" class="hidden md:block w-full h-[130%] object-cover grayscale opacity-80 parallax-img hover:grayscale-0 transition-[filter] duration-700" data-speed="0.12" data-parallax-local src="assets/5ea5c0e9-3047-467a-9eaf-e49f65_6a6f021d85c6.webp"/>
+      <span class="absolute top-4 left-4 font-mono text-[10px] uppercase tracking-widest text-white bg-black/40 px-2 py-1 backdrop-blur-md">.parallax-img · data-speed</span>
+    </div>
+  </section>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="section-shell z-10 bg-stone-900 text-stone-200 pt-24 pb-12">
+    <div class="grid-bg-dark"></div>
+    <div class="orb orb-lume w-[600px] h-[600px] -top-60 left-1/2 -translate-x-1/2 opacity-30"></div>
+    <div class="relative z-10 px-6 md:px-12 mb-24 text-center">
+      <div class="reveal">
+        <span class="font-mono text-[11px] uppercase tracking-[0.25em] text-stone-500 block mb-6">Fim do documento</span>
+        <h2 class="text-5xl md:text-7xl font-medium tracking-tighter mb-10 text-white">Construa algo<br/><span class="font-serif font-normal text-[#D6A461]">extraordinário.</span></h2>
+        <div class="group relative inline-block" data-magnetic>
+          <div class="absolute -inset-2 rounded-full bg-[#D6A461]/30 blur-xl opacity-0 group-hover:opacity-100 transition duration-500"></div>
+          <a class="relative inline-flex items-center gap-3 border border-stone-700 rounded-full px-8 py-4 text-lg hover:bg-white hover:text-stone-900 transition-all duration-300" href="#hero">
+            Voltar ao topo <iconify-icon class="group-hover:-translate-y-1 transition-transform" icon="solar:arrow-up-linear"></iconify-icon>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="relative z-10 border-t border-stone-800 w-full mb-12"></div>
+    <div class="relative z-10 grid grid-cols-1 md:grid-cols-12 px-6 md:px-12 gap-12 md:gap-0">
+      <div class="md:col-span-3">
+        <div class="flex items-center gap-2 mb-6 group"><iconify-icon class="text-xl group-hover:rotate-180 transition-transform duration-700" icon="solar:atom-linear"></iconify-icon><span class="font-bold tracking-tight text-lg">MONÓLITO</span></div>
+        <p class="text-stone-500 text-sm leading-relaxed max-w-[220px]">Design system de estudo — Curso Asimov · Webdesign com IA.</p>
+      </div>
+      <div class="md:col-span-3">
+        <h4 class="text-xs font-mono uppercase text-stone-500 mb-6">Fundamentos</h4>
+        <ul class="space-y-3 text-sm font-medium"><li><a class="hover:text-white transition-colors" href="#tipografia">Tipografia</a></li><li><a class="hover:text-white transition-colors" href="#cores">Cores</a></li></ul>
+      </div>
+      <div class="md:col-span-3">
+        <h4 class="text-xs font-mono uppercase text-stone-500 mb-6">Sistema</h4>
+        <ul class="space-y-3 text-sm font-medium">
+          <li><a class="hover:text-white transition-colors flex items-center gap-2" href="#componentes">Componentes <iconify-icon class="text-xs text-stone-600" icon="solar:arrow-right-up-linear"></iconify-icon></a></li>
+          <li><a class="hover:text-white transition-colors flex items-center gap-2" href="#icones">Ícones <iconify-icon class="text-xs text-stone-600" icon="solar:arrow-right-up-linear"></iconify-icon></a></li>
+          <li><a class="hover:text-white transition-colors flex items-center gap-2" href="#animacoes">Animações <iconify-icon class="text-xs text-stone-600" icon="solar:arrow-right-up-linear"></iconify-icon></a></li>
+        </ul>
+      </div>
+      <div class="md:col-span-3 flex flex-col justify-between">
+        <div class="text-right hidden md:block"><iconify-icon class="text-4xl text-stone-700 animate-spin-slow" icon="solar:globe-linear"></iconify-icon></div>
+        <div class="text-left md:text-right mt-4 md:mt-0 text-xs text-stone-600">© 2026 Monólito DS · Projeto de estudo</div>
+      </div>
+    </div>
+    <div class="relative z-10 mt-24 text-center select-none overflow-hidden" aria-hidden="true">
+      <span class="block text-[5.5rem] sm:text-[9rem] md:text-[16rem] font-bold leading-none tracking-tighter whitespace-nowrap text-outline-light opacity-40 hover:opacity-100 transition-opacity duration-700">MONÓLITO</span>
+    </div>
+  </footer>
+</div>
+
+<!-- ===================== MODAL ===================== -->
+<div aria-hidden="true" aria-labelledby="modal-title" aria-modal="true" class="modal" id="modal-demo" role="dialog">
+  <div class="modal-backdrop" data-close-modal></div>
+  <div class="modal-panel bg-[#EAEAE5] border border-stone-300 shadow-[0_40px_80px_-20px_rgba(28,25,23,.5)] overflow-hidden">
+    <div class="relative h-40 overflow-hidden grain">
+      <img alt="" class="w-full h-full object-cover grayscale contrast-125" src="assets/c7fa69dd-d7fb-48f2-a866-ef3663_f6b789593f38.webp"/>
+      <div class="absolute inset-0 bg-gradient-to-b from-transparent to-stone-900/60"></div>
+      <span class="absolute bottom-4 left-6 px-3 py-1 border border-white/40 rounded-full text-xs font-mono uppercase backdrop-blur-md text-white">Modal · 560px</span>
+      <button aria-label="Fechar" class="absolute top-4 right-4 w-10 h-10 rounded-full glass-panel text-white flex items-center justify-center hover:rotate-90 transition-transform duration-500" data-close-modal><iconify-icon class="text-xl" icon="solar:close-circle-linear"></iconify-icon></button>
+    </div>
+    <div class="p-8">
+      <span class="text-xs font-mono uppercase text-stone-500 block mb-2">Confirmação</span>
+      <h3 class="text-3xl font-medium tracking-tight mb-3" id="modal-title">Publicar o <span class="font-serif font-normal">sistema</span>?</h3>
+      <p class="text-sm text-stone-500 leading-relaxed mb-8">Painel com borda stone-300, cabeçalho de imagem em escala de cinza com grão e ações alinhadas à direita. Pressione <kbd class="font-mono text-xs border border-stone-300 px-1.5 py-0.5 rounded bg-white">Esc</kbd> para fechar.</p>
+      <div class="flex flex-wrap justify-end gap-3">
+        <button class="px-6 py-3 border border-stone-300 rounded-md text-sm font-medium hover:bg-white transition-colors" data-close-modal>Cancelar</button>
+        <button class="beam-button glow-on-hover px-6 py-3 bg-stone-900 text-white rounded-md text-sm font-medium hover:bg-stone-700 transition-all flex items-center gap-2" data-close-modal data-toast="Sistema publicado ✦">Publicar <iconify-icon icon="solar:rocket-2-linear"></iconify-icon></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div aria-live="polite" class="toast bg-stone-900 text-white px-5 py-3 rounded-full text-sm flex items-center gap-3 shadow-2xl" id="toast">
+  <span class="w-1.5 h-1.5 bg-[#D6A461] rounded-full pulse-ring"></span><span id="toast-text">Copiado</span>
+</div>
+
+<script>
+/* =========================================================
+   DADOS — escala tipográfica, cores, ícones
+   ========================================================= */
+const TYPE_SCALE = [
+  { role: 'Display / H1', cls: 'text-6xl md:text-8xl font-semibold tracking-tighter leading-none', sample: 'Forma segue função', fam: 'Inter', w: 600, size: '96px / 1', ls: '-0.05em', tt: 'none' },
+  { role: 'H2', cls: 'text-5xl font-medium tracking-tighter leading-none', sample: 'Design &amp; Estratégia', fam: 'Inter', w: 500, size: '48px / 1', ls: '-0.05em', tt: 'none' },
+  { role: 'H3', cls: 'text-4xl font-medium tracking-tight leading-10', sample: 'Estudos de caso', fam: 'Inter', w: 500, size: '36px / 40px', ls: '-0.025em', tt: 'none' },
+  { role: 'H4', cls: 'text-3xl font-medium tracking-tight leading-9', sample: 'Nova Finance', fam: 'Inter', w: 500, size: '30px / 36px', ls: '-0.025em', tt: 'none' },
+  { role: 'H5', cls: 'text-xl font-medium tracking-tight leading-7', sample: 'A morte do menu hambúrguer', fam: 'Inter', w: 500, size: '20px / 28px', ls: '-0.025em', tt: 'none' },
+  { role: 'H6', cls: 'text-sm font-semibold uppercase tracking-widest leading-5', sample: 'Competências centrais', fam: 'Inter', w: 600, size: '14px / 20px', ls: '0.1em', tt: 'uppercase' },
+  { role: 'Acento serif', cls: 'text-5xl font-serif leading-none tracking-tight', sample: 'extraordinário.', fam: 'Instrument Serif', w: 400, size: '48px / 1', ls: '-0.025em', tt: 'none' },
+  { role: 'Body LG', cls: 'text-lg leading-relaxed text-stone-800', sample: 'Pensamentos sobre a interseção entre design, tecnologia e psicologia humana.', fam: 'Inter', w: 400, size: '18px / 29px', ls: '0', tt: 'none' },
+  { role: 'Body', cls: 'text-base leading-normal text-stone-800', sample: 'Crio experiências digitais que equilibram estética e clareza funcional.', fam: 'Inter', w: 400, size: '16px / 24px', ls: '0', tt: 'none' },
+  { role: 'Body SM', cls: 'text-sm leading-relaxed text-stone-500', sample: 'Redesenho do fluxo de investimento, com 40% de aumento na conversão.', fam: 'Inter', w: 400, size: '14px / 23px', ls: '0', tt: 'none' },
+  { role: 'Caption', cls: 'text-xs leading-4 text-stone-400', sample: '12 de out. de 2026 · leitura de 4 min', fam: 'Inter', w: 400, size: '12px / 16px', ls: '0', tt: 'none' },
+  { role: 'Label mono', cls: 'text-xs font-mono uppercase tracking-widest text-stone-500', sample: 'Disponível para Q4 2026', fam: 'Geist Mono', w: 400, size: '12px / 16px', ls: '0.1em', tt: 'uppercase' },
+  { role: 'Overline', cls: 'text-[11px] font-mono uppercase tracking-[0.25em] text-stone-500', sample: '01 / 08 — Intro', fam: 'Geist Mono', w: 400, size: '11px / 16px', ls: '0.25em', tt: 'uppercase' },
+  { role: 'Helper', cls: 'text-xs leading-4 text-stone-500', sample: 'Texto de ajuda: mínimo de 8 caracteres.', fam: 'Inter', w: 400, size: '12px / 16px', ls: '0', tt: 'none' },
+];
+
+const COLORS = [
+  { name: 'Osso', token: '--osso', hex: '#EAEAE5', role: 'Neutro · base', tw: 'bg-[#EAEAE5]' },
+  { name: 'Tinta', token: '--tinta', hex: '#1C1C1C', role: 'Primária · texto', tw: 'text-[#1C1C1C]' },
+  { name: 'Grafite', token: 'stone-900', hex: '#1C1917', role: 'Primária · superfície', tw: 'bg-stone-900' },
+  { name: 'Lume', token: '--lume', hex: '#D6A461', role: 'Acento · foco/luz', tw: 'text-[#D6A461]' },
+  { name: 'Pedra 500', token: 'stone-500', hex: '#78716C', role: 'Secundária · texto', tw: 'text-stone-500' },
+  { name: 'Pedra 400', token: 'stone-400', hex: '#A8A29E', role: 'Neutro · ícones', tw: 'text-stone-400' },
+  { name: 'Pedra 300', token: 'stone-300', hex: '#D6D3D1', role: 'Neutro · bordas', tw: 'border-stone-300' },
+  { name: 'Pedra 200', token: 'stone-200', hex: '#E7E5E4', role: 'Neutro · desabilitado', tw: 'bg-stone-200' },
+  { name: 'Pedra 100', token: 'stone-100', hex: '#F5F5F4', role: 'Neutro · faixas', tw: 'bg-stone-100' },
+  { name: 'Branco', token: 'white', hex: '#FFFFFF', role: 'Neutro · elevação', tw: 'bg-white' },
+  { name: 'Abismo', token: '--abismo', hex: '#050505', role: 'Secundária · escuro', tw: 'bg-[#050505]' },
+  { name: 'Névoa', token: '--nevoa', hex: '#8A96A3', role: 'Decorativa · orbes', tw: 'bg-[#8A96A3]' },
+  { name: 'Sucesso', token: '--ok', hex: '#3F7D58', role: 'Feedback · sucesso', tw: 'text-[#3F7D58]' },
+  { name: 'Alerta', token: '--warn', hex: '#B7791F', role: 'Feedback · alerta', tw: 'text-[#B7791F]' },
+  { name: 'Erro', token: '--error', hex: '#B4432F', role: 'Feedback · erro', tw: 'text-[#B4432F]' },
+  { name: 'Info', token: '--info', hex: '#3B6E8F', role: 'Feedback · info', tw: 'text-[#3B6E8F]' },
+];
+
+const CONTRAST_PAIRS = [
+  ['#1C1C1C', '#EAEAE5', 'Tinta sobre Osso', 'Texto padrão'],
+  ['#78716C', '#EAEAE5', 'Pedra 500 sobre Osso', 'Texto secundário'],
+  ['#A8A29E', '#EAEAE5', 'Pedra 400 sobre Osso', 'Só decorativo'],
+  ['#FFFFFF', '#1C1917', 'Branco sobre Grafite', 'Botão primário'],
+  ['#D6A461', '#1C1917', 'Lume sobre Grafite', 'Acento em escuro'],
+  ['#D6A461', '#EAEAE5', 'Lume sobre Osso', 'Nunca para texto'],
+  ['#7A5522', '#F3E6D2', 'Lume escuro sobre Lume 20%', 'Badge Lume'],
+  ['#B4432F', '#EAEAE5', 'Erro sobre Osso', 'Mensagem de erro'],
+];
+
+const ICONS = ['atom', 'layers-minimalistic', 'clock-circle', 'cup-star', 'star-fall', 'palette', 'scanner', 'check-circle',
+  'arrow-right-up', 'arrow-down', 'pen-new-square', 'globe', 'record-circle', 'file-download', 'cpu', 'database',
+  'stars-minimalistic', 'heart', 'letter', 'danger-circle', 'restart', 'window-frame', 'rocket-2', 'magic-stick-3'];
+
+/* =========================================================
+   UTILIDADES DE COR
+   ========================================================= */
+const hexToRgb = h => { const n = parseInt(h.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+const rgbToHsl = ([r, g, b]) => {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b); let h = 0, s = 0; const l = (max + min) / 2;
+  if (max !== min) { const d = max - min; s = l > .5 ? d / (2 - max - min) : d / (max + min);
+    h = max === r ? (g - b) / d + (g < b ? 6 : 0) : max === g ? (b - r) / d + 2 : (r - g) / d + 4; h *= 60; }
+  return [Math.round(h), Math.round(s * 100), Math.round(l * 100)];
+};
+const lum = hex => hexToRgb(hex).map(v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); })
+  .reduce((a, v, i) => a + v * [.2126, .7152, .0722][i], 0);
+const contrast = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m); return (x + .05) / (y + .05); };
+const grade = r => r >= 7 ? 'AAA' : r >= 4.5 ? 'AA' : r >= 3 ? 'AA Grande' : 'Falha';
+
+/* =========================================================
+   RENDERIZAÇÃO
+   ========================================================= */
+function renderTypeScale() {
+  document.getElementById('type-scale').innerHTML = TYPE_SCALE.map((t, i) => `
+    <div class="grid grid-cols-1 md:grid-cols-12 border-b border-stone-300 px-8 md:px-12 py-8 items-baseline gap-4 group hover:bg-white/70 transition-colors duration-500 reveal">
+      <div class="md:col-span-2 text-xs font-mono text-stone-400 uppercase tracking-widest">${t.role}</div>
+      <div class="md:col-span-6 min-w-0"><p class="${t.cls} break-words group-hover:translate-x-2 transition-transform duration-500" style="font-family:${t.fam === 'Inter' ? '' : `'${t.fam}'`}">${t.sample}</p></div>
+      <div class="md:col-span-4 grid grid-cols-5 gap-2 text-[10px] md:text-[11px] font-mono text-stone-500 md:text-right">
+        <span class="text-stone-800">${t.fam.replace('Instrument ', 'Instr. ')}</span><span>${t.w}</span><span>${t.size}</span><span>${t.ls}</span><span>${t.tt}</span>
+      </div>
+    </div>`).join('');
+}
+
+function renderColors() {
+  const darkText = hex => lum(hex) > .35;
+  document.getElementById('swatches').innerHTML = COLORS.map((c, i) => {
+    const rgb = hexToRgb(c.hex), hsl = rgbToHsl(rgb), dark = darkText(c.hex);
+    const best = contrast(c.hex, dark ? '#1C1C1C' : '#FFFFFF');
+    return `
+    <button class="group text-left p-6 md:p-8 border-b border-stone-300 ${(i + 1) % 4 ? 'md:border-r' : ''} ${(i + 1) % 2 ? 'border-r md:border-r' : ''} flex flex-col justify-between aspect-square relative overflow-hidden reveal delay-${[0, 100, 200, 300][i % 4]}"
+      style="background:${c.hex}; color:${dark ? '#1C1C1C' : '#FFFFFF'}" data-copy="${c.hex}">
+      <span class="absolute inset-0 bg-gradient-to-t from-black/0 to-white/0 group-hover:to-white/10 transition-colors duration-500"></span>
+      <div class="relative flex justify-between items-start gap-2">
+        <div><div class="font-bold tracking-tight text-lg">${c.name}</div><div class="text-[10px] font-mono uppercase tracking-widest opacity-60 mt-1">${c.role}</div></div>
+        <iconify-icon class="opacity-0 group-hover:opacity-100 transition-opacity" icon="solar:copy-linear"></iconify-icon>
+      </div>
+      <div class="relative font-mono text-[10px] md:text-[11px] leading-5 opacity-80 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+        <div class="font-semibold">${c.hex}</div>
+        <div>rgb(${rgb.join(', ')})</div>
+        <div>hsl(${hsl[0]}, ${hsl[1]}%, ${hsl[2]}%)</div>
+        <div class="mt-1 opacity-70">${c.token} · ${best.toFixed(1)}:1</div>
+      </div>
+    </button>`;
+  }).join('');
+
+  const ops = [100, 80, 60, 40, 20, 10];
+  document.getElementById('opacity-rows').innerHTML = [['Grafite', '28,25,23'], ['Lume', '214,164,97'], ['Branco s/ escuro', '255,255,255']].map(([n, rgb], r) => `
+    <div class="flex items-center gap-4 reveal delay-${r * 100}">
+      <span class="w-28 shrink-0 text-xs font-mono text-stone-500">${n}</span>
+      <div class="flex-1 grid grid-cols-6 gap-1 ${r === 2 ? 'bg-stone-900 p-1' : ''}">
+        ${ops.map(o => `<div class="h-12 flex items-end p-1.5 text-[9px] font-mono ${o > 50 && r !== 2 ? 'text-white' : r === 2 && o > 50 ? 'text-stone-900' : r === 2 ? 'text-white/70' : 'text-stone-700'}" style="background: rgba(${rgb},${o / 100})">${o}</div>`).join('')}
+      </div>
+    </div>`).join('');
+
+  document.getElementById('contrast-grid').innerHTML = CONTRAST_PAIRS.map(([fg, bg, label, use], i) => {
+    const r = contrast(fg, bg), g = grade(r);
+    const tone = g === 'AAA' ? 'bg-stone-900 text-white' : g === 'AA' ? 'bg-[#3F7D58] text-white' : g === 'AA Grande' ? 'bg-[#D6A461] text-stone-900' : 'bg-[#B4432F] text-white';
+    return `
+    <div class="p-6 md:p-8 border-b border-stone-300 ${(i + 1) % 4 ? 'lg:border-r' : ''} ${(i + 1) % 2 ? 'sm:border-r' : ''} reveal delay-${[0, 100, 200, 300][i % 4]}">
+      <div class="h-24 flex items-center justify-center text-3xl font-semibold tracking-tighter mb-4 border border-stone-300" style="background:${bg};color:${fg}">Aa</div>
+      <div class="flex justify-between items-center gap-2">
+        <span class="text-2xl font-medium tracking-tighter">${r.toFixed(2)}</span>
+        <span class="px-2 py-0.5 rounded-full text-[10px] font-mono uppercase ${tone}">${g}</span>
+      </div>
+      <p class="text-sm mt-2">${label}</p>
+      <p class="text-xs text-stone-500 font-mono mt-1">${use}</p>
+    </div>`;
+  }).join('');
+}
+
+let iconStyle = 'linear';
+function renderIcons() {
+  document.getElementById('icon-grid').innerHTML = ICONS.map((n, i) => {
+    const name = `solar:${n}-${iconStyle}`;
+    return `
+    <button class="group aspect-square border-b border-r border-stone-300 flex flex-col items-center justify-center gap-3 hover:bg-white transition-colors duration-500 relative overflow-hidden animate-on-scroll [animation:animationIn_0.8s_ease-out_${(i % 8) * 0.06}s_both]" data-copy="${name}" data-tip="Copiar" data-tip-pos="bottom">
+      <iconify-icon class="text-3xl text-stone-800 group-hover:scale-125 group-hover:-translate-y-1 group-hover:text-stone-900 transition-transform duration-500" icon="${name}"></iconify-icon>
+      <span class="text-[9px] md:text-[10px] font-mono text-stone-500 px-1 text-center leading-tight">${n}</span>
+      <span class="absolute bottom-0 left-0 h-px w-full bg-[#D6A461] scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-700"></span>
+    </button>`;
+  }).join('');
+  initInViewAnimations('#icon-grid .animate-on-scroll');
+}
+
+/* =========================================================
+   OBSERVADORES (Digital Architect + Gemini)
+   ========================================================= */
+(function () {
+  if (!window.__inViewIO) {
+    window.__inViewIO = new IntersectionObserver(entries => {
+      entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('animate'); window.__inViewIO.unobserve(entry.target); } });
+    }, { threshold: 0.2 });
+  }
+  window.initInViewAnimations = function (selector = '.animate-on-scroll') {
+    document.querySelectorAll(selector).forEach(el => window.__inViewIO.observe(el));
+  };
+})();
+
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const t = entry.target;
+    t.classList.add('active');
+    if (t.querySelectorAll('.text-reveal-wrapper').length || t.tagName === 'H1' || t.tagName === 'H2') t.classList.add('reveal-active');
+    if (t.classList.contains('is-filled-on-view')) setTimeout(() => t.classList.add('is-filled'), 900);
+    t.querySelectorAll('[data-count]').forEach(countUp);
+    if (t.matches('[data-count]')) countUp(t);
+  });
+}, { threshold: 0.15 });
+
+function observeReveals(root = document) {
+  root.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+  root.querySelectorAll('h1, h2').forEach(el => { if (el.querySelector('.text-reveal-content')) revealObserver.observe(el); });
+}
+
+/* Contador */
+function countUp(el) {
+  if (el.dataset.counting) return; el.dataset.counting = '1';
+  const end = +el.dataset.count, start = performance.now(), pad = end < 100 ? 2 : 0;
+  const dur = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 1600;
+  const step = now => {
+    const p = dur ? Math.min((now - start) / dur, 1) : 1, e = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
+    el.textContent = String(Math.round(end * e)).padStart(pad, '0');
+    if (p < 1) requestAnimationFrame(step); else delete el.dataset.counting;
+  };
+  requestAnimationFrame(step);
+}
+
+/* Toast */
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast'); document.getElementById('toast-text').textContent = msg;
+  t.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* =========================================================
+   INICIALIZAÇÃO
+   ========================================================= */
+document.addEventListener('DOMContentLoaded', () => {
+  renderTypeScale(); renderColors(); renderIcons();
+
+  // 1. Animações iniciais do hero (iguais à referência)
+  setTimeout(() => document.querySelector('header').classList.add('loaded'), 100);
+  setTimeout(() => { const h = document.getElementById('hero-title'); if (h) h.classList.add('reveal-active'); }, 500);
+  setTimeout(() => {
+    document.querySelectorAll('.hero-badge, .hero-stat').forEach(el => el.classList.add('active'));
+    document.querySelectorAll('.hero-stat [data-count]').forEach(countUp);
+  }, 500);
+
+  // 2. Observadores
+  observeReveals();
+  initInViewAnimations();
+  revealObserver.observe(document.querySelector('[data-count="1400"]'));
+
+  // 3. Carrossel com barras, contador e tokens
+  const slides = document.querySelectorAll('#hero-carousel .carousel-slide');
+  const bars = document.querySelectorAll('.slide-bar');
+  let current = 0, timer;
+  const goTo = n => {
+    slides[current].classList.remove('active'); bars[current].classList.remove('active');
+    current = (n + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    void bars[current].offsetWidth; bars[current].classList.add('active');
+    document.getElementById('slide-index').textContent = String(current + 1).padStart(2, '0');
+    document.getElementById('slide-label').textContent = slides[current].dataset.label;
+    const pal = slides[current].dataset.palette.split(',');
+    document.querySelectorAll('#token-swatches span').forEach((s, i) => s.style.background = pal[i]);
+    document.getElementById('token-hex').innerHTML = pal.map(p => `<span>${p}</span>`).join('');
+    clearInterval(timer); timer = setInterval(() => goTo(current + 1), 5000);
+  };
+  bars.forEach(b => b.addEventListener('click', () => goTo(+b.dataset.slide)));
+  timer = setInterval(() => goTo(current + 1), 5000);
+
+  // 4. Parallax (rAF)
+  const parallaxEls = document.querySelectorAll('.parallax-img, .parallax-element');
+  let ticking = false;
+  const progress = document.getElementById('scroll-progress');
+  const sections = ['hero', 'tipografia', 'cores', 'componentes', 'icones', 'animacoes'].map(id => document.getElementById(id));
+  const dots = document.querySelectorAll('.nav-dot');
+  const onScroll = () => {
+    const y = window.scrollY;
+    parallaxEls.forEach(el => {
+      const speed = +(el.dataset.speed || 0.1);
+      if (el.hasAttribute('data-parallax-local')) {
+        const r = el.parentElement.getBoundingClientRect(), extra = el.offsetHeight - r.height;
+        const t = (r.top + r.height / 2 - innerHeight / 2) * speed - extra / 2;
+        el.style.transform = `translateY(${Math.max(-extra, Math.min(0, t))}px)`;
+      } else el.style.transform = `translateY(${y * speed}px)`;
+    });
+    const max = document.documentElement.scrollHeight - innerHeight;
+    progress.style.transform = `scaleX(${max > 0 ? y / max : 0})`;
+    let active = 0; sections.forEach((s, i) => { if (s.getBoundingClientRect().top < innerHeight * .4) active = i; });
+    dots.forEach((d, i) => d.classList.toggle('is-active', i === active));
+    ticking = false;
+  };
+  window.addEventListener('scroll', () => { if (!ticking) { requestAnimationFrame(onScroll); ticking = true; } }, { passive: true });
+  onScroll();
+
+  // 5. Lanterna (delegação) + coordenadas do hero
+  document.addEventListener('mousemove', e => {
+    const card = e.target.closest('[data-flashlight]');
+    if (card) {
+      const r = card.getBoundingClientRect();
+      card.style.setProperty('--mouse-x', `${e.clientX - r.left}px`);
+      card.style.setProperty('--mouse-y', `${e.clientY - r.top}px`);
+      if (card.id === 'hero-stage') {
+        document.getElementById('coord-x').textContent = String(Math.round(e.clientX - r.left)).padStart(3, '0');
+        document.getElementById('coord-y').textContent = String(Math.round(e.clientY - r.top)).padStart(3, '0');
+      }
+    }
+  });
+
+  // 6. Botões magnéticos
+  const fine = matchMedia('(pointer: fine)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (fine) {
+    document.querySelectorAll('[data-magnetic]').forEach(el => {
+      el.style.transition = 'transform .6s cubic-bezier(0.16, 1, 0.3, 1)';
+      el.addEventListener('mousemove', e => {
+        const r = el.getBoundingClientRect();
+        el.style.transform = `translate(${(e.clientX - r.left - r.width / 2) * .18}px, ${(e.clientY - r.top - r.height / 2) * .3}px)`;
+      });
+      el.addEventListener('mouseleave', () => el.style.transform = '');
+    });
+    // 7. Inclinação 3D
+    document.querySelectorAll('[data-tilt]').forEach(el => {
+      el.addEventListener('mousemove', e => {
+        const r = el.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+        el.style.transform = `rotateY(${x * 18}deg) rotateX(${-y * 18}deg)`;
+      });
+      el.addEventListener('mouseleave', () => el.style.transform = '');
+    });
+  }
+
+  // 8. Modal
+  let lastFocus;
+  const openModal = id => {
+    const m = document.getElementById(id); lastFocus = document.activeElement;
+    m.classList.add('open'); m.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden';
+    setTimeout(() => m.querySelector('[data-close-modal].rounded-md, button')?.focus(), 50);
+  };
+  const closeModal = m => {
+    m.classList.remove('open'); m.setAttribute('aria-hidden', 'true'); document.body.style.overflow = '';
+    lastFocus?.focus();
+  };
+  document.querySelectorAll('[data-open-modal]').forEach(b => b.addEventListener('click', () => openModal(b.dataset.openModal)));
+  document.querySelectorAll('[data-close-modal]').forEach(b => b.addEventListener('click', () => {
+    closeModal(b.closest('.modal')); if (b.dataset.toast) showToast(b.dataset.toast);
+  }));
+  document.addEventListener('keydown', e => {
+    const m = document.querySelector('.modal.open'); if (!m) return;
+    if (e.key === 'Escape') closeModal(m);
+    if (e.key === 'Tab') {
+      const f = [...m.querySelectorAll('button, a[href], input')]; const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  });
+
+  // 9. Copiar (cores e ícones)
+  document.addEventListener('click', e => {
+    const c = e.target.closest('[data-copy]'); if (!c) return;
+    const v = c.dataset.copy;
+    (navigator.clipboard?.writeText(v) || Promise.reject()).then(() => showToast(`Copiado: ${v}`), () => showToast(v));
+  });
+
+  // 10. Alternar estilo de ícones
+  document.querySelectorAll('[data-icon-style]').forEach(b => b.addEventListener('click', () => {
+    iconStyle = b.dataset.iconStyle;
+    document.querySelectorAll('[data-icon-style]').forEach(x => {
+      const on = x === b; x.setAttribute('aria-selected', on);
+      x.classList.toggle('bg-stone-900', on); x.classList.toggle('text-white', on); x.classList.toggle('text-stone-500', !on);
+    });
+    renderIcons();
+  }));
+
+  // 11. Botão com carregamento
+  document.querySelectorAll('[data-loading-btn]').forEach(b => b.addEventListener('click', () => {
+    const sp = b.querySelector('[data-spinner]'), lb = b.querySelector('[data-label]');
+    sp.classList.remove('hidden'); lb.textContent = 'Carregando…'; b.disabled = true; b.classList.add('opacity-80');
+    setTimeout(() => { sp.classList.add('hidden'); lb.textContent = 'Concluído ✓'; b.disabled = false; b.classList.remove('opacity-80');
+      setTimeout(() => lb.textContent = 'Clique para carregar', 1500); }, 1600);
+  }));
+
+  // 12. Letra a letra
+  const buildLetters = el => {
+    el.innerHTML = [...el.dataset.letters].map((ch, i) => `<span style="animation-delay:${i * 0.04}s">${ch}</span>`).join('');
+  };
+  document.querySelectorAll('[data-letters]').forEach(buildLetters);
+
+  // 13. Repetir demonstrações
+  document.querySelectorAll('[data-replay]').forEach(btn => btn.addEventListener('click', () => {
+    const stage = btn.closest('.anim-card').querySelector('[data-stage]'), kind = btn.dataset.replay;
+    btn.querySelector('iconify-icon').animate([{ transform: 'rotate(0)' }, { transform: 'rotate(-360deg)' }], { duration: 600, easing: 'cubic-bezier(0.16,1,0.3,1)' });
+    if (kind === 'reveal') {
+      stage.querySelectorAll('.reveal').forEach(el => el.classList.remove('active'));
+      requestAnimationFrame(() => requestAnimationFrame(() => stage.querySelectorAll('.reveal').forEach(el => el.classList.add('active'))));
+    }
+    if (kind === 'mask') {
+      const h = stage.querySelector('h2'); h.classList.remove('reveal-active');
+      requestAnimationFrame(() => requestAnimationFrame(() => h.classList.add('reveal-active')));
+    }
+    if (kind === 'anim') stage.querySelectorAll('.animate-on-scroll').forEach(el => { el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; });
+    if (kind === 'letters') buildLetters(stage.querySelector('[data-letters]'));
+    if (kind === 'count') countUp(stage.querySelector('[data-count]'));
+  }));
+});
+</script>
+</body>
+</html>

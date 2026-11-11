@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Arquiteto Digital — Design System v2</title>
+<meta name="description" content="Design system híbrido: a tipografia e a paleta stone do Digital Architect com as animações, beams e glass do Gemini Motion."/>
+<script src="assets/resource_3fa48481346f.js"></script>
+<script src="assets/iconify-icon_d39ffc6e4c56.js"></script>
+<link href="assets/css2_19fd9cc6b396.css" rel="stylesheet"/>
+<link href="assets/css2_62759cd015bd.css" rel="stylesheet"/>
+<link href="assets/css2_2b2d87bc82d8.css" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'Segoe UI', 'Roboto', 'sans-serif'],
+        mono: ['Geist Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+        serif: ['Instrument Serif', 'Georgia', 'Times New Roman', 'serif']
+      },
+      colors: { canvas: '#EAEAE5', ink: '#1C1C1C' },
+      keyframes: {
+        shimmer: { from: { transform: 'translateX(-100%) skewX(-15deg)' }, to: { transform: 'translateX(200%) skewX(-15deg)' } },
+        marquee: { '0%': { transform: 'translateX(0)' }, '100%': { transform: 'translateX(-50%)' } },
+        animationIn: { '0%': { opacity: '0', transform: 'translateY(30px)', filter: 'blur(10px)' }, '100%': { opacity: '1', transform: 'translateY(0)', filter: 'blur(0)' } },
+        textSlide: { '0%': { transform: 'translateY(110%)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
+        gridDrift: { from: { backgroundPosition: '0 0, 0 0' }, to: { backgroundPosition: '40px 40px, 40px 40px' } },
+        floatY: { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-12px)' } },
+        orbit: { from: { transform: 'rotate(0deg) translateX(10px) rotate(0deg)' }, to: { transform: 'rotate(360deg) translateX(10px) rotate(-360deg)' } },
+        scanline: { '0%': { top: '-10%' }, '100%': { top: '110%' } },
+        ping2: { '75%,100%': { transform: 'scale(2.2)', opacity: '0' } }
+      },
+      animation: {
+        'spin-slow': 'spin 12s linear infinite',
+        shimmer: 'shimmer 1.5s infinite',
+        marquee: 'marquee 40s linear infinite',
+        'grid-drift': 'gridDrift 6s linear infinite',
+        'float-y': 'floatY 6s ease-in-out infinite',
+        orbit: 'orbit 8s linear infinite',
+        scanline: 'scanline 7s linear infinite',
+        ping2: 'ping2 2s cubic-bezier(0, 0, 0.2, 1) infinite'
+      }
+    }
+  },
+  plugins: [
+    function ({ addUtilities }) {
+      addUtilities({
+        '.perspective-near': { perspective: '300px' },
+        '.perspective-normal': { perspective: '500px' },
+        '.perspective-midrange': { perspective: '800px' },
+        '.perspective-distant': { perspective: '1200px' },
+        '.transform-style-preserve-3d': { 'transform-style': 'preserve-3d' },
+        '.rotate-x-10': { transform: 'rotateX(10deg)' },
+        '.-rotate-x-10': { transform: 'rotateX(-10deg)' },
+        '.rotate-y-15': { transform: 'rotateY(15deg)' },
+        '.-rotate-y-15': { transform: 'rotateY(-15deg)' }
+      });
+    }
+  ]
+};
+</script>
+<style>
+/* ===== Base (Digital Architect) ===== */
+:root {
+  --bg-main: #EAEAE5; --bg-deep: #0C0A09; --text-primary: #1C1C1C; --text-secondary: #57534E;
+  --border-color: #D6D3D1; --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-primary); overflow-x: hidden; }
+iconify-icon { display: inline-flex; align-items: center; justify-content: center; vertical-align: middle; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.parallax-element, .parallax-img { will-change: transform; }
+
+/* Reveal (scroll) */
+.reveal { opacity: 0; transform: translateY(2rem); transition: all 1s var(--ease-out-expo); }
+.reveal.active { opacity: 1; transform: translateY(0); }
+/* Masked text reveal */
+.text-reveal-wrapper { overflow: hidden; display: inline-block; vertical-align: bottom; }
+.text-reveal-content { transform: translateY(110%); opacity: 0; transition: transform 1.2s var(--ease-out-expo), opacity 1.2s ease; display: block; }
+.reveal-active .text-reveal-content { transform: translateY(0); opacity: 1; }
+/* Stagger */
+.delay-100 { transition-delay: .1s; animation-delay: .1s; } .delay-200 { transition-delay: .2s; animation-delay: .2s; }
+.delay-300 { transition-delay: .3s; animation-delay: .3s; } .delay-500 { transition-delay: .5s; animation-delay: .5s; }
+.delay-700 { transition-delay: .7s; animation-delay: .7s; } .delay-900 { transition-delay: .9s; animation-delay: .9s; }
+/* Carousel Ken Burns */
+.carousel-slide { position: absolute; inset: 0; transition: opacity 1.5s ease-in-out; opacity: 0; overflow: hidden; }
+.carousel-slide.active { opacity: 1; }
+.carousel-slide img { transform: scale(1); transition: transform 10s ease-out; }
+.carousel-slide.active img { transform: scale(1.1); }
+/* Marquee */
+.marquee-container { display: flex; overflow: hidden; user-select: none; }
+.marquee-content { flex-shrink: 0; display: flex; justify-content: space-around; min-width: 100%; animation: scroll 40s linear infinite; }
+@keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+.marquee-container:hover .marquee-content { animation-play-state: paused; }
+/* Nav load */
+.nav-load { opacity: 0; transform: translateY(-10px); transition: all .8s ease-out; }
+.nav-load.loaded { opacity: 1; transform: translateY(0); }
+
+/* ===== Harvest (Gemini Motion) ===== */
+@keyframes animationIn { 0% { opacity: 0; transform: translateY(30px); filter: blur(10px); } 100% { opacity: 1; transform: translateY(0); filter: blur(0); } }
+@keyframes shimmer { from { transform: translateX(-100%) skewX(-15deg); } to { transform: translateX(200%) skewX(-15deg); } }
+@keyframes textSlide { 0% { transform: translateY(110%); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+.animate-on-scroll { animation-play-state: paused !important; }
+.animate-on-scroll.animate { animation-play-state: running !important; }
+.text-clip-anim span { display: inline-block; animation: textSlide .9s var(--ease-out-expo) forwards; opacity: 0; }
+/* Flashlight */
+.flashlight-card { position: relative; background: rgba(255,255,255,.5); }
+.flashlight-card::before { content: ""; position: absolute; inset: 0; background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(28,28,28,.08), transparent 40%); opacity: 0; transition: opacity .5s; pointer-events: none; z-index: 2; }
+.flashlight-card:hover::before { opacity: 1; }
+.flashlight-dark { background: rgba(255,255,255,.01); }
+.flashlight-dark::before { background: radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,.08), transparent 40%); }
+/* Glass */
+.glass-panel { background: rgba(23,23,23,.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+.glass-light { background: rgba(255,255,255,.55); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+/* Border gradient (mask trick) */
+[style*="--border-gradient"]::before { content: ""; position: absolute; inset: 0; padding: 1px; border-radius: var(--border-radius-before, inherit); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; background: var(--border-gradient); pointer-events: none; }
+/* Beam / glow */
+.beam-button { position: relative; overflow: hidden; }
+.beam-button::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.3), transparent); transition: left .5s; }
+.beam-button:hover::before { left: 100%; }
+.glow-on-hover { transition: all .3s ease; }
+.glow-on-hover:hover { box-shadow: 0 0 30px rgba(28,28,28,.15); transform: translateY(-2px); }
+/* Grid background + drift */
+.grid-bg { background-size: 40px 40px; background-image: linear-gradient(to right, rgba(0,0,0,.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,.04) 1px, transparent 1px); }
+.grid-bg-dark { background-size: 40px 40px; background-image: linear-gradient(to right, rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.05) 1px, transparent 1px); }
+.gradient-text { background: linear-gradient(135deg, #1C1C1C 0%, #78716C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.gradient-text-light { background: linear-gradient(135deg, #FFFFFF 0%, #78716C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+/* ===== Novos (combinação) ===== */
+/* Fundo aurora monocromático */
+.aurora { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.aurora span { position: absolute; border-radius: 9999px; filter: blur(70px); opacity: .55; animation: floatY 9s ease-in-out infinite; }
+/* Botão ink com borda cônica girando */
+.btn-beam { position: relative; display: inline-flex; border-radius: 9999px; padding: 1px; overflow: hidden; isolation: isolate; }
+.btn-beam > .ring { position: absolute; inset: -1000%; background: conic-gradient(from 0deg, transparent 0 340deg, #1C1C1C 360deg); animation: spin 2.5s linear infinite; }
+.btn-beam > .inner { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: .75rem; border-radius: 9999px; background: #EAEAE5; padding: 1rem 2rem; box-shadow: inset 0 0 0 1px rgba(28,28,28,.12); }
+.btn-beam:hover > .inner { background: #FFFFFF; }
+/* Magnetic lift + focus ring compartilhado */
+.focus-ring:focus-visible { outline: 2px solid #1C1C1C; outline-offset: 3px; }
+.dark .focus-ring:focus-visible, .focus-ring-light:focus-visible { outline: 2px solid #FFFFFF; outline-offset: 3px; }
+/* Tooltip */
+.tooltip { position: relative; }
+.tooltip > .tip { position: absolute; left: 50%; bottom: calc(100% + 10px); transform: translate(-50%, 6px); background: #1C1917; color: #fff; font-size: 11px; font-family: 'Geist Mono', monospace; letter-spacing: .08em; text-transform: uppercase; padding: 6px 10px; border-radius: 4px; white-space: nowrap; opacity: 0; pointer-events: none; transition: all .3s var(--ease-out-expo); }
+.tooltip > .tip::after { content: ""; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: #1C1917; }
+.tooltip:hover > .tip, .tooltip:focus-within > .tip { opacity: 1; transform: translate(-50%, 0); }
+.tooltip > .tip.bottom { bottom: auto; top: calc(100% + 10px); transform: translate(-50%, -6px); }
+.tooltip > .tip.bottom::after { top: auto; bottom: 100%; border-top-color: transparent; border-bottom-color: #1C1917; }
+.tooltip:hover > .tip.bottom, .tooltip:focus-within > .tip.bottom { transform: translate(-50%, 0); }
+/* Input */
+.field { position: relative; }
+.field input, .field textarea { width: 100%; background: transparent; border: 0; border-bottom: 1px solid #A8A29E; padding: 14px 0 10px; font-size: 15px; color: #1C1C1C; outline: none; transition: border-color .3s; }
+.field input::placeholder, .field textarea::placeholder { color: transparent; }
+.field label { position: absolute; left: 0; top: 14px; font-size: 15px; color: #78716C; pointer-events: none; transition: all .35s var(--ease-out-expo); }
+.field input:focus ~ label, .field input:not(:placeholder-shown) ~ label, .field textarea:focus ~ label, .field textarea:not(:placeholder-shown) ~ label { top: -8px; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; font-family: 'Geist Mono', monospace; color: #1C1C1C; }
+.field .bar { position: absolute; left: 0; bottom: 0; height: 1px; width: 100%; background: #1C1C1C; transform: scaleX(0); transform-origin: left; transition: transform .5s var(--ease-out-expo); }
+.field input:focus ~ .bar, .field textarea:focus ~ .bar { transform: scaleX(1); }
+.field.error input { border-bottom-color: #B91C1C; } .field.error label { color: #B91C1C; } .field.error .bar { background: #B91C1C; transform: scaleX(1); }
+.field.success input { border-bottom-color: #3F6212; } .field.success .bar { background: #3F6212; transform: scaleX(1); }
+.field input:disabled { color: #A8A29E; border-bottom-style: dashed; cursor: not-allowed; }
+/* Modal */
+.modal { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; padding: 1rem; visibility: hidden; opacity: 0; transition: opacity .4s ease, visibility .4s; }
+.modal.open { visibility: visible; opacity: 1; }
+.modal .backdrop { position: absolute; inset: 0; background: rgba(12,10,9,.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.modal .panel { position: relative; transform: translateY(24px) scale(.96); opacity: 0; transition: transform .6s var(--ease-out-expo), opacity .4s ease; }
+.modal.open .panel { transform: translateY(0) scale(1); opacity: 1; }
+/* Toggle */
+.toggle { width: 44px; height: 24px; border-radius: 9999px; background: #A8A29E; position: relative; transition: background .3s; cursor: pointer; border: 0; }
+.toggle::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 9999px; background: #fff; transition: transform .35s var(--ease-out-expo); }
+.toggle[aria-checked="true"] { background: #1C1C1C; } .toggle[aria-checked="true"]::after { transform: translateX(20px); }
+/* Scanline hero */
+.scanline { position: absolute; left: 0; right: 0; height: 120px; background: linear-gradient(to bottom, transparent, rgba(255,255,255,.08), transparent); animation: scanline 7s linear infinite; pointer-events: none; mix-blend-mode: overlay; }
+/* Scroll progress */
+#progress { position: fixed; top: 0; left: 0; height: 2px; width: 0; background: #1C1C1C; z-index: 200; transition: width .1s linear; }
+/* Code chips */
+code.chip { font-family: 'Geist Mono', monospace; font-size: 11px; background: rgba(28,28,28,.06); padding: 2px 6px; border-radius: 3px; }
+.dark code.chip { background: rgba(255,255,255,.08); }
+/* Demo replay */
+.demo-box { min-height: 120px; }
+@media (min-width: 768px) and (max-width: 1023.98px) { .anim-cell:nth-child(odd) { border-right: 1px solid #D6D3D1; } }
+@media (min-width: 1024px) { .anim-cell:not(:nth-child(3n)) { border-right: 1px solid #D6D3D1; } }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+  .reveal, .text-reveal-content, .nav-load { opacity: 1 !important; transform: none !important; }
+  .animate-on-scroll { animation: none !important; opacity: 1 !important; filter: none !important; }
+  .carousel-slide.active img { transform: none; }
+}
+</style>
+</head>
+<body class="antialiased min-h-screen selection:bg-stone-800 selection:text-white">
+<div id="progress" aria-hidden="true"></div>
+
+<!-- Container principal -->
+<div class="max-w-[1400px] mx-auto border-x border-stone-300 relative bg-[#EAEAE5]">
+
+<!-- Linhas-guia verticais (grid 12) -->
+<div class="absolute inset-0 pointer-events-none grid grid-cols-1 md:grid-cols-12 gap-0 z-0 h-full w-full">
+  <div class="hidden md:block md:col-span-3 border-r border-stone-300/40 h-full"></div>
+  <div class="hidden md:block md:col-span-6 border-r border-stone-300/40 h-full"></div>
+  <div class="hidden md:block md:col-span-3 h-full"></div>
+</div>
+
+<!-- ===== NAVBAR ===== -->
+<header class="relative z-50 border-b border-stone-300 sticky top-0 bg-[#EAEAE5]/85 backdrop-blur-md nav-load" id="site-header">
+  <div class="flex justify-between items-center px-4 md:px-6 py-4 md:py-5">
+    <nav class="flex items-center gap-5 md:gap-10" aria-label="Fundamentos">
+      <a class="text-xs font-medium tracking-widest uppercase hover:text-stone-500 transition-colors focus-ring rounded-sm" href="#tipografia">Tipografia</a>
+      <a class="text-xs font-medium tracking-widest uppercase hover:text-stone-500 transition-colors focus-ring rounded-sm" href="#cores">Cores</a>
+      <a class="text-xs font-medium tracking-widest uppercase hidden md:block hover:text-stone-500 transition-colors focus-ring rounded-sm" href="#componentes">Componentes</a>
+    </nav>
+    <a href="#topo" class="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 group cursor-pointer focus-ring rounded-sm">
+      <iconify-icon class="text-xl group-hover:rotate-180 transition-transform duration-700" icon="solar:atom-linear"></iconify-icon>
+      <span class="font-bold tracking-tighter text-lg hidden sm:inline">ARQUITETO<span class="font-serif italic font-normal text-stone-500">.ds</span></span>
+    </a>
+    <nav class="flex items-center gap-5 md:gap-10" aria-label="Interação">
+      <a class="text-xs font-medium tracking-widest uppercase hidden md:block hover:text-stone-500 transition-colors focus-ring rounded-sm" href="#icones">Ícones</a>
+      <a class="text-xs font-medium tracking-widest uppercase hover:text-stone-500 transition-colors focus-ring rounded-sm" href="#animacoes">Motion</a>
+      <button type="button" class="text-xs font-medium tracking-widest uppercase hidden sm:inline-flex items-center gap-1 border border-stone-900 rounded-full px-3 py-1.5 hover:bg-stone-900 hover:text-white transition-all focus-ring" data-open-modal="modal-demo">
+        Abrir modal <iconify-icon icon="solar:arrow-right-up-linear"></iconify-icon>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<!-- ===== HERO ===== -->
+<section id="topo" class="relative z-10 grid grid-cols-1 md:grid-cols-12 border-b border-stone-300 min-h-[85vh] md:min-h-[900px] overflow-hidden">
+  <!-- Coluna visual (9) -->
+  <div class="col-span-1 md:col-span-9 border-b md:border-b-0 md:border-r border-stone-300 relative group overflow-hidden bg-stone-200 min-h-[520px] md:min-h-0">
+    <div class="w-full h-full relative" id="hero-carousel">
+      <div class="carousel-slide active"><img alt="Arquitetura em preto e branco" class="w-full h-full object-cover grayscale contrast-125 parallax-img" data-speed="0.05" src="assets/c7fa69dd-d7fb-48f2-a866-ef3663_f6b789593f38.webp"/></div>
+      <div class="carousel-slide"><img alt="Fachada geométrica" class="w-full h-full object-cover grayscale contrast-125 parallax-img" data-speed="0.05" src="assets/6c710de5-9712-4c8e-a7db-59ac54_b647957b5aa5.webp"/></div>
+      <div class="carousel-slide"><img alt="Estrutura em concreto" class="w-full h-full object-cover grayscale contrast-125 parallax-img" data-speed="0.05" src="assets/62cc53b7-3355-4618-b7fa-3283f6_a6d3415bc434.webp"/></div>
+    </div>
+    <!-- Camadas de atmosfera -->
+    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-stone-900/60 pointer-events-none"></div>
+    <div class="absolute inset-0 grid-bg-dark animate-grid-drift opacity-60 pointer-events-none" aria-hidden="true"></div>
+    <div class="scanline" aria-hidden="true"></div>
+    <div class="aurora" aria-hidden="true">
+      <span class="w-[28rem] h-[28rem] -top-32 -right-24 bg-white/30"></span>
+      <span class="w-[22rem] h-[22rem] bottom-10 left-1/3 bg-stone-400/40" style="animation-delay:-3s"></span>
+    </div>
+    <!-- Metadados topo -->
+    <div class="absolute top-5 left-5 md:top-8 md:left-10 right-5 md:right-10 flex justify-between items-center text-white/80 z-20 animate-on-scroll [animation:animationIn_0.8s_ease-out_0.1s_both] animate">
+      <span class="text-[11px] font-mono uppercase tracking-[0.25em] flex items-center gap-3"><span class="relative flex h-1.5 w-1.5"><span class="absolute inline-flex h-full w-full rounded-full bg-white animate-ping2"></span><span class="relative inline-flex h-1.5 w-1.5 rounded-full bg-white"></span></span>Sistema vivo · v2.0</span>
+      <span class="text-[11px] font-mono text-white/60 hidden sm:block" id="slide-counter">01 / 03</span>
+    </div>
+    <!-- Anel orbital decorativo -->
+    <div class="absolute top-16 right-6 md:top-24 md:right-16 w-28 h-28 md:w-44 md:h-44 z-20 pointer-events-none animate-on-scroll [animation:animationIn_1.2s_ease-out_0.9s_both] animate" aria-hidden="true">
+      <div class="absolute inset-0 rounded-full border border-white/30 animate-spin-slow" style="border-style:dashed"></div>
+      <div class="absolute inset-4 rounded-full border border-white/20"></div>
+      <div class="absolute inset-0 flex items-center justify-center"><iconify-icon class="text-3xl md:text-5xl text-white/80 animate-float-y" icon="solar:atom-linear"></iconify-icon></div>
+      <div class="absolute inset-0 animate-spin-slow" style="animation-direction:reverse;animation-duration:8s"><span class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white shadow-[0_0_16px_4px_rgba(255,255,255,.6)]"></span></div>
+    </div>
+    <!-- Texto do hero -->
+    <div class="absolute bottom-6 left-5 right-5 md:bottom-12 md:left-10 md:right-10 text-white z-20">
+      <span class="block text-[11px] md:text-xs font-mono uppercase tracking-[0.3em] text-white/70 mb-4 animate-on-scroll [animation:animationIn_0.8s_ease-out_0.3s_both] animate">Design System · Arquiteto Digital × Motion</span>
+      <h1 class="text-[3.25rem] leading-[0.95] sm:text-7xl md:text-8xl lg:text-[7.5rem] font-semibold tracking-tighter mb-2 mix-blend-difference" id="hero-title">
+        <span class="text-reveal-wrapper"><span class="text-reveal-content delay-200">Arquiteto</span></span><br class="hidden sm:block"/>
+        <span class="text-reveal-wrapper"><span class="text-reveal-content delay-300 font-serif italic font-normal text-stone-300 pr-3">em</span></span>
+        <span class="text-reveal-wrapper"><span class="text-reveal-content delay-500">movimento</span></span>
+      </h1>
+      <p class="max-w-md text-sm md:text-base text-white/75 leading-relaxed mt-5 reveal delay-500 hero-badge">Tipografia editorial, paleta stone e grid de 12 colunas — agora com beams, glass, flashlight e reveals calibrados em <code class="chip bg-white/10 text-white">cubic-bezier(0.16, 1, 0.3, 1)</code>.</p>
+      <div class="mt-7 flex flex-wrap items-center gap-3 md:gap-4 reveal delay-700 hero-badge">
+        <!-- Botão beam branco (Gemini) -->
+        <div class="group relative">
+          <div class="-inset-2 group-hover:opacity-100 transition duration-500 bg-white/30 opacity-0 rounded-full absolute blur-xl"></div>
+          <button type="button" class="group relative z-10 flex items-center justify-center overflow-hidden rounded-full p-[1px] leading-none focus-ring-light" data-scroll="#componentes">
+            <span class="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_0deg,transparent_0_340deg,white_360deg)]"></span>
+            <span class="relative flex h-full w-full items-center rounded-full bg-stone-950 pt-3.5 pr-7 pb-3.5 pl-7 ring-1 ring-white/10">
+              <span class="absolute inset-0 overflow-hidden rounded-full"><span class="absolute top-0 left-0 h-full w-full -skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:animate-shimmer group-hover:opacity-100"></span></span>
+              <span class="relative z-10 text-sm font-medium tracking-wide text-white">Explorar componentes</span>
+              <span class="relative z-10 ml-3 flex items-center text-stone-500 transition duration-200 group-hover:translate-x-1 group-hover:text-white"><iconify-icon class="text-xl" icon="solar:arrow-right-linear"></iconify-icon></span>
+            </span>
+          </button>
+        </div>
+        <!-- Pill glass outline (Digital Architect) -->
+        <a href="#tipografia" class="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-widest border border-white/40 rounded-full px-6 py-3.5 backdrop-blur-md text-white hover:bg-white hover:text-stone-900 transition-all duration-300 focus-ring-light">
+          Ver fundamentos <iconify-icon class="text-base" icon="solar:arrow-down-linear"></iconify-icon>
+        </a>
+        <div class="hidden sm:flex items-center gap-2">
+          <span class="px-3 py-1 border border-white/40 rounded-full text-[11px] font-mono uppercase backdrop-blur-md text-white">Inter</span>
+          <span class="px-3 py-1 border border-white/40 rounded-full text-[11px] font-mono uppercase backdrop-blur-md text-white">Geist Mono</span>
+          <span class="px-3 py-1 border border-white/40 rounded-full text-[11px] font-serif italic normal-case backdrop-blur-md text-white">Instrument Serif</span>
+        </div>
+      </div>
+    </div>
+    <!-- Indicadores do carrossel -->
+    <div class="absolute bottom-6 right-5 md:bottom-12 md:right-10 z-20 hidden md:flex gap-2" id="hero-dots" aria-label="Slides"></div>
+  </div>
+
+  <!-- Coluna de estatísticas (3) com flashlight -->
+  <div class="col-span-1 md:col-span-3 grid grid-rows-3 h-full min-h-[420px]">
+    <div class="flashlight-card row-span-1 border-b border-stone-300 p-6 md:p-8 flex flex-col justify-between reveal delay-500 hero-stat group hover:bg-white transition-colors overflow-hidden">
+      <iconify-icon class="text-3xl text-stone-400 group-hover:text-stone-800 transition-colors" icon="solar:layers-minimalistic-linear"></iconify-icon>
+      <div class="relative z-10">
+        <h2 class="text-5xl font-medium tracking-tighter tabular-nums" data-count="24">0</h2>
+        <span class="text-xs font-mono text-stone-500 mt-1 block uppercase tracking-widest">Componentes</span>
+      </div>
+    </div>
+    <div class="flashlight-card row-span-1 border-b border-stone-300 p-6 md:p-8 flex flex-col justify-between reveal delay-700 hero-stat group hover:bg-white transition-colors overflow-hidden">
+      <iconify-icon class="text-3xl text-stone-400 group-hover:text-stone-800 transition-colors" icon="solar:palette-linear"></iconify-icon>
+      <div class="relative z-10">
+        <h2 class="text-5xl font-medium tracking-tighter tabular-nums" data-count="16">0</h2>
+        <span class="text-xs font-mono text-stone-500 mt-1 block uppercase tracking-widest">Tokens de cor</span>
+      </div>
+    </div>
+    <div class="flashlight-card row-span-1 p-6 md:p-8 flex flex-col justify-between reveal delay-900 hero-stat group hover:bg-white transition-colors relative overflow-hidden">
+      <iconify-icon class="text-3xl text-stone-400 group-hover:text-stone-800 transition-colors" icon="solar:play-circle-linear"></iconify-icon>
+      <div class="relative z-10">
+        <h2 class="text-5xl font-medium tracking-tighter tabular-nums" data-count="18">0</h2>
+        <span class="text-xs font-mono text-stone-500 mt-1 block uppercase tracking-widest">Animações</span>
+      </div>
+      <div class="absolute top-4 right-4 animate-spin-slow"><iconify-icon class="text-stone-200 text-6xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" icon="solar:star-fall-linear"></iconify-icon></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MARQUEE ===== -->
+<div class="border-b border-stone-300 overflow-hidden py-5 bg-stone-100/50 relative">
+  <div class="absolute left-0 top-0 bottom-0 w-16 md:w-32 z-10 bg-gradient-to-r from-[#EAEAE5] to-transparent pointer-events-none"></div>
+  <div class="absolute right-0 top-0 bottom-0 w-16 md:w-32 z-10 bg-gradient-to-l from-[#EAEAE5] to-transparent pointer-events-none"></div>
+  <div class="marquee-container">
+    <div class="marquee-content">
+      <span class="text-sm font-mono uppercase tracking-widest text-stone-500 mx-8">Easing: cubic-bezier(0.16, 1, 0.3, 1)</span><span class="text-sm font-mono text-stone-400 mx-8">•</span>
+      <span class="text-sm font-mono uppercase tracking-widest text-stone-500 mx-8">Grid 12 colunas · 1400px</span><span class="text-sm font-mono text-stone-400 mx-8">•</span>
+      <span class="text-sm font-mono uppercase tracking-widest text-stone-500 mx-8">Inter · Geist Mono · Instrument Serif</span><span class="text-sm font-mono text-stone-400 mx-8">•</span>
+      <span class="text-sm font-mono uppercase tracking-widest text-stone-500 mx-8">Paleta stone · #EAEAE5</span><span class="text-sm font-mono text-stone-400 mx-8">•</span>
+    </div>
+    <div class="marquee-content" aria-hidden="true">
+      <span class="text-sm font-mono uppercase tracking-widest text-stone-500 mx-8">Easing: cubic-bezier(0.16, 1, 0.3, 1)</span><span class="text-sm font-mono text-stone-400 mx-8">•</span>
+      <span class="text-sm font-mono uppercase tracking-widest text-stone-500 mx-8">Grid 12 colunas · 1400px</span><span class="text-sm font-mono text-stone-400 mx-8">•</span>
+      <span class="text-sm font-mono uppercase tracking-widest text-stone-500 mx-8">Inter · Geist Mono · Instrument Serif</span><span class="text-sm font-mono text-stone-400 mx-8">•</span>
+      <span class="text-sm font-mono uppercase tracking-widest text-stone-500 mx-8">Paleta stone · #EAEAE5</span><span class="text-sm font-mono text-stone-400 mx-8">•</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== BANNER TIPOGRÁFICO ===== -->
+<section class="relative z-10 py-24 md:py-32 border-b border-stone-300 overflow-hidden grid-bg">
+  <div class="flex flex-col items-center gap-2 reveal px-4">
+    <div class="flex items-center gap-3 md:gap-8 flex-wrap justify-center">
+      <h2 class="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-semibold tracking-tighter text-stone-900"><span class="text-reveal-wrapper"><span class="text-reveal-content">Forma</span></span></h2>
+      <button type="button" aria-label="Rolar para tipografia" data-scroll="#tipografia" class="w-12 h-12 md:w-20 md:h-20 border border-stone-800 rounded-full flex items-center justify-center mt-2 md:mt-4 bg-transparent hover:bg-stone-900 hover:text-white transition-all duration-500 focus-ring"><iconify-icon class="text-2xl md:text-4xl" icon="solar:arrow-down-linear"></iconify-icon></button>
+      <h2 class="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-serif italic font-normal tracking-tight text-stone-900"><span class="text-reveal-wrapper"><span class="text-reveal-content delay-100">segue</span></span></h2>
+    </div>
+    <h2 class="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-semibold tracking-tighter text-stone-400"><span class="text-reveal-wrapper"><span class="text-reveal-content delay-200">Movimento</span></span></h2>
+  </div>
+  <div class="absolute top-1/2 left-0 w-full h-px bg-stone-300 -z-10"></div>
+  <div class="absolute top-10 right-[8%] opacity-20 parallax-element" data-speed="-0.02" aria-hidden="true"><iconify-icon class="text-9xl" icon="solar:record-circle-linear"></iconify-icon></div>
+</section>
+
+<!-- ===== 01 TIPOGRAFIA ===== -->
+<section id="tipografia" class="relative z-10 border-b border-stone-300 scroll-mt-20">
+  <div class="p-6 md:p-12 border-b border-stone-300 bg-stone-100/50 flex flex-col md:flex-row md:items-end md:justify-between gap-4 reveal">
+    <div><span class="text-xs font-mono uppercase text-stone-500 block mb-2">01 / Fundamentos</span><h2 class="text-4xl font-medium tracking-tight">Tipografia</h2></div>
+    <p class="text-sm text-stone-600 max-w-md leading-relaxed">Três vozes: <strong class="font-medium text-stone-900">Inter</strong> para estrutura, <strong class="font-mono font-medium text-stone-900">Geist Mono</strong> para metadados e <strong class="font-serif italic text-lg text-stone-900">Instrument Serif</strong> para o contraponto editorial.</p>
+  </div>
+
+  <!-- Famílias + carregamento -->
+  <div class="grid grid-cols-1 md:grid-cols-3 border-b border-stone-300">
+    <div class="p-6 md:p-10 border-b md:border-b-0 md:border-r border-stone-300 reveal">
+      <span class="text-xs font-mono uppercase tracking-widest text-stone-400 block mb-4">Primária · Sans</span>
+      <p class="text-5xl font-semibold tracking-tighter mb-4">Inter</p>
+      <dl class="text-xs font-mono text-stone-600 space-y-1.5">
+        <div class="flex justify-between gap-3"><dt class="text-stone-400">stack</dt><dd class="text-right">'Inter', ui-sans-serif, system-ui, 'Segoe UI', Roboto, sans-serif</dd></div>
+        <div class="flex justify-between gap-3"><dt class="text-stone-400">pesos</dt><dd>300 · 400 · 500 · 600 · 700</dd></div>
+        <div class="flex justify-between gap-3"><dt class="text-stone-400">carga</dt><dd>local · woff2 · font-display: swap</dd></div>
+        <div class="flex justify-between gap-3"><dt class="text-stone-400">arquivo</dt><dd>assets/css2_19fd9cc6b396.css</dd></div>
+      </dl>
+    </div>
+    <div class="p-6 md:p-10 border-b md:border-b-0 md:border-r border-stone-300 reveal delay-100">
+      <span class="text-xs font-mono uppercase tracking-widest text-stone-400 block mb-4">Monoespaçada · Metadados</span>
+      <p class="text-5xl font-mono font-medium tracking-tight mb-4">Geist Mono</p>
+      <dl class="text-xs font-mono text-stone-600 space-y-1.5">
+        <div class="flex justify-between gap-3"><dt class="text-stone-400">stack</dt><dd class="text-right">'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace</dd></div>
+        <div class="flex justify-between gap-3"><dt class="text-stone-400">pesos</dt><dd>300 · 400 · 500</dd></div>
+        <div class="flex justify-between gap-3"><dt class="text-stone-400">carga</dt><dd>local · woff2 · swap</dd></div>
+        <div class="flex justify-between gap-3"><dt class="text-stone-400">arquivo</dt><dd>assets/css2_62759cd015bd.css</dd></div>
+      </dl>
+    </div>
+    <div class="p-6 md:p-10 reveal delay-200">
+      <span class="text-xs font-mono uppercase tracking-widest text-stone-400 block mb-4">Acento · Serif itálica</span>
+      <p class="text-6xl font-serif italic tracking-tight mb-4">Instrument</p>
+      <dl class="text-xs font-mono text-stone-600 space-y-1.5">
+        <div class="flex justify-between gap-3"><dt class="text-stone-400">stack</dt><dd class="text-right">'Instrument Serif', Georgia, 'Times New Roman', serif</dd></div>
+        <div class="flex justify-between gap-3"><dt class="text-stone-400">pesos</dt><dd>400 (regular + italic)</dd></div>
+        <div class="flex justify-between gap-3"><dt class="text-stone-400">uso</dt><dd>1 palavra por título, nunca em body</dd></div>
+        <div class="flex justify-between gap-3"><dt class="text-stone-400">arquivo</dt><dd>assets/css2_2b2d87bc82d8.css</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <!-- Escala -->
+  <div class="grid grid-cols-1" id="type-scale">
+    <div class="grid grid-cols-1 md:grid-cols-12 border-b border-stone-300 p-6 md:p-12 items-baseline gap-4 reveal">
+      <div class="md:col-span-3 text-xs font-mono text-stone-400 uppercase tracking-widest">Display / H1</div>
+      <div class="md:col-span-6"><h1 class="text-6xl md:text-8xl font-semibold tracking-tighter leading-none text-stone-900 break-words">Arquiteto Digital</h1></div>
+      <div class="md:col-span-3 md:text-right text-xs font-mono text-stone-500 leading-relaxed">Inter · 600<br/>6rem (96px) · lh 1 · ls −0.05em · none</div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-12 border-b border-stone-300 p-6 md:p-12 items-baseline gap-4 reveal">
+      <div class="md:col-span-3 text-xs font-mono text-stone-400 uppercase tracking-widest">Heading / H2</div>
+      <div class="md:col-span-6"><h2 class="text-5xl font-medium tracking-tighter text-stone-900">Design &amp; <span class="font-serif italic font-normal text-stone-500">estratégia</span></h2></div>
+      <div class="md:col-span-3 md:text-right text-xs font-mono text-stone-500 leading-relaxed">Inter · 500<br/>3rem (48px) · lh 1 · ls −0.05em · none</div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-12 border-b border-stone-300 p-6 md:p-12 items-baseline gap-4 reveal">
+      <div class="md:col-span-3 text-xs font-mono text-stone-400 uppercase tracking-widest">Heading / H3</div>
+      <div class="md:col-span-6"><h3 class="text-4xl font-medium tracking-tight text-stone-900">Estudos de caso</h3></div>
+      <div class="md:col-span-3 md:text-right text-xs font-mono text-stone-500 leading-relaxed">Inter · 500<br/>2.25rem (36px) · lh 2.5rem · ls −0.025em · none</div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-12 border-b border-stone-300 p-6 md:p-12 items-baseline gap-4 reveal">
+      <div class="md:col-span-3 text-xs font-mono text-stone-400 uppercase tracking-widest">Heading / H4</div>
+      <div class="md:col-span-6"><h4 class="text-3xl font-medium tracking-tight text-stone-900">Nome do projeto</h4></div>
+      <div class="md:col-span-3 md:text-right text-xs font-mono text-stone-500 leading-relaxed">Inter · 500<br/>1.875rem (30px) · lh 2.25rem · ls −0.025em · none</div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-12 border-b border-stone-300 p-6 md:p-12 items-baseline gap-4 reveal">
+      <div class="md:col-span-3 text-xs font-mono text-stone-400 uppercase tracking-widest">Heading / H5</div>
+      <div class="md:col-span-6"><h5 class="text-xl font-medium text-stone-900">Título de card ou lista</h5></div>
+      <div class="md:col-span-3 md:text-right text-xs font-mono text-stone-500 leading-relaxed">Inter · 500<br/>1.25rem (20px) · lh 1.75rem · ls 0 · none</div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-12 border-b border-stone-300 p-6 md:p-12 items-baseline gap-4 reveal">
+      <div class="md:col-span-3 text-xs font-mono text-stone-400 uppercase tracking-widest">Heading / H6 · Eyebrow</div>
+      <div class="md:col-span-6"><h6 class="text-sm font-bold uppercase tracking-widest text-stone-900">Competências principais</h6></div>
+      <div class="md:col-span-3 md:text-right text-xs font-mono text-stone-500 leading-relaxed">Inter · 700<br/>0.875rem (14px) · lh 1.25rem · ls 0.1em · uppercase</div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-12 border-b border-stone-300 p-6 md:p-12 items-baseline gap-4 reveal">
+      <div class="md:col-span-3 text-xs font-mono text-stone-400 uppercase tracking-widest">Body · LG</div>
+      <div class="md:col-span-6"><p class="text-lg leading-relaxed text-stone-800">Reflexões sobre a interseção entre design, tecnologia e psicologia humana. Explorando como construir ferramentas melhores para pensar.</p></div>
+      <div class="md:col-span-3 md:text-right text-xs font-mono text-stone-500 leading-relaxed">Inter · 400<br/>1.125rem (18px) · lh 1.625 · ls 0 · none</div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-12 border-b border-stone-300 p-6 md:p-12 items-baseline gap-4 reveal">
+      <div class="md:col-span-3 text-xs font-mono text-stone-400 uppercase tracking-widest">Body · MD</div>
+      <div class="md:col-span-6"><p class="text-base leading-relaxed text-stone-700">Texto corrido padrão para parágrafos, descrições e conteúdos de apoio em cards e seções.</p></div>
+      <div class="md:col-span-3 md:text-right text-xs font-mono text-stone-500 leading-relaxed">Inter · 400<br/>1rem (16px) · lh 1.625 · ls 0 · none</div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-12 border-b border-stone-300 p-6 md:p-12 items-baseline gap-4 reveal">
+      <div class="md:col-span-3 text-xs font-mono text-stone-400 uppercase tracking-widest">Body · SM</div>
+      <div class="md:col-span-6"><p class="text-sm leading-relaxed text-stone-500 max-w-sm">Redesenho do fluxo de investimento para a geração Z, resultando em 40% de aumento na conversão.</p></div>
+      <div class="md:col-span-3 md:text-right text-xs font-mono text-stone-500 leading-relaxed">Inter · 400<br/>0.875rem (14px) · lh 1.625 · ls 0 · none</div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-12 border-b border-stone-300 p-6 md:p-12 items-baseline gap-4 reveal">
+      <div class="md:col-span-3 text-xs font-mono text-stone-400 uppercase tracking-widest">Label · Mono</div>
+      <div class="md:col-span-6"><span class="text-xs font-mono uppercase tracking-widest text-stone-500">01 / Trabalhos selecionados</span></div>
+      <div class="md:col-span-3 md:text-right text-xs font-mono text-stone-500 leading-relaxed">Geist Mono · 400<br/>0.75rem (12px) · lh 1rem · ls 0.1em · uppercase</div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-12 border-b border-stone-300 p-6 md:p-12 items-baseline gap-4 reveal">
+      <div class="md:col-span-3 text-xs font-mono text-stone-400 uppercase tracking-widest">Caption · Data</div>
+      <div class="md:col-span-6"><span class="text-xs text-stone-400">12 out 2024</span></div>
+      <div class="md:col-span-3 md:text-right text-xs font-mono text-stone-500 leading-relaxed">Inter · 400<br/>0.75rem (12px) · lh 1rem · ls 0 · none</div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-12 p-6 md:p-12 items-baseline gap-4 reveal">
+      <div class="md:col-span-3 text-xs font-mono text-stone-400 uppercase tracking-widest">Helper · Badge</div>
+      <div class="md:col-span-6 flex flex-wrap items-center gap-3"><span class="px-3 py-1 border border-stone-400 rounded-full text-[11px] font-mono uppercase tracking-[0.25em] text-stone-600">UI/UX</span><span class="text-xs text-stone-500">Texto de ajuda abaixo de um campo.</span></div>
+      <div class="md:col-span-3 md:text-right text-xs font-mono text-stone-500 leading-relaxed">Geist Mono · 400<br/>0.6875rem (11px) · lh 1 · ls 0.25em · uppercase</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 02 CORES ===== -->
+<section id="cores" class="relative z-10 border-b border-stone-300 scroll-mt-20">
+  <div class="p-6 md:p-12 border-b border-stone-300 bg-stone-100/50 flex flex-col md:flex-row md:items-end md:justify-between gap-4 reveal">
+    <div><span class="text-xs font-mono uppercase text-stone-500 block mb-2">02 / Fundamentos</span><h2 class="text-4xl font-medium tracking-tight">Sistema de cores</h2></div>
+    <p class="text-sm text-stone-600 max-w-md leading-relaxed">Monocromia quente: a escala <em>stone</em> do Tailwind sobre o papel <code class="chip">#EAEAE5</code>. Contrastes calculados contra o fundo indicado (WCAG 2.1).</p>
+  </div>
+
+  <!-- Swatches principais -->
+  <div class="grid grid-cols-2 md:grid-cols-4" id="swatches">
+    <div class="group col-span-1 p-5 md:p-8 border-r border-b border-stone-300 bg-[#EAEAE5] flex flex-col justify-between aspect-square reveal glow-on-hover">
+      <div><div class="text-stone-900 font-bold">Papel</div><div class="text-[11px] font-mono text-stone-500 mt-1">neutral · fundo principal</div></div>
+      <div class="font-mono text-[11px] text-stone-600 leading-relaxed">#EAEAE5<br/>rgb(234 234 229)<br/>hsl(60 11% 91%)</div>
+    </div>
+    <div class="col-span-1 p-5 md:p-8 border-r md:border-r border-b border-stone-300 bg-white flex flex-col justify-between aspect-square reveal delay-100 glow-on-hover">
+      <div><div class="text-stone-900 font-bold">Branco</div><div class="text-[11px] font-mono text-stone-500 mt-1">neutral · superfície elevada / hover</div></div>
+      <div class="font-mono text-[11px] text-stone-600 leading-relaxed">#FFFFFF<br/>rgb(255 255 255)<br/>hsl(0 0% 100%)</div>
+    </div>
+    <div class="col-span-1 p-5 md:p-8 border-r border-b border-stone-300 bg-stone-100 flex flex-col justify-between aspect-square reveal delay-200 glow-on-hover">
+      <div><div class="text-stone-900 font-bold">Stone 100</div><div class="text-[11px] font-mono text-stone-500 mt-1">neutral · cabeçalho de seção</div></div>
+      <div class="font-mono text-[11px] text-stone-600 leading-relaxed">#F5F5F4<br/>rgb(245 245 244)<br/>hsl(60 5% 96%)</div>
+    </div>
+    <div class="col-span-1 p-5 md:p-8 border-b border-stone-300 bg-stone-200 flex flex-col justify-between aspect-square reveal delay-300 glow-on-hover">
+      <div><div class="text-stone-900 font-bold">Stone 200</div><div class="text-[11px] font-mono text-stone-500 mt-1">neutral · placeholder de imagem</div></div>
+      <div class="font-mono text-[11px] text-stone-600 leading-relaxed">#E7E5E4<br/>rgb(231 229 228)<br/>hsl(20 6% 90%)</div>
+    </div>
+    <div class="col-span-1 p-5 md:p-8 border-r border-b border-stone-300 bg-stone-300 flex flex-col justify-between aspect-square reveal glow-on-hover">
+      <div><div class="text-stone-900 font-bold">Stone 300</div><div class="text-[11px] font-mono text-stone-600 mt-1">neutral · bordas e linhas-guia</div></div>
+      <div class="font-mono text-[11px] text-stone-700 leading-relaxed">#D6D3D1<br/>rgb(214 211 209)<br/>hsl(24 6% 83%)</div>
+    </div>
+    <div class="col-span-1 p-5 md:p-8 border-r border-b border-stone-300 bg-stone-400 flex flex-col justify-between aspect-square reveal delay-100 glow-on-hover">
+      <div><div class="text-stone-950 font-bold">Stone 400</div><div class="text-[11px] font-mono text-stone-800 mt-1">decorativo · ícones inativos</div></div>
+      <div class="font-mono text-[11px] text-stone-900 leading-relaxed">#A8A29E<br/>rgb(168 162 158)<br/>hsl(24 5% 64%)</div>
+    </div>
+    <div class="col-span-1 p-5 md:p-8 border-r border-b border-stone-300 bg-stone-500 flex flex-col justify-between aspect-square reveal delay-200 glow-on-hover">
+      <div><div class="text-white font-bold">Stone 500</div><div class="text-[11px] font-mono text-stone-100 mt-1">secundário · labels mono</div></div>
+      <div class="font-mono text-[11px] text-stone-100 leading-relaxed">#78716C<br/>rgb(120 113 108)<br/>hsl(25 5% 45%)</div>
+    </div>
+    <div class="col-span-1 p-5 md:p-8 border-b border-stone-300 bg-stone-600 flex flex-col justify-between aspect-square reveal delay-300 glow-on-hover">
+      <div><div class="text-white font-bold">Stone 600</div><div class="text-[11px] font-mono text-stone-200 mt-1">secundário · texto de apoio</div></div>
+      <div class="font-mono text-[11px] text-stone-200 leading-relaxed">#57534E<br/>rgb(87 83 78)<br/>hsl(33 5% 32%)</div>
+    </div>
+    <div class="col-span-1 p-5 md:p-8 border-r border-b md:border-b-0 border-stone-300 bg-stone-800 flex flex-col justify-between aspect-square reveal glow-on-hover">
+      <div><div class="text-white font-bold">Stone 800</div><div class="text-[11px] font-mono text-stone-400 mt-1">primário · ícones ativos / hover</div></div>
+      <div class="font-mono text-[11px] text-stone-300 leading-relaxed">#292524<br/>rgb(41 37 36)<br/>hsl(12 6% 15%)</div>
+    </div>
+    <div class="col-span-1 p-5 md:p-8 border-r border-b md:border-b-0 border-stone-300 bg-stone-900 flex flex-col justify-between aspect-square reveal delay-100 glow-on-hover">
+      <div><div class="text-white font-bold">Stone 900</div><div class="text-[11px] font-mono text-stone-400 mt-1">primário · botões, footer</div></div>
+      <div class="font-mono text-[11px] text-stone-300 leading-relaxed">#1C1917<br/>rgb(28 25 23)<br/>hsl(24 10% 10%)</div>
+    </div>
+    <div class="col-span-1 p-5 md:p-8 border-r border-stone-300 bg-[#1C1C1C] flex flex-col justify-between aspect-square reveal delay-200 glow-on-hover">
+      <div><div class="text-white font-bold">Tinta</div><div class="text-[11px] font-mono text-stone-400 mt-1">primário · texto principal</div></div>
+      <div class="font-mono text-[11px] text-stone-300 leading-relaxed">#1C1C1C<br/>rgb(28 28 28)<br/>hsl(0 0% 11%)</div>
+    </div>
+    <div class="col-span-1 p-5 md:p-8 bg-stone-950 flex flex-col justify-between aspect-square reveal delay-300 glow-on-hover relative overflow-hidden">
+      <div class="absolute inset-0 grid-bg-dark animate-grid-drift opacity-70" aria-hidden="true"></div>
+      <div class="relative"><div class="text-white font-bold">Stone 950</div><div class="text-[11px] font-mono text-stone-400 mt-1">neutral · capítulo escuro / glass</div></div>
+      <div class="relative font-mono text-[11px] text-stone-300 leading-relaxed">#0C0A09<br/>rgb(12 10 9)<br/>hsl(20 14% 4%)</div>
+    </div>
+  </div>
+
+  <!-- Feedback -->
+  <div class="border-t border-stone-300 grid grid-cols-1 md:grid-cols-12">
+    <div class="md:col-span-4 p-6 md:p-12 border-b md:border-b-0 md:border-r border-stone-300 reveal">
+      <h3 class="text-sm font-bold uppercase tracking-widest text-stone-900 mb-3">Feedback</h3>
+      <p class="text-sm text-stone-600 leading-relaxed">Quatro tons dessaturados que respeitam a monocromia. Usados somente em texto, ícone e borda — nunca como fundo sólido de área grande.</p>
+    </div>
+    <div class="md:col-span-8 grid grid-cols-2 md:grid-cols-4">
+      <div class="p-5 md:p-8 border-r border-b md:border-b-0 border-stone-300 reveal"><span class="inline-flex w-10 h-10 rounded-full items-center justify-center text-white mb-4" style="background:#3F6212"><iconify-icon icon="solar:check-circle-linear" class="text-xl"></iconify-icon></span><div class="font-bold text-sm">Sucesso</div><div class="font-mono text-[11px] text-stone-600 mt-1 leading-relaxed">#3F6212<br/>rgb(63 98 18)<br/>hsl(86 69% 23%)</div><div class="font-mono text-[11px] mt-2 text-stone-900">5.87:1 · AA</div></div>
+      <div class="p-5 md:p-8 md:border-r border-b md:border-b-0 border-stone-300 reveal delay-100"><span class="inline-flex w-10 h-10 rounded-full items-center justify-center text-white mb-4" style="background:#92400E"><iconify-icon icon="solar:danger-triangle-linear" class="text-xl"></iconify-icon></span><div class="font-bold text-sm">Atenção</div><div class="font-mono text-[11px] text-stone-600 mt-1 leading-relaxed">#92400E<br/>rgb(146 64 14)<br/>hsl(23 83% 31%)</div><div class="font-mono text-[11px] mt-2 text-stone-900">5.88:1 · AA</div></div>
+      <div class="p-5 md:p-8 border-r border-stone-300 reveal delay-200"><span class="inline-flex w-10 h-10 rounded-full items-center justify-center text-white mb-4" style="background:#B91C1C"><iconify-icon icon="solar:close-circle-linear" class="text-xl"></iconify-icon></span><div class="font-bold text-sm">Erro</div><div class="font-mono text-[11px] text-stone-600 mt-1 leading-relaxed">#B91C1C<br/>rgb(185 28 28)<br/>hsl(0 74% 42%)</div><div class="font-mono text-[11px] mt-2 text-stone-900">5.36:1 · AA</div></div>
+      <div class="p-5 md:p-8 reveal delay-300"><span class="inline-flex w-10 h-10 rounded-full items-center justify-center text-white mb-4" style="background:#1D4ED8"><iconify-icon icon="solar:info-circle-linear" class="text-xl"></iconify-icon></span><div class="font-bold text-sm">Info</div><div class="font-mono text-[11px] text-stone-600 mt-1 leading-relaxed">#1D4ED8<br/>rgb(29 78 216)<br/>hsl(224 76% 48%)</div><div class="font-mono text-[11px] mt-2 text-stone-900">5.55:1 · AA</div></div>
+    </div>
+  </div>
+
+  <!-- Tabela de contraste e uso -->
+  <div class="border-t border-stone-300 p-6 md:p-12 reveal overflow-x-auto">
+    <h3 class="text-sm font-bold uppercase tracking-widest text-stone-900 mb-6">Regras de uso e contraste</h3>
+    <table class="w-full text-left text-sm min-w-[720px]">
+      <thead><tr class="text-[11px] font-mono uppercase tracking-widest text-stone-400 border-b border-stone-300"><th class="py-3 pr-4 font-normal">Token</th><th class="py-3 pr-4 font-normal">Papel</th><th class="py-3 pr-4 font-normal">Texto</th><th class="py-3 pr-4 font-normal">Fundo</th><th class="py-3 pr-4 font-normal">Borda</th><th class="py-3 pr-4 font-normal">Hover / Ativo</th><th class="py-3 pr-4 font-normal">Desabilitado</th><th class="py-3 font-normal">Contraste</th></tr></thead>
+      <tbody class="text-stone-700 [&amp;>tr]:border-b [&amp;>tr]:border-stone-300/70">
+        <tr><td class="py-3 pr-4 font-mono text-xs">Tinta #1C1C1C</td><td class="py-3 pr-4">primário</td><td class="py-3 pr-4">body, títulos</td><td class="py-3 pr-4">botão primário</td><td class="py-3 pr-4">foco (2px)</td><td class="py-3 pr-4">→ stone-700</td><td class="py-3 pr-4">opacity .4</td><td class="py-3 font-mono text-xs">14.1:1 sobre papel · AAA</td></tr>
+        <tr><td class="py-3 pr-4 font-mono text-xs">stone-900 #1C1917</td><td class="py-3 pr-4">primário</td><td class="py-3 pr-4">títulos</td><td class="py-3 pr-4">footer, pill ativa</td><td class="py-3 pr-4">pill outline</td><td class="py-3 pr-4">bg → branco</td><td class="py-3 pr-4">—</td><td class="py-3 font-mono text-xs">14.5:1 · AAA / branco sobre ele 17.5:1</td></tr>
+        <tr><td class="py-3 pr-4 font-mono text-xs">stone-600 #57534E</td><td class="py-3 pr-4">secundário</td><td class="py-3 pr-4">texto de apoio, links</td><td class="py-3 pr-4">—</td><td class="py-3 pr-4">—</td><td class="py-3 pr-4">→ stone-900</td><td class="py-3 pr-4">—</td><td class="py-3 font-mono text-xs">6.3:1 · AA</td></tr>
+        <tr><td class="py-3 pr-4 font-mono text-xs">stone-500 #78716C</td><td class="py-3 pr-4">secundário</td><td class="py-3 pr-4">labels mono ≥12px uppercase</td><td class="py-3 pr-4">—</td><td class="py-3 pr-4">—</td><td class="py-3 pr-4">—</td><td class="py-3 pr-4">texto desabilitado</td><td class="py-3 font-mono text-xs">4.0:1 · AA só para texto grande</td></tr>
+        <tr><td class="py-3 pr-4 font-mono text-xs">stone-400 #A8A29E</td><td class="py-3 pr-4">decorativo</td><td class="py-3 pr-4">captions não essenciais</td><td class="py-3 pr-4">toggle off</td><td class="py-3 pr-4">input</td><td class="py-3 pr-4">ícone → stone-800</td><td class="py-3 pr-4">placeholder</td><td class="py-3 font-mono text-xs">2.1:1 · decorativo</td></tr>
+        <tr><td class="py-3 pr-4 font-mono text-xs">stone-300 #D6D3D1</td><td class="py-3 pr-4">neutral</td><td class="py-3 pr-4">—</td><td class="py-3 pr-4">swatch</td><td class="py-3 pr-4">todas as divisórias</td><td class="py-3 pr-4">—</td><td class="py-3 pr-4">—</td><td class="py-3 font-mono text-xs">1.2:1 · não textual</td></tr>
+        <tr><td class="py-3 pr-4 font-mono text-xs">stone-400 sobre stone-900</td><td class="py-3 pr-4">secundário (dark)</td><td class="py-3 pr-4">labels no footer</td><td class="py-3 pr-4">—</td><td class="py-3 pr-4">—</td><td class="py-3 pr-4">→ branco</td><td class="py-3 pr-4">—</td><td class="py-3 font-mono text-xs">6.9:1 · AA</td></tr>
+        <tr><td class="py-3 pr-4 font-mono text-xs">branco sobre stone-950</td><td class="py-3 pr-4">primário (dark)</td><td class="py-3 pr-4">títulos em glass</td><td class="py-3 pr-4">—</td><td class="py-3 pr-4">white/10</td><td class="py-3 pr-4">—</td><td class="py-3 pr-4">white/40</td><td class="py-3 font-mono text-xs">19.8:1 · AAA</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Opacidades e gradientes -->
+  <div class="border-t border-stone-300 grid grid-cols-1 md:grid-cols-2">
+    <div class="p-6 md:p-12 border-b md:border-b-0 md:border-r border-stone-300 reveal">
+      <h3 class="text-sm font-bold uppercase tracking-widest text-stone-900 mb-6">Variantes de opacidade</h3>
+      <div class="flex flex-wrap gap-2 mb-4">
+        <span class="h-12 w-12 rounded bg-stone-900/5 border border-stone-300" title="5%"></span><span class="h-12 w-12 rounded bg-stone-900/10" title="10%"></span><span class="h-12 w-12 rounded bg-stone-900/20" title="20%"></span><span class="h-12 w-12 rounded bg-stone-900/40" title="40%"></span><span class="h-12 w-12 rounded bg-stone-900/60" title="60%"></span><span class="h-12 w-12 rounded bg-stone-900/80" title="80%"></span><span class="h-12 w-12 rounded bg-stone-900" title="100%"></span>
+      </div>
+      <p class="text-xs font-mono text-stone-500 leading-relaxed">stone-900/5 → flashlight claro · /40 → overlay de imagem · /60 → backdrop de modal.<br/>white/10 → ring em glass · white/20 → beam shimmer · white/40 → borda de badge glass.</p>
+      <div class="mt-6 bg-stone-950 rounded p-4 flex flex-wrap gap-2">
+        <span class="h-10 w-10 rounded bg-white/5 ring-1 ring-white/10"></span><span class="h-10 w-10 rounded bg-white/10"></span><span class="h-10 w-10 rounded bg-white/20"></span><span class="h-10 w-10 rounded bg-white/40"></span><span class="h-10 w-10 rounded bg-white/60"></span><span class="h-10 w-10 rounded bg-white/80"></span><span class="h-10 w-10 rounded bg-white"></span>
+      </div>
+    </div>
+    <div class="p-6 md:p-12 reveal delay-100">
+      <h3 class="text-sm font-bold uppercase tracking-widest text-stone-900 mb-6">Participação em gradientes</h3>
+      <div class="space-y-3">
+        <div class="h-14 rounded bg-gradient-to-b from-transparent to-stone-900/40 border border-stone-300 flex items-end p-2"><span class="text-[11px] font-mono text-stone-700">from-transparent to-stone-900/40 · sobre fotos</span></div>
+        <div class="h-14 rounded border border-stone-300 flex items-end p-2" style="background:linear-gradient(135deg,#1C1C1C,#78716C)"><span class="text-[11px] font-mono text-white">135deg #1C1C1C → #78716C · .gradient-text</span></div>
+        <div class="h-14 rounded border border-stone-300 bg-stone-950 flex items-end p-2 relative overflow-hidden"><span class="absolute inset-0 bg-gradient-to-br from-white/10 to-white/0"></span><span class="relative text-[11px] font-mono text-white">from-white/10 to-white/0 · superfícies glass</span></div>
+        <div class="h-14 rounded border border-stone-300 bg-stone-950 flex items-center justify-center relative overflow-hidden"><span class="absolute inset-[-200%] bg-[conic-gradient(from_0deg,transparent_0_340deg,white_360deg)] animate-[spin_3s_linear_infinite]"></span><span class="relative bg-stone-950 px-3 py-1 rounded text-[11px] font-mono text-white">conic transparent 0–340deg → white · beam</span></div>
+        <p class="text-4xl font-semibold tracking-tighter gradient-text pt-2">Texto em gradiente</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 03 COMPONENTES ===== -->
+<section id="componentes" class="relative z-10 border-b border-stone-300 scroll-mt-20">
+  <div class="p-6 md:p-12 border-b border-stone-300 bg-stone-100/50 flex flex-col md:flex-row md:items-end md:justify-between gap-4 reveal">
+    <div><span class="text-xs font-mono uppercase text-stone-500 block mb-2">03 / Elementos de UI</span><h2 class="text-4xl font-medium tracking-tight">Componentes</h2></div>
+    <p class="text-sm text-stone-600 max-w-md leading-relaxed">Cada componente mostra os estados padrão, hover, ativo, foco e desabilitado. Passe o mouse, use Tab e clique.</p>
+  </div>
+
+  <!-- BOTÕES -->
+  <div class="grid grid-cols-1 md:grid-cols-12 border-b border-stone-300">
+    <div class="md:col-span-4 p-6 md:p-12 border-b md:border-b-0 md:border-r border-stone-300 reveal">
+      <h3 class="text-sm font-bold uppercase tracking-widest text-stone-900 mb-3">Botões</h3>
+      <p class="text-sm text-stone-600 leading-relaxed mb-6">Padding <code class="chip">px-6 py-3</code> (md) ou <code class="chip">px-8 py-4</code> (lg). Fonte Inter 500, 14px. Transição 300ms. Ícone desloca <code class="chip">translate-x-1</code> no hover.</p>
+      <ul class="text-xs font-mono text-stone-500 space-y-2">
+        <li><span class="text-stone-900">hover</span> → bg stone-700 / shimmer</li>
+        <li><span class="text-stone-900">active</span> → scale(.98)</li>
+        <li><span class="text-stone-900">focus-visible</span> → outline 2px tinta, offset 3px</li>
+        <li><span class="text-stone-900">disabled</span> → opacity .4, cursor not-allowed, sem animação</li>
+      </ul>
+    </div>
+    <div class="md:col-span-8 p-6 md:p-12 space-y-8 reveal delay-100">
+      <div class="flex flex-wrap items-center gap-4">
+        <button type="button" class="group beam-button px-6 py-3 bg-stone-900 text-white rounded-md text-sm font-medium hover:bg-stone-700 active:scale-[.98] transition-all flex items-center gap-2 glow-on-hover focus-ring">Ação primária<iconify-icon class="text-lg group-hover:translate-x-1 transition-transform" icon="solar:arrow-right-linear"></iconify-icon></button>
+        <button type="button" class="px-6 py-3 bg-stone-900 text-white rounded-md text-sm font-medium flex items-center gap-2 opacity-40 cursor-not-allowed" disabled>Desabilitado</button>
+        <span class="text-xs font-mono text-stone-400">Primário · .beam-button .glow-on-hover</span>
+      </div>
+      <div class="flex flex-wrap items-center gap-4">
+        <a href="#" class="inline-flex items-center gap-2 text-sm font-medium uppercase tracking-widest border border-stone-900 rounded-full px-8 py-3 hover:bg-stone-900 hover:text-white active:scale-[.98] transition-all focus-ring">Ação secundária<iconify-icon class="text-lg" icon="solar:arrow-right-linear"></iconify-icon></a>
+        <span class="text-xs font-mono text-stone-400">Outline pill · Digital Architect</span>
+      </div>
+      <div class="flex flex-wrap items-center gap-4">
+        <button type="button" class="btn-beam focus-ring"><span class="ring" aria-hidden="true"></span><span class="inner text-sm font-medium text-stone-900">Beam em tinta <iconify-icon class="text-lg text-stone-500" icon="solar:magic-stick-3-linear"></iconify-icon></span></button>
+        <span class="text-xs font-mono text-stone-400">.btn-beam · conic-gradient 2.5s linear</span>
+      </div>
+      <div class="flex flex-wrap items-center gap-4 bg-stone-950 rounded p-6 -mx-2">
+        <div class="group relative">
+          <div class="-inset-2 group-hover:opacity-100 transition duration-500 bg-neutral-600/30 opacity-0 rounded-full absolute blur-xl"></div>
+          <button type="button" class="group relative z-10 flex items-center justify-center overflow-hidden rounded-full p-[1px] leading-none focus-ring-light">
+            <span class="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_0deg,transparent_0_340deg,white_360deg)]"></span>
+            <span class="relative flex h-full w-full items-center rounded-full bg-black pt-3 pr-8 pb-3 pl-8 ring-1 ring-white/10">
+              <span class="absolute inset-0 overflow-hidden rounded-full"><span class="absolute top-0 left-0 h-full w-full -skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:animate-shimmer group-hover:opacity-100"></span></span>
+              <span class="relative z-10 text-sm font-medium tracking-wide text-white">Obter acesso</span>
+              <span class="relative z-10 ml-3 flex items-center text-neutral-500 transition duration-200 group-hover:translate-x-1 group-hover:text-white"><iconify-icon class="text-xl" icon="solar:arrow-right-bold-duotone"></iconify-icon></span>
+            </span>
+          </button>
+        </div>
+        <button type="button" class="group relative flex items-center justify-center gap-3 bg-white text-black px-6 py-3 rounded-none overflow-hidden hover:bg-neutral-200 transition-colors focus-ring-light"><span class="text-xs font-bold uppercase tracking-widest z-10">Seguir</span><iconify-icon class="text-xl z-10 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" icon="solar:arrow-right-up-bold-duotone"></iconify-icon></button>
+        <button type="button" aria-label="Anterior" class="flex hover:bg-white hover:text-black transition-colors text-neutral-400 bg-neutral-900 w-12 h-12 rounded-full items-center justify-center focus-ring-light" style="position:relative;--border-gradient:linear-gradient(135deg,rgba(255,255,255,.2),rgba(255,255,255,0));--border-radius-before:9999px"><iconify-icon class="text-xl" icon="solar:arrow-left-bold-duotone"></iconify-icon></button>
+        <span class="text-xs font-mono text-stone-500 w-full">Beam Gemini · bloco branco · ícone com --border-gradient</span>
+      </div>
+      <div class="flex flex-wrap items-center gap-6">
+        <a class="text-sm font-medium text-stone-600 hover:text-stone-900 border-b border-stone-400 hover:border-stone-900 pb-0.5 transition-colors focus-ring" href="#">Link inline</a>
+        <a class="group inline-flex items-center gap-2 text-sm font-medium text-stone-900 focus-ring" href="#">Link com seta <iconify-icon class="text-stone-400 group-hover:text-stone-900 group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-all" icon="solar:arrow-right-up-linear"></iconify-icon></a>
+        <button type="button" class="tooltip w-10 h-10 border border-stone-900 rounded-full flex items-center justify-center hover:bg-stone-900 hover:text-white transition-all duration-500 focus-ring" aria-label="Baixar"><iconify-icon icon="solar:file-download-linear" class="text-lg"></iconify-icon><span class="tip" role="tooltip">Botão ícone</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INPUTS -->
+  <div class="grid grid-cols-1 md:grid-cols-12 border-b border-stone-300">
+    <div class="md:col-span-4 p-6 md:p-12 border-b md:border-b-0 md:border-r border-stone-300 reveal">
+      <h3 class="text-sm font-bold uppercase tracking-widest text-stone-900 mb-3">Inputs</h3>
+      <p class="text-sm text-stone-600 leading-relaxed mb-6">Campo de linha única com label flutuante (mono uppercase ao focar) e barra que cresce da esquerda com o easing da casa (500ms).</p>
+      <ul class="text-xs font-mono text-stone-500 space-y-2">
+        <li><span class="text-stone-900">default</span> → borda stone-400</li>
+        <li><span class="text-stone-900">focus</span> → barra tinta scaleX(1)</li>
+        <li><span class="text-stone-900">error</span> → #B91C1C + helper</li>
+        <li><span class="text-stone-900">success</span> → #3F6212</li>
+        <li><span class="text-stone-900">disabled</span> → tracejado, stone-400</li>
+      </ul>
+    </div>
+    <div class="md:col-span-8 p-6 md:p-12 grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-8 reveal delay-100">
+      <div class="field"><input id="f1" type="text" placeholder="Nome"/><label for="f1">Nome completo</label><span class="bar"></span><p class="text-xs text-stone-500 mt-2">Como aparece no contrato.</p></div>
+      <div class="field"><input id="f2" type="email" placeholder="E-mail" value="ola@arquiteto.ds"/><label for="f2">E-mail</label><span class="bar"></span></div>
+      <div class="field error"><input id="f3" type="text" placeholder="CEP" value="0000" aria-invalid="true" aria-describedby="f3-help"/><label for="f3">CEP</label><span class="bar"></span><p id="f3-help" class="text-xs mt-2 flex items-center gap-1" style="color:#B91C1C"><iconify-icon icon="solar:close-circle-linear"></iconify-icon>Informe 8 dígitos.</p></div>
+      <div class="field success"><input id="f4" type="text" placeholder="Usuário" value="arquiteto"/><label for="f4">Usuário</label><span class="bar"></span><p class="text-xs mt-2 flex items-center gap-1" style="color:#3F6212"><iconify-icon icon="solar:check-circle-linear"></iconify-icon>Disponível.</p></div>
+      <div class="field"><input id="f5" type="text" placeholder="Bloqueado" value="Somente leitura" disabled/><label for="f5">Desabilitado</label><span class="bar"></span></div>
+      <div class="flex flex-col gap-4">
+        <div class="flex items-center justify-between gap-4 border-b border-stone-300 pb-3"><span class="text-sm text-stone-600">Notificações por e-mail</span><button type="button" class="toggle focus-ring" role="switch" aria-checked="true" aria-label="Notificações por e-mail"></button></div>
+        <div class="flex items-center justify-between gap-4 border-b border-stone-300 pb-3"><span class="text-sm text-stone-600">Modo reduzido de movimento</span><button type="button" class="toggle focus-ring" role="switch" aria-checked="false" aria-label="Modo reduzido"></button></div>
+        <label class="flex items-center gap-3 text-sm text-stone-600 cursor-pointer"><input type="checkbox" class="peer sr-only" checked/><span class="w-5 h-5 border border-stone-500 rounded-sm flex items-center justify-center peer-checked:bg-stone-900 peer-checked:border-stone-900 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-stone-900 transition-colors text-white"><iconify-icon icon="solar:check-read-linear" class="text-sm"></iconify-icon></span>Aceito os termos</label>
+      </div>
+      <div class="sm:col-span-2 relative">
+        <iconify-icon icon="solar:magnifer-linear" class="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 text-lg"></iconify-icon>
+        <input type="search" placeholder="Buscar componentes, tokens, animações…" aria-label="Buscar" class="w-full bg-white/60 border border-stone-300 rounded-full pl-11 pr-24 py-3.5 text-sm placeholder:text-stone-400 focus:bg-white focus:border-stone-900 outline-none transition-all focus-ring"/>
+        <kbd class="absolute right-4 top-1/2 -translate-y-1/2 text-[11px] font-mono text-stone-500 border border-stone-300 rounded px-2 py-0.5 bg-white">⌘ K</kbd>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARDS -->
+  <div class="border-b border-stone-300">
+    <div class="p-6 md:p-12 border-b border-stone-300 flex flex-col md:flex-row md:items-end md:justify-between gap-4 reveal">
+      <div><h3 class="text-sm font-bold uppercase tracking-widest text-stone-900 mb-2">Cards</h3><p class="text-sm text-stone-600 max-w-lg leading-relaxed">Card de projeto (lista editorial), card flashlight, card glow e card glass escuro com <code class="chip">--border-gradient</code>.</p></div>
+      <span class="text-xs font-mono text-stone-400">hover 500–700ms · grayscale → cor</span>
+    </div>
+    <!-- Card projeto (lista) -->
+    <div class="group border-b border-stone-300 bg-[#EAEAE5] hover:bg-white transition-colors duration-500 cursor-pointer overflow-hidden">
+      <div class="grid grid-cols-1 md:grid-cols-12 min-h-[250px]">
+        <div class="col-span-1 md:col-span-5 p-6 md:p-12 border-r border-stone-300/0 md:border-stone-300 reveal flex flex-col justify-center">
+          <div class="flex items-center gap-3 mb-4"><span class="text-xs font-mono text-stone-500">01</span><div class="h-px w-8 bg-stone-300 group-hover:w-16 transition-all duration-500"></div><span class="text-xs font-bold uppercase tracking-wider text-stone-900">Fintech</span></div>
+          <h4 class="text-4xl md:text-5xl font-medium tracking-tight mb-4 group-hover:translate-x-2 transition-transform duration-500">Nova <span class="font-serif italic font-normal text-stone-500">Finance</span></h4>
+          <p class="text-stone-500 text-sm leading-relaxed max-w-sm">Redesenho do fluxo de investimento para a geração Z, com 40% de aumento na conversão.</p>
+        </div>
+        <div class="col-span-7 hidden md:block relative overflow-hidden"><div class="absolute inset-0 bg-stone-100 flex items-center justify-center p-8"><img alt="Projeto Nova Finance" class="w-full h-full object-cover grayscale opacity-80 group-hover:scale-105 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700" src="assets/4b7d31e6-5b45-47eb-9853-96bbb9_bf1aa5f9d2cf.webp"/></div></div>
+      </div>
+    </div>
+    <!-- Grid de cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3">
+      <div class="flashlight-card p-8 border-b md:border-b-0 md:border-r border-stone-300 cursor-pointer reveal min-h-[260px] flex flex-col justify-between group">
+        <iconify-icon class="text-4xl text-stone-400 group-hover:text-stone-900 transition-colors duration-500" icon="solar:layers-minimalistic-linear"></iconify-icon>
+        <div class="relative z-10"><span class="text-xs font-mono uppercase tracking-widest text-stone-400 block mb-2">.flashlight-card</span><h4 class="text-xl font-medium mb-2">Card flashlight</h4><p class="text-sm text-stone-600">Radial de 600px seguindo o cursor via <code class="chip">--mouse-x/--mouse-y</code>.</p></div>
+      </div>
+      <div class="p-8 border-b md:border-b-0 md:border-r border-stone-300 reveal delay-100 bg-white/40">
+        <div class="h-full bg-white border border-stone-300 rounded-lg p-6 glow-on-hover cursor-pointer flex flex-col justify-between min-h-[200px]">
+          <iconify-icon class="text-4xl text-stone-900 animate-float-y" icon="solar:star-fall-linear"></iconify-icon>
+          <div><span class="text-xs font-mono uppercase tracking-widest text-stone-400 block mb-2">.glow-on-hover</span><h4 class="text-xl font-medium mb-2">Card glow</h4><p class="text-sm text-stone-600">Sombra 30px a 15% e translateY(−2px).</p></div>
+        </div>
+      </div>
+      <div class="p-8 bg-stone-950 reveal delay-200 relative overflow-hidden">
+        <div class="absolute inset-0 grid-bg-dark animate-grid-drift opacity-60" aria-hidden="true"></div>
+        <div class="flashlight-card flashlight-dark relative h-full glass-panel ring-1 ring-white/10 p-6 min-h-[200px] flex flex-col justify-between group" style="position:relative;--border-gradient:linear-gradient(135deg,rgba(255,255,255,.25),rgba(255,255,255,0));--border-radius-before:0">
+          <div class="flex bg-gradient-to-br from-white/10 to-white/0 w-12 h-12 rounded-lg items-center justify-center" style="position:relative;--border-gradient:linear-gradient(135deg,rgba(255,255,255,.1),rgba(255,255,255,0));--border-radius-before:8px"><iconify-icon class="text-2xl text-white" icon="solar:database-bold-duotone"></iconify-icon></div>
+          <div class="relative z-10"><span class="text-xs font-mono uppercase tracking-widest text-neutral-500 block mb-2">.glass-panel</span><h4 class="text-xl font-medium text-white mb-2">Card glass</h4><p class="text-sm text-neutral-400">blur(20px) + borda em gradiente por máscara.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BADGES & TOOLTIPS -->
+  <div class="grid grid-cols-1 md:grid-cols-2 border-b border-stone-300">
+    <div class="p-6 md:p-12 border-b md:border-b-0 md:border-r border-stone-300 reveal">
+      <h3 class="text-sm font-bold uppercase tracking-widest text-stone-900 mb-3">Badges</h3>
+      <p class="text-sm text-stone-600 leading-relaxed mb-8">Geist Mono 11–12px, uppercase, tracking 0.1–0.25em. Pill de 1px. Versão glass usa <code class="chip">border-white/40 backdrop-blur-md</code>.</p>
+      <div class="flex flex-wrap items-center gap-3 mb-6">
+        <span class="px-3 py-1 border border-stone-900 rounded-full text-xs font-mono uppercase text-stone-900">Padrão</span>
+        <span class="px-3 py-1 bg-stone-900 text-white rounded-full text-xs font-mono uppercase">Sólido</span>
+        <span class="px-3 py-1 border border-stone-400 rounded-full text-xs font-mono uppercase text-stone-500">Neutro</span>
+        <span class="px-3 py-1 rounded-full text-xs font-mono uppercase inline-flex items-center gap-1.5 border" style="color:#3F6212;border-color:#3F6212"><span class="w-1.5 h-1.5 rounded-full" style="background:#3F6212"></span>Ativo</span>
+        <span class="px-3 py-1 rounded-full text-xs font-mono uppercase border" style="color:#92400E;border-color:#92400E">Beta</span>
+        <span class="px-3 py-1 rounded-full text-xs font-mono uppercase border" style="color:#B91C1C;border-color:#B91C1C">Obsoleto</span>
+        <span class="px-3 py-1 rounded-full text-xs font-mono uppercase border" style="color:#1D4ED8;border-color:#1D4ED8">Novo</span>
+        <span class="px-3 py-1 border border-stone-300 rounded-full text-xs font-mono uppercase text-stone-400 opacity-60">Desabilitado</span>
+      </div>
+      <div class="flex flex-wrap items-center gap-3 bg-stone-900 p-5 rounded relative overflow-hidden">
+        <span class="absolute inset-0 grid-bg-dark animate-grid-drift opacity-60" aria-hidden="true"></span>
+        <span class="relative px-3 py-1 border border-white/40 rounded-full text-xs font-mono uppercase backdrop-blur-md text-white">Glass</span>
+        <span class="relative px-3 py-1 border border-white/40 rounded-full text-xs font-mono uppercase backdrop-blur-md text-white inline-flex items-center gap-2"><span class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>Ao vivo</span>
+        <span class="relative px-3 py-1 bg-white text-stone-900 rounded-full text-xs font-mono uppercase">Invertido</span>
+        <span class="relative inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-neutral-400"><span class="relative flex h-2 w-2"><span class="absolute inline-flex h-full w-full rounded-full bg-white animate-ping2"></span><span class="relative inline-flex h-2 w-2 rounded-full bg-white"></span></span>Pronto</span>
+      </div>
+    </div>
+    <div class="p-6 md:p-12 reveal delay-100">
+      <h3 class="text-sm font-bold uppercase tracking-widest text-stone-900 mb-3">Tooltips</h3>
+      <p class="text-sm text-stone-600 leading-relaxed mb-8">Aparecem em hover e <code class="chip">focus-within</code>; sobem 6px com o easing expo em 300ms. Fundo stone-900, mono 11px.</p>
+      <div class="flex flex-wrap items-center gap-6">
+        <span class="tooltip inline-block"><button type="button" class="px-5 py-2.5 border border-stone-900 rounded-full text-sm font-medium hover:bg-stone-900 hover:text-white transition-all focus-ring">Acima</button><span class="tip" role="tooltip">Tooltip padrão</span></span>
+        <span class="tooltip inline-block"><button type="button" class="px-5 py-2.5 bg-stone-900 text-white rounded-md text-sm font-medium hover:bg-stone-700 transition-all focus-ring">Abaixo</button><span class="tip bottom" role="tooltip">Posição inferior</span></span>
+        <span class="tooltip inline-block"><button type="button" aria-label="Informação" class="w-10 h-10 rounded-full border border-stone-400 text-stone-500 hover:border-stone-900 hover:text-stone-900 flex items-center justify-center transition-colors focus-ring"><iconify-icon icon="solar:info-circle-linear" class="text-lg"></iconify-icon></button><span class="tip" role="tooltip">Ícone com ajuda</span></span>
+        <span class="tooltip inline-block"><span class="text-sm text-stone-600 border-b border-dotted border-stone-500 cursor-help" tabindex="0">termo técnico</span><span class="tip" role="tooltip">Definição curta</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAVBARS & SEÇÕES -->
+  <div class="border-b border-stone-300">
+    <div class="p-6 md:p-12 border-b border-stone-300 reveal"><h3 class="text-sm font-bold uppercase tracking-widest text-stone-900 mb-2">Navbars</h3><p class="text-sm text-stone-600 max-w-lg leading-relaxed">Três variações: editorial sticky (padrão desta página), flutuante glass escura e barra de slides com setas.</p></div>
+    <div class="p-6 md:p-12 space-y-6 reveal delay-100">
+      <!-- Editorial -->
+      <div class="border border-stone-300 bg-[#EAEAE5]">
+        <div class="flex justify-between items-center px-4 md:px-6 py-4 relative">
+          <div class="flex items-center gap-6"><a class="text-xs font-medium tracking-widest uppercase hover:text-stone-500 transition-colors" href="#">Trabalhos</a><a class="text-xs font-medium tracking-widest uppercase hidden sm:block hover:text-stone-500 transition-colors" href="#">Textos</a></div>
+          <div class="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 group cursor-pointer"><iconify-icon class="text-xl group-hover:rotate-180 transition-transform duration-700" icon="solar:atom-linear"></iconify-icon><span class="font-bold tracking-tighter text-lg hidden sm:inline">ALEX.DESIGN</span></div>
+          <div class="flex items-center gap-6"><a class="text-xs font-medium tracking-widest uppercase hidden sm:block hover:text-stone-500 transition-colors" href="#">Sobre</a><a class="text-xs font-medium tracking-widest uppercase hover:text-stone-500 transition-colors" href="#">Contato</a></div>
+        </div>
+        <div class="px-4 md:px-6 py-2 border-t border-stone-300 text-[11px] font-mono text-stone-400">Editorial sticky · bg-[#EAEAE5]/85 backdrop-blur-md · .nav-load</div>
+      </div>
+      <!-- Glass dark -->
+      <div class="bg-stone-950 p-6 md:p-10 relative overflow-hidden">
+        <div class="absolute inset-0 grid-bg-dark animate-grid-drift opacity-60" aria-hidden="true"></div>
+        <div class="relative flex justify-between items-center">
+          <span class="text-xs font-semibold tracking-tight text-white uppercase opacity-90 backdrop-blur-md px-4 py-2 bg-black/40">Arquiteto · Slides</span>
+          <nav class="flex items-center gap-1 backdrop-blur-md p-1.5 rounded-full bg-black/40 ring-1 ring-white/10" aria-label="Navegação de slides">
+            <a href="#" class="text-xs font-medium text-white px-4 py-2 rounded-full bg-white/10">Início</a>
+            <a href="#" class="text-xs font-medium text-white/60 hover:text-white px-4 py-2 rounded-full hover:bg-white/10 transition-colors hidden sm:block">Tokens</a>
+            <a href="#" class="text-xs font-medium text-white/60 hover:text-white px-4 py-2 rounded-full hover:bg-white/10 transition-colors hidden sm:block">Motion</a>
+            <div class="w-px h-4 bg-white/10 mx-1"></div>
+            <button type="button" aria-label="Anterior" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors text-white/70 hover:text-white"><iconify-icon icon="solar:alt-arrow-up-bold-duotone" width="18"></iconify-icon></button>
+            <button type="button" aria-label="Próximo" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors text-white/70 hover:text-white"><iconify-icon icon="solar:alt-arrow-down-bold-duotone" width="18"></iconify-icon></button>
+          </nav>
+        </div>
+        <div class="relative mt-6 text-[11px] font-mono text-neutral-500">Flutuante glass · bg-black/40 backdrop-blur-md · pill ativa white/10</div>
+      </div>
+      <!-- Tabs -->
+      <div class="border border-stone-300 bg-white/50 p-2 flex gap-1 overflow-x-auto no-scrollbar" role="tablist" id="demo-tabs">
+        <button role="tab" aria-selected="true" class="px-4 py-2 text-xs font-medium uppercase tracking-widest rounded-sm bg-stone-900 text-white transition-colors focus-ring whitespace-nowrap">Visão geral</button>
+        <button role="tab" aria-selected="false" class="px-4 py-2 text-xs font-medium uppercase tracking-widest rounded-sm text-stone-600 hover:bg-stone-200 transition-colors focus-ring whitespace-nowrap">Tokens</button>
+        <button role="tab" aria-selected="false" class="px-4 py-2 text-xs font-medium uppercase tracking-widest rounded-sm text-stone-600 hover:bg-stone-200 transition-colors focus-ring whitespace-nowrap">Código</button>
+        <button role="tab" aria-selected="false" class="px-4 py-2 text-xs font-medium uppercase tracking-widest rounded-sm text-stone-600 hover:bg-stone-200 transition-colors focus-ring whitespace-nowrap">Acessibilidade</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEÇÕES -->
+  <div class="border-b border-stone-300">
+    <div class="p-6 md:p-12 border-b border-stone-300 reveal"><h3 class="text-sm font-bold uppercase tracking-widest text-stone-900 mb-2">Seções</h3><p class="text-sm text-stone-600 max-w-lg leading-relaxed">Padrões de seção: cabeçalho numerado, split meta/conteúdo, faixa parallax e capítulo escuro.</p></div>
+    <!-- Split -->
+    <div class="grid grid-cols-1 md:grid-cols-12 border-b border-stone-300">
+      <div class="col-span-1 md:col-span-4 p-6 md:p-12 flex flex-col justify-between min-h-[300px] border-b md:border-b-0 md:border-r border-stone-300 reveal bg-stone-200/60">
+        <div class="flex flex-col gap-8">
+          <iconify-icon class="text-5xl text-stone-800" icon="solar:scanner-linear"></iconify-icon>
+          <div><h6 class="text-sm font-bold uppercase tracking-widest text-stone-900 mb-6">Competências</h6>
+            <div class="space-y-4">
+              <div class="flex items-center justify-between border-b border-stone-300 pb-2 group"><span class="text-sm text-stone-600">Estratégia de produto</span><iconify-icon class="text-stone-400 group-hover:text-stone-900 transition-colors text-lg" icon="solar:check-circle-linear"></iconify-icon></div>
+              <div class="flex items-center justify-between border-b border-stone-300 pb-2 group"><span class="text-sm text-stone-600">Design systems</span><iconify-icon class="text-stone-400 group-hover:text-stone-900 transition-colors text-lg" icon="solar:check-circle-linear"></iconify-icon></div>
+              <div class="flex items-center justify-between border-b border-stone-300 pb-2 group"><span class="text-sm text-stone-600">Prototipagem</span><iconify-icon class="text-stone-400 group-hover:text-stone-900 transition-colors text-lg" icon="solar:check-circle-linear"></iconify-icon></div>
+            </div></div>
+        </div>
+      </div>
+      <div class="col-span-1 md:col-span-8 p-6 md:p-12 md:pr-24 flex flex-col justify-center reveal delay-100">
+        <h2 class="text-3xl md:text-5xl font-medium tracking-tight leading-tight text-stone-900 mb-8">Crio experiências digitais que equilibram sensibilidade estética com clareza funcional. <span class="text-stone-400">Trabalho enraizado em pesquisa, guiado por dados e polido com precisão de <span class="font-serif italic">pixel</span>.</span></h2>
+        <div class="flex flex-wrap gap-6 items-center">
+          <button type="button" class="beam-button px-6 py-3 bg-stone-900 text-white rounded-md text-sm font-medium hover:bg-stone-700 transition-all flex items-center gap-2 group focus-ring">Baixar CV<iconify-icon class="text-lg group-hover:translate-y-1 transition-transform" icon="solar:file-download-linear"></iconify-icon></button>
+          <a class="text-sm font-medium text-stone-600 hover:text-stone-900 border-b border-stone-400 hover:border-stone-900 pb-0.5 transition-colors focus-ring" href="#">Ver portfólio</a>
+        </div>
+      </div>
+    </div>
+    <!-- Faixa parallax -->
+    <div class="grid grid-cols-2 md:grid-cols-4 border-b border-stone-300 h-[240px] md:h-[300px] overflow-hidden">
+      <img alt="" class="w-full h-[120%] object-cover grayscale opacity-80 hover:grayscale-0 transition-all duration-700 border-r border-stone-300 parallax-img" data-speed="0.05" src="assets/ede50f82-0ad0-4579-a4ae-3a9428_fd09ad4bf2a1.jpg"/>
+      <img alt="" class="w-full h-[120%] object-cover grayscale opacity-80 hover:grayscale-0 transition-all duration-700 md:border-r border-stone-300 parallax-img" data-speed="0.08" src="assets/e9d001f3-ebe3-45c2-b556-b53a55_6b8718ffa723.jpg"/>
+      <img alt="" class="w-full h-[120%] object-cover grayscale opacity-80 hover:grayscale-0 transition-all duration-700 border-r border-stone-300 parallax-img hidden md:block" data-speed="0.03" src="assets/87e5e02b-a5b6-43ff-b9a4-5e299f_665111a88a86.jpg"/>
+      <img alt="" class="w-full h-[120%] object-cover grayscale opacity-80 hover:grayscale-0 transition-all duration-700 parallax-img hidden md:block" data-speed="0.1" src="assets/2700a02e-2471-497e-8ca2-3196fc_50242a508302.webp"/>
+    </div>
+    <!-- Capítulo escuro -->
+    <div class="bg-stone-950 text-white relative overflow-hidden py-16 md:py-24 px-6 md:px-12">
+      <div class="absolute inset-0 grid-bg-dark animate-grid-drift opacity-50" aria-hidden="true"></div>
+      <div class="aurora" aria-hidden="true"><span class="w-[30rem] h-[30rem] -top-40 -left-20 bg-white/10"></span><span class="w-[20rem] h-[20rem] bottom-0 right-10 bg-stone-500/30" style="animation-delay:-4s"></span></div>
+      <div class="relative grid grid-cols-1 md:grid-cols-12 gap-10 items-center">
+        <div class="md:col-span-7">
+          <span class="text-xs uppercase tracking-[0.25em] font-mono text-neutral-500 mb-6 block animate-on-scroll [animation:animationIn_0.8s_ease-out_0.1s_both]">04 — Capítulo escuro</span>
+          <h2 class="text-5xl md:text-7xl font-semibold tracking-tighter leading-[0.95] mb-6 animate-on-scroll [animation:animationIn_0.8s_ease-out_0.2s_both]">Mesma estrutura,<br/><span class="gradient-text-light">outra <span class="font-serif italic font-normal">luz</span>.</span></h2>
+          <p class="text-neutral-400 leading-relaxed max-w-md animate-on-scroll [animation:animationIn_0.8s_ease-out_0.3s_both]">Em superfícies stone-950, bordas viram <code class="chip">ring-white/10</code>, textos de apoio viram neutral-400 e as animações ganham blur de entrada (<code class="chip">animationIn</code>).</p>
+        </div>
+        <div class="md:col-span-5 perspective-midrange">
+          <div class="relative h-72 flex items-center justify-center animate-on-scroll [animation:animationIn_0.8s_ease-out_0.4s_both]">
+            <div class="absolute w-[80%] h-[80%] bg-neutral-800/80 backdrop-blur -translate-y-6 scale-95 opacity-40"></div>
+            <div class="flex flex-col transition-all duration-500 hover:scale-[1.02] hover:-rotate-x-10 z-10 bg-stone-950 w-[85%] h-[85%] ring-white/10 ring-1 p-8 absolute shadow-2xl">
+              <div class="flex bg-gradient-to-br from-white/10 to-white/0 w-12 h-12 mb-6 items-center justify-center"><iconify-icon class="text-2xl text-white" icon="solar:cpu-bold-duotone"></iconify-icon></div>
+              <div class="bg-gradient-to-br from-white/10 to-white/0 w-16 h-3 rounded-sm mb-6"></div>
+              <div class="bg-gradient-to-br from-white/10 to-white/0 w-full h-3 rounded-sm mb-3"></div>
+              <div class="bg-gradient-to-br from-white/10 to-white/0 w-2/3 h-3 rounded-sm"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL demo -->
+  <div class="grid grid-cols-1 md:grid-cols-12">
+    <div class="md:col-span-4 p-6 md:p-12 border-b md:border-b-0 md:border-r border-stone-300 reveal">
+      <h3 class="text-sm font-bold uppercase tracking-widest text-stone-900 mb-3">Modal</h3>
+      <p class="text-sm text-stone-600 leading-relaxed mb-6">Backdrop stone-950/60 com blur(6px). Painel entra com translateY(24px) scale(.96) → 1 em 600ms. Fecha com Esc, clique fora ou botão. Foco vai para o título e volta ao gatilho.</p>
+      <div class="flex flex-wrap gap-3">
+        <button type="button" class="beam-button px-6 py-3 bg-stone-900 text-white rounded-md text-sm font-medium hover:bg-stone-700 transition-all glow-on-hover focus-ring" data-open-modal="modal-demo">Abrir modal claro</button>
+        <button type="button" class="px-6 py-3 border border-stone-900 rounded-md text-sm font-medium hover:bg-stone-900 hover:text-white transition-all focus-ring" data-open-modal="modal-dark">Abrir modal glass</button>
+      </div>
+    </div>
+    <div class="md:col-span-8 p-6 md:p-12 reveal delay-100">
+      <div class="border border-stone-300 bg-white/60 p-6 md:p-8 relative overflow-hidden">
+        <div class="absolute inset-0 grid-bg opacity-70" aria-hidden="true"></div>
+        <div class="relative">
+          <span class="text-xs font-mono uppercase tracking-widest text-stone-400 block mb-4">Anatomia</span>
+          <ol class="text-sm text-stone-700 space-y-2 list-decimal list-inside">
+            <li><code class="chip">.modal</code> fixo, flex center, <code class="chip">padding 1rem</code> (seguro em 375px)</li>
+            <li><code class="chip">.backdrop</code> absoluto — recebe o clique de fechar</li>
+            <li><code class="chip">.panel</code> max-w-lg, borda stone-300, <code class="chip">role="dialog" aria-modal="true"</code></li>
+            <li>Cabeçalho mono + título H3 + corpo body-md + ações alinhadas à direita</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 04 ÍCONES ===== -->
+<section id="icones" class="relative z-10 border-b border-stone-300 scroll-mt-20">
+  <div class="p-6 md:p-12 border-b border-stone-300 bg-stone-100/50 flex flex-col md:flex-row md:items-end md:justify-between gap-4 reveal">
+    <div><span class="text-xs font-mono uppercase text-stone-500 block mb-2">04 / Ativos</span><h2 class="text-4xl font-medium tracking-tight">Iconografia</h2></div>
+    <p class="text-sm text-stone-600 max-w-md leading-relaxed">Iconify com dois estilos do conjunto <strong class="font-medium text-stone-900">Solar</strong>: <em>linear</em> em superfícies claras, <em>bold-duotone</em> em superfícies escuras. Logos via <strong class="font-medium text-stone-900">Simple Icons</strong>.</p>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-2">
+    <div class="p-6 md:p-12 border-b md:border-b-0 md:border-r border-stone-300 reveal">
+      <h6 class="text-sm font-bold uppercase tracking-widest text-stone-900 mb-8">solar:*-linear · claro</h6>
+      <div class="grid grid-cols-3 sm:grid-cols-4 gap-6 justify-items-center" id="icons-light"></div>
+    </div>
+    <div class="p-6 md:p-12 bg-stone-950 text-white reveal delay-100 relative overflow-hidden">
+      <div class="absolute inset-0 grid-bg-dark animate-grid-drift opacity-50" aria-hidden="true"></div>
+      <h6 class="relative text-sm font-bold uppercase tracking-widest text-white mb-8">solar:*-bold-duotone · escuro</h6>
+      <div class="relative grid grid-cols-3 sm:grid-cols-4 gap-6 justify-items-center" id="icons-dark"></div>
+    </div>
+  </div>
+  <div class="border-t border-stone-300 py-12 bg-stone-100/60 relative">
+    <div class="text-center mb-8"><span class="text-xs font-mono uppercase text-stone-400 tracking-widest">simple-icons · marquee de logos</span></div>
+    <div class="relative">
+      <div class="absolute left-0 top-0 bottom-0 w-16 md:w-32 z-10 bg-gradient-to-r from-stone-100 to-transparent pointer-events-none"></div>
+      <div class="absolute right-0 top-0 bottom-0 w-16 md:w-32 z-10 bg-gradient-to-l from-stone-100 to-transparent pointer-events-none"></div>
+      <div class="flex overflow-hidden w-full">
+        <div class="flex animate-marquee whitespace-nowrap gap-12 md:gap-20 items-center text-stone-900 opacity-60 hover:opacity-100 transition-opacity duration-700 pr-12 md:pr-20">
+          <iconify-icon class="text-3xl" icon="simple-icons:airbnb"></iconify-icon><iconify-icon class="text-3xl" icon="simple-icons:spotify"></iconify-icon><iconify-icon class="text-3xl" icon="simple-icons:notion"></iconify-icon><iconify-icon class="text-3xl" icon="simple-icons:linear"></iconify-icon><iconify-icon class="text-3xl" icon="simple-icons:vercel"></iconify-icon><iconify-icon class="text-3xl" icon="simple-icons:nvidia"></iconify-icon><iconify-icon class="text-4xl" icon="simple-icons:stripe"></iconify-icon><iconify-icon class="text-3xl" icon="simple-icons:apple"></iconify-icon>
+          <iconify-icon class="text-3xl" icon="simple-icons:airbnb"></iconify-icon><iconify-icon class="text-3xl" icon="simple-icons:spotify"></iconify-icon><iconify-icon class="text-3xl" icon="simple-icons:notion"></iconify-icon><iconify-icon class="text-3xl" icon="simple-icons:linear"></iconify-icon><iconify-icon class="text-3xl" icon="simple-icons:vercel"></iconify-icon><iconify-icon class="text-3xl" icon="simple-icons:nvidia"></iconify-icon><iconify-icon class="text-4xl" icon="simple-icons:stripe"></iconify-icon><iconify-icon class="text-3xl" icon="simple-icons:apple"></iconify-icon>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 05 ANIMAÇÕES ===== -->
+<section id="animacoes" class="relative z-10 border-b border-stone-300 overflow-hidden scroll-mt-20">
+  <div class="p-6 md:p-12 border-b border-stone-300 bg-stone-100/50 flex flex-col md:flex-row md:items-end md:justify-between gap-4 reveal">
+    <div><span class="text-xs font-mono uppercase text-stone-500 block mb-2">05 / Interação</span><h2 class="text-4xl font-medium tracking-tight">Motion &amp; animações</h2></div>
+    <div class="flex items-center gap-4">
+      <p class="text-sm text-stone-600 max-w-sm leading-relaxed">Easing da casa: <code class="chip">cubic-bezier(0.16, 1, 0.3, 1)</code>. Entradas de 0.8–1.2s, hovers de 300–500ms, loops lentos (12–40s).</p>
+      <button type="button" id="replay" class="shrink-0 inline-flex items-center gap-2 text-xs font-medium uppercase tracking-widest border border-stone-900 rounded-full px-5 py-2.5 hover:bg-stone-900 hover:text-white transition-all focus-ring"><iconify-icon icon="solar:refresh-linear" class="text-base"></iconify-icon>Repetir</button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" id="anim-catalog">
+    <!-- cards gerados por JS a partir de ANIMS -->
+  </div>
+
+  <!-- Text reveal grande -->
+  <div class="p-6 md:p-12 border-t border-stone-300 text-center grid-bg">
+    <span class="text-xs font-mono text-stone-400 block mb-8">.text-reveal-wrapper › .text-reveal-content · 1.2s</span>
+    <h2 class="text-5xl sm:text-6xl md:text-8xl font-semibold tracking-tighter leading-none text-stone-900 replayable">
+      <span class="text-reveal-wrapper"><span class="text-reveal-content">Anima</span></span><span class="text-reveal-wrapper"><span class="text-reveal-content delay-200 font-serif italic font-normal text-stone-500">ção</span></span>
+    </h2>
+    <p class="mt-8 text-2xl md:text-4xl font-medium tracking-tight text-stone-900 text-clip-anim replayable" id="clip-words" aria-label="Letra por letra, com clip-path"></p>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="relative z-10 bg-stone-900 text-stone-200 pt-20 pb-10 overflow-hidden">
+  <div class="absolute inset-0 grid-bg-dark animate-grid-drift opacity-40" aria-hidden="true"></div>
+  <div class="aurora" aria-hidden="true"><span class="w-[26rem] h-[26rem] -bottom-32 left-1/4 bg-white/10"></span></div>
+  <div class="relative px-6 md:px-12 mb-20 text-center reveal">
+    <h2 class="text-4xl sm:text-5xl md:text-7xl font-medium tracking-tighter mb-8 text-white">Vamos construir algo<br/><span class="font-serif italic font-normal text-stone-400">extraordinário</span> juntos.</h2>
+    <div class="group relative inline-block">
+      <div class="-inset-2 group-hover:opacity-100 transition duration-500 bg-white/20 opacity-0 rounded-full absolute blur-xl"></div>
+      <a class="relative inline-flex items-center gap-2 border border-stone-700 rounded-full px-8 py-4 text-lg hover:bg-white hover:text-stone-900 transition-all duration-300 focus-ring-light" href="#topo">Voltar ao topo <iconify-icon icon="solar:arrow-up-linear"></iconify-icon></a>
+    </div>
+  </div>
+  <div class="relative border-t border-stone-800 w-full mb-10"></div>
+  <div class="relative grid grid-cols-1 md:grid-cols-12 px-6 md:px-12 gap-10 md:gap-0 text-sm">
+    <div class="md:col-span-4"><div class="flex items-center gap-2 mb-4"><iconify-icon class="text-xl" icon="solar:atom-linear"></iconify-icon><span class="font-bold tracking-tight text-lg">ARQUITETO<span class="font-serif italic font-normal text-stone-500">.ds</span></span></div><p class="text-stone-400 text-sm leading-relaxed max-w-[260px]">Design system v2 — combinação do Digital Architect (base) com o Gemini Motion (animações). Curso Asimov · webdesign com IA.</p></div>
+    <div class="md:col-span-3"><h6 class="text-xs font-mono uppercase text-stone-500 mb-5">Fundamentos</h6><ul class="space-y-2.5 font-medium"><li><a class="hover:text-white transition-colors" href="#tipografia">Tipografia</a></li><li><a class="hover:text-white transition-colors" href="#cores">Cores</a></li><li><a class="hover:text-white transition-colors" href="#icones">Ícones</a></li></ul></div>
+    <div class="md:col-span-3"><h6 class="text-xs font-mono uppercase text-stone-500 mb-5">Interface</h6><ul class="space-y-2.5 font-medium"><li><a class="hover:text-white transition-colors" href="#componentes">Componentes</a></li><li><a class="hover:text-white transition-colors" href="#animacoes">Motion</a></li></ul></div>
+    <div class="md:col-span-2 flex flex-col justify-between"><div class="md:text-right"><iconify-icon class="text-4xl text-stone-700" icon="solar:globe-linear"></iconify-icon></div><div class="md:text-right mt-4 text-xs text-stone-500">© 2024 · Todos os direitos reservados.</div></div>
+  </div>
+  <div class="relative mt-20 text-center opacity-10 pointer-events-none select-none overflow-hidden"><span class="text-[6rem] sm:text-[10rem] md:text-[18rem] font-bold leading-none tracking-tighter whitespace-nowrap">ARQUITETO</span></div>
+</footer>
+</div><!-- /container -->
+
+<!-- ===== MODAIS ===== -->
+<div class="modal" id="modal-demo" role="dialog" aria-modal="true" aria-labelledby="modal-demo-title" aria-hidden="true">
+  <div class="backdrop" data-close-modal></div>
+  <div class="panel w-full max-w-lg bg-[#EAEAE5] border border-stone-300 shadow-2xl">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-stone-300"><span class="text-xs font-mono uppercase tracking-widest text-stone-500">Modal · claro</span><button type="button" class="w-9 h-9 rounded-full hover:bg-stone-900 hover:text-white transition-colors flex items-center justify-center focus-ring" data-close-modal aria-label="Fechar"><iconify-icon icon="solar:close-circle-linear" class="text-xl"></iconify-icon></button></div>
+    <div class="p-6 md:p-8">
+      <h3 id="modal-demo-title" tabindex="-1" class="text-3xl font-medium tracking-tight mb-3 focus:outline-none">Publicar o design system?</h3>
+      <p class="text-sm text-stone-600 leading-relaxed mb-6">Isso gera a versão <strong class="font-medium text-stone-900">v2.0</strong> com 24 componentes e 18 animações. Você poderá reverter a qualquer momento.</p>
+      <div class="field mb-2"><input id="m1" type="text" placeholder="Nota" /><label for="m1">Nota de versão (opcional)</label><span class="bar"></span></div>
+    </div>
+    <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 px-6 py-4 border-t border-stone-300 bg-stone-100/60">
+      <button type="button" class="px-5 py-2.5 text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors focus-ring" data-close-modal>Cancelar</button>
+      <button type="button" class="beam-button px-6 py-2.5 bg-stone-900 text-white rounded-md text-sm font-medium hover:bg-stone-700 transition-all flex items-center justify-center gap-2 group focus-ring" data-close-modal>Publicar<iconify-icon class="text-lg group-hover:translate-x-1 transition-transform" icon="solar:arrow-right-linear"></iconify-icon></button>
+    </div>
+  </div>
+</div>
+<div class="modal" id="modal-dark" role="dialog" aria-modal="true" aria-labelledby="modal-dark-title" aria-hidden="true">
+  <div class="backdrop" data-close-modal></div>
+  <div class="panel w-full max-w-md glass-panel ring-1 ring-white/10 text-white shadow-2xl relative overflow-hidden" style="position:relative;--border-gradient:linear-gradient(135deg,rgba(255,255,255,.25),rgba(255,255,255,0));--border-radius-before:0">
+    <div class="absolute inset-0 grid-bg-dark animate-grid-drift opacity-40 pointer-events-none" aria-hidden="true"></div>
+    <div class="relative p-8">
+      <div class="flex bg-gradient-to-br from-white/10 to-white/0 w-12 h-12 rounded-lg mb-6 items-center justify-center" style="position:relative;--border-gradient:linear-gradient(135deg,rgba(255,255,255,.1),rgba(255,255,255,0));--border-radius-before:8px"><iconify-icon class="text-2xl text-white" icon="solar:stars-minimalistic-bold-duotone"></iconify-icon></div>
+      <span class="text-xs uppercase tracking-[0.25em] font-mono text-neutral-400 block mb-3">Modal · glass</span>
+      <h3 id="modal-dark-title" tabindex="-1" class="text-3xl font-semibold tracking-tighter mb-3 focus:outline-none">Motion <span class="font-light text-neutral-500">ativado</span></h3>
+      <p class="text-sm text-neutral-400 leading-relaxed mb-8">Arquitetura monotônica. Física precisa. Paleta neutra pura.</p>
+      <button type="button" class="w-full group relative flex items-center justify-center gap-3 bg-white text-black py-4 overflow-hidden hover:bg-neutral-200 transition-colors focus-ring-light" data-close-modal><span class="text-xs font-bold uppercase tracking-widest z-10">Entendi</span><iconify-icon class="text-xl z-10 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" icon="solar:arrow-right-up-bold-duotone"></iconify-icon></button>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // 1. Carga inicial (nav + hero)
+  setTimeout(() => document.getElementById('site-header').classList.add('loaded'), 100);
+  setTimeout(() => { const t = document.getElementById('hero-title'); if (t) t.classList.add('reveal-active'); }, 400);
+  setTimeout(() => document.querySelectorAll('.hero-badge, .hero-stat').forEach(el => el.classList.add('active')), 500);
+
+  // 2. Observer de reveal (Digital Architect)
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('active');
+      if (entry.target.querySelector('.text-reveal-content') || entry.target.classList.contains('text-reveal-wrapper')) entry.target.classList.add('reveal-active');
+      if (entry.target.dataset.count) countUp(entry.target);
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  document.querySelectorAll('h1, h2, p').forEach(el => { if (el.querySelector('.text-reveal-content')) observer.observe(el); });
+  document.querySelectorAll('[data-count]').forEach(el => observer.observe(el));
+
+  // 3. Observer animate-on-scroll (Gemini) — play-state
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('animate'); io.unobserve(e.target); } });
+  }, { threshold: 0.2 });
+  window.initInViewAnimations = (sel = '.animate-on-scroll') => document.querySelectorAll(sel).forEach(el => io.observe(el));
+  initInViewAnimations();
+
+  // 4. Contadores do hero
+  function countUp(el) {
+    if (el.dataset.done) return; el.dataset.done = '1';
+    const target = +el.dataset.count; if (reduced) { el.textContent = target; return; }
+    const start = performance.now(), dur = 1400;
+    const tick = (now) => { const p = Math.min((now - start) / dur, 1); const e = 1 - Math.pow(1 - p, 4); el.textContent = Math.round(target * e); if (p < 1) requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  }
+
+  // 5. Carrossel + dots + contador
+  const slides = document.querySelectorAll('.carousel-slide'); let cur = 0;
+  const dots = document.getElementById('hero-dots'), counter = document.getElementById('slide-counter');
+  slides.forEach((_, i) => { const b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-label', 'Slide ' + (i + 1)); b.className = 'h-1 rounded-full bg-white/40 transition-all duration-500 ' + (i === 0 ? 'w-10 bg-white' : 'w-4'); b.addEventListener('click', () => go(i)); dots.appendChild(b); });
+  function go(n) { slides[cur].classList.remove('active'); cur = n; slides[cur].classList.add('active'); [...dots.children].forEach((d, i) => { d.classList.toggle('w-10', i === cur); d.classList.toggle('bg-white', i === cur); d.classList.toggle('w-4', i !== cur); }); if (counter) counter.textContent = String(cur + 1).padStart(2, '0') + ' / ' + String(slides.length).padStart(2, '0'); }
+  if (slides.length > 1) setInterval(() => go((cur + 1) % slides.length), 5000);
+
+  // 6. Parallax (desativado em reduced motion)
+  if (!reduced) {
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (ticking) return; ticking = true;
+      requestAnimationFrame(() => {
+        const s = window.scrollY;
+        document.querySelectorAll('.parallax-img, .parallax-element').forEach(el => { el.style.transform = `translateY(${s * (el.dataset.speed || 0.1)}px)`; });
+        const p = document.getElementById('progress'); if (p) p.style.width = (s / (document.documentElement.scrollHeight - innerHeight) * 100) + '%';
+        ticking = false;
+      });
+    }, { passive: true });
+  }
+
+  // 7. Flashlight (mouse)
+  document.querySelectorAll('.flashlight-card').forEach(card => card.addEventListener('mousemove', e => { const r = card.getBoundingClientRect(); card.style.setProperty('--mouse-x', (e.clientX - r.left) + 'px'); card.style.setProperty('--mouse-y', (e.clientY - r.top) + 'px'); }));
+
+  // 8. Modais
+  let lastTrigger = null;
+  const openModal = (id, trigger) => { const m = document.getElementById(id); if (!m) return; lastTrigger = trigger; m.classList.add('open'); m.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden'; setTimeout(() => m.querySelector('[tabindex="-1"]')?.focus(), 50); };
+  const closeModal = (m) => { m.classList.remove('open'); m.setAttribute('aria-hidden', 'true'); document.body.style.overflow = ''; lastTrigger?.focus(); };
+  document.querySelectorAll('[data-open-modal]').forEach(b => b.addEventListener('click', () => openModal(b.dataset.openModal, b)));
+  document.querySelectorAll('[data-close-modal]').forEach(b => b.addEventListener('click', () => closeModal(b.closest('.modal'))));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.modal.open').forEach(closeModal); });
+
+  // 9. Toggles, tabs, scroll buttons
+  document.querySelectorAll('.toggle').forEach(t => t.addEventListener('click', () => t.setAttribute('aria-checked', t.getAttribute('aria-checked') !== 'true')));
+  document.querySelectorAll('#demo-tabs [role=tab]').forEach(tab => tab.addEventListener('click', () => { document.querySelectorAll('#demo-tabs [role=tab]').forEach(t => { t.setAttribute('aria-selected', 'false'); t.className = 'px-4 py-2 text-xs font-medium uppercase tracking-widest rounded-sm text-stone-600 hover:bg-stone-200 transition-colors focus-ring whitespace-nowrap'; }); tab.setAttribute('aria-selected', 'true'); tab.className = 'px-4 py-2 text-xs font-medium uppercase tracking-widest rounded-sm bg-stone-900 text-white transition-colors focus-ring whitespace-nowrap'; }));
+  document.querySelectorAll('[data-scroll]').forEach(b => b.addEventListener('click', () => document.querySelector(b.dataset.scroll)?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' })));
+
+  // 10. Ícones
+  const light = ['atom', 'layers-minimalistic', 'clock-circle', 'cup-star', 'arrow-right-up', 'check-circle', 'scanner', 'pen-new-square', 'file-download', 'globe', 'record-circle', 'star-fall'];
+  const dark = ['stars-minimalistic', 'layers-minimalistic', 'cpu', 'database', 'arrow-right', 'arrow-right-up', 'arrow-down', 'alt-arrow-up', 'star', 'heart', 'check-circle', 'atom'];
+  document.getElementById('icons-light').innerHTML = light.map(n => `<div class="flex flex-col items-center gap-3 group w-full"><span class="w-14 h-14 border border-stone-300 rounded-lg flex items-center justify-center group-hover:bg-stone-900 group-hover:text-white group-hover:border-stone-900 transition-all duration-300"><iconify-icon class="text-2xl" icon="solar:${n}-linear"></iconify-icon></span><span class="text-[10px] font-mono text-stone-500 text-center break-all">${n}</span></div>`).join('');
+  document.getElementById('icons-dark').innerHTML = dark.map(n => `<div class="flex flex-col items-center gap-3 group w-full"><span class="w-14 h-14 ring-1 ring-white/10 rounded-lg bg-white/[.03] flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all duration-300"><iconify-icon class="text-2xl" icon="solar:${n}-bold-duotone"></iconify-icon></span><span class="text-[10px] font-mono text-neutral-500 text-center break-all">${n}</span></div>`).join('');
+
+  // 11. Catálogo de animações
+  const ANIMS = [
+    { name: '.reveal', title: 'Reveal de rolagem', dur: '1s', ease: 'expo-out', src: 'Digital Architect', demo: '<div class="reveal replayable w-full h-16 bg-white border border-stone-300 rounded flex items-center justify-center text-xs font-mono text-stone-500">translateY(2rem) → 0</div>' },
+    { name: '.reveal.delay-300', title: 'Reveal escalonado', dur: '1s + 0.3s', ease: 'expo-out', src: 'Digital Architect', demo: '<div class="flex gap-2 w-full"><div class="reveal replayable flex-1 h-16 bg-white border border-stone-300 rounded"></div><div class="reveal delay-200 replayable flex-1 h-16 bg-white border border-stone-300 rounded"></div><div class="reveal delay-500 replayable flex-1 h-16 bg-white border border-stone-300 rounded"></div></div>' },
+    { name: '.text-reveal-content', title: 'Texto mascarado', dur: '1.2s', ease: 'expo-out', src: 'Digital Architect', demo: '<h4 class="text-4xl font-semibold tracking-tighter replayable"><span class="text-reveal-wrapper"><span class="text-reveal-content">Máscara</span></span></h4>' },
+    { name: 'animationIn', title: 'Entrada com blur', dur: '0.8s', ease: 'ease-out', src: 'Gemini Motion', demo: '<div class="animate-on-scroll replayable [animation:animationIn_0.8s_ease-out_both] w-full h-16 bg-stone-900 text-white rounded flex items-center justify-center text-xs font-mono">blur(10px) → 0</div>' },
+    { name: '.text-clip-anim', title: 'Letra por letra', dur: '0.9s + 40ms/letra', ease: 'expo-out', src: 'Gemini Motion', demo: '<p class="text-3xl font-medium tracking-tight text-clip-anim replayable" data-words="Clip-path"></p>' },
+    { name: 'shimmer', title: 'Shimmer de botão', dur: '1.5s ∞', ease: 'linear', src: 'Gemini Motion', demo: '<button type="button" class="relative overflow-hidden rounded-full bg-stone-950 text-white text-sm font-medium px-8 py-3 group"><span class="absolute inset-0 overflow-hidden rounded-full"><span class="absolute top-0 left-0 h-full w-full -skew-x-12 bg-gradient-to-r from-transparent via-white/25 to-transparent animate-shimmer"></span></span><span class="relative">Passe o mouse</span></button>' },
+    { name: 'conic beam · spin 2s', title: 'Beam cônico', dur: '2s ∞', ease: 'linear', src: 'Gemini Motion', demo: '<span class="relative inline-flex rounded-full p-[1px] overflow-hidden"><span class="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_0deg,transparent_0_340deg,#1C1C1C_360deg)]"></span><span class="relative rounded-full bg-[#EAEAE5] px-8 py-3 text-sm font-medium">Borda viva</span></span>' },
+    { name: '.beam-button::before', title: 'Varredura de luz', dur: '0.5s', ease: 'ease', src: 'Gemini DS4', demo: '<button type="button" class="beam-button px-8 py-3 bg-stone-900 text-white rounded-md text-sm font-medium">Hover aqui</button>' },
+    { name: '.glow-on-hover', title: 'Glow + elevação', dur: '0.3s', ease: 'ease', src: 'Gemini DS4', demo: '<div class="glow-on-hover w-full h-16 bg-white border border-stone-300 rounded flex items-center justify-center text-xs font-mono text-stone-500 cursor-pointer">box-shadow 30px</div>' },
+    { name: '.flashlight-card', title: 'Flashlight', dur: '0.5s', ease: 'ease', src: 'Gemini Motion', demo: '<div class="flashlight-card w-full h-20 border border-stone-300 rounded flex items-center justify-center text-xs font-mono text-stone-500 overflow-hidden">mova o cursor</div>' },
+    { name: '.carousel-slide img', title: 'Ken Burns', dur: '10s', ease: 'ease-out', src: 'Digital Architect', demo: '<div class="relative w-full h-24 overflow-hidden rounded"><div class="carousel-slide active"><img alt="" class="w-full h-full object-cover grayscale" src="assets/5ea5c0e9-3047-467a-9eaf-e49f65_6a6f021d85c6.webp"/></div></div>' },
+    { name: '.marquee-content', title: 'Marquee infinito', dur: '40s ∞', ease: 'linear', src: 'ambos', demo: '<div class="marquee-container w-full border-y border-stone-300 py-2"><div class="marquee-content"><span class="text-xs font-mono uppercase tracking-widest text-stone-500 mx-6">Loop</span><span class="text-xs font-mono text-stone-400 mx-6">•</span><span class="text-xs font-mono uppercase tracking-widest text-stone-500 mx-6">Contínuo</span><span class="text-xs font-mono text-stone-400 mx-6">•</span></div><div class="marquee-content" aria-hidden="true"><span class="text-xs font-mono uppercase tracking-widest text-stone-500 mx-6">Loop</span><span class="text-xs font-mono text-stone-400 mx-6">•</span><span class="text-xs font-mono uppercase tracking-widest text-stone-500 mx-6">Contínuo</span><span class="text-xs font-mono text-stone-400 mx-6">•</span></div></div>' },
+    { name: '.animate-spin-slow', title: 'Rotação lenta', dur: '12s ∞', ease: 'linear', src: 'Digital Architect', demo: '<iconify-icon class="text-5xl text-stone-800 animate-spin-slow" icon="solar:star-fall-linear"></iconify-icon>' },
+    { name: 'group-hover:rotate-180', title: 'Giro do logo', dur: '0.7s', ease: 'ease', src: 'Digital Architect', demo: '<span class="group inline-flex items-center gap-2 cursor-pointer"><iconify-icon class="text-3xl group-hover:rotate-180 transition-transform duration-700" icon="solar:atom-linear"></iconify-icon><span class="font-bold tracking-tighter">ARQUITETO</span></span>' },
+    { name: '.animate-grid-drift', title: 'Grid em deriva', dur: '6s ∞', ease: 'linear', src: 'novo (DS4 grid-bg)', demo: '<div class="w-full h-20 bg-stone-950 rounded relative overflow-hidden"><div class="absolute inset-0 grid-bg-dark animate-grid-drift"></div></div>' },
+    { name: '.animate-float-y', title: 'Flutuação', dur: '6s ∞', ease: 'ease-in-out', src: 'novo', demo: '<iconify-icon class="text-5xl text-stone-800 animate-float-y" icon="solar:layers-minimalistic-linear"></iconify-icon>' },
+    { name: '.animate-ping2', title: 'Pulso de status', dur: '2s ∞', ease: 'cubic-bezier(0,0,.2,1)', src: 'Gemini (animate-pulse)', demo: '<span class="inline-flex items-center gap-3 text-xs font-mono uppercase tracking-widest text-stone-600"><span class="relative flex h-3 w-3"><span class="absolute inline-flex h-full w-full rounded-full bg-stone-900 animate-ping2"></span><span class="relative inline-flex h-3 w-3 rounded-full bg-stone-900"></span></span>Online</span>' },
+    { name: '.scanline', title: 'Linha de varredura', dur: '7s ∞', ease: 'linear', src: 'novo', demo: '<div class="w-full h-20 bg-stone-900 rounded relative overflow-hidden"><div class="scanline" style="mix-blend-mode:normal;background:linear-gradient(to bottom,transparent,rgba(255,255,255,.25),transparent)"></div></div>' }
+  ];
+  const cat = document.getElementById('anim-catalog');
+  cat.innerHTML = ANIMS.map((a) => `<div class="anim-cell p-6 md:p-8 border-b border-stone-300 reveal flex flex-col gap-5">
+      <div class="flex items-start justify-between gap-3"><div><span class="text-[11px] font-mono text-stone-400 block mb-1">${a.name}</span><h4 class="text-lg font-medium">${a.title}</h4></div><span class="text-[10px] font-mono uppercase tracking-widest text-stone-500 border border-stone-300 rounded-full px-2 py-1 whitespace-nowrap">${a.src}</span></div>
+      <div class="demo-box flex items-center justify-center bg-stone-100/60 border border-stone-300/60 rounded p-4">${a.demo}</div>
+      <div class="flex justify-between text-[11px] font-mono text-stone-500"><span>duração ${a.dur}</span><span>${a.ease}</span></div></div>`).join('');
+  cat.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  cat.querySelectorAll('.flashlight-card').forEach(card => card.addEventListener('mousemove', e => { const r = card.getBoundingClientRect(); card.style.setProperty('--mouse-x', (e.clientX - r.left) + 'px'); card.style.setProperty('--mouse-y', (e.clientY - r.top) + 'px'); }));
+  initInViewAnimations();
+
+  // Letra por letra
+  function splitWords(el, text) { el.innerHTML = ''; [...text].forEach((ch, i) => { const s = document.createElement('span'); s.textContent = ch === ' ' ? ' ' : ch; s.style.animationDelay = (i * 0.04) + 's'; el.appendChild(s); }); }
+  document.querySelectorAll('[data-words]').forEach(el => splitWords(el, el.dataset.words));
+  const clip = document.getElementById('clip-words'); if (clip) splitWords(clip, 'Forma segue movimento');
+
+  // Repetir demos
+  document.getElementById('replay').addEventListener('click', () => {
+    document.querySelectorAll('#animacoes .replayable').forEach(el => {
+      el.classList.remove('active', 'reveal-active', 'animate');
+      if (el.classList.contains('text-clip-anim')) { const t = el.dataset.words || 'Forma segue movimento'; splitWords(el, t); }
+      void el.offsetWidth;
+      requestAnimationFrame(() => el.classList.add('active', 'reveal-active', 'animate'));
+    });
+  });
+});
+</script>
+</body>
+</html>

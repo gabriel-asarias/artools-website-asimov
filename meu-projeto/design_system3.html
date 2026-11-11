@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Design System — Arquitetura Digital · Asimov</title>
+<script src="assets/resource_3fa48481346f.js"></script>
+<script src="assets/iconify-icon_d39ffc6e4c56.js"></script>
+<!-- Fontes: Inter (digital-architect), Instrument Serif + Geist Mono (animations-gemini), carregadas localmente -->
+<link href="assets/css2_19fd9cc6b396.css" rel="stylesheet"/>
+<link href="assets/css2_2b2d87bc82d8.css" rel="stylesheet"/>
+<link href="assets/css2_62759cd015bd.css" rel="stylesheet"/>
+<script>
+/* Config Tailwind (mesma ideia do animations-gemini: utilitários 3D + animações extras) */
+tailwind.config = {
+  theme: { extend: {
+    fontFamily: { sans: ['Inter','sans-serif'], serif: ['Instrument Serif','serif'], mono: ['Geist Mono','monospace'] },
+    animation: { 'spin-slow': 'spin 18s linear infinite', 'float': 'float 6s ease-in-out infinite' },
+    keyframes: { float: { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-12px)' } } }
+  } },
+  plugins: [ function ({ addUtilities }) {
+    const u = {}; const vals = [0,5,10,15,20,30,45,75];
+    const t = 'translate3d(var(--tw-translate-x,0),var(--tw-translate-y,0),var(--tw-translate-z,0)) rotateX(var(--tw-rotate-x,0)) rotateY(var(--tw-rotate-y,0)) rotateZ(var(--tw-rotate-z,0)) scaleX(var(--tw-scale-x,1)) scaleY(var(--tw-scale-y,1))';
+    ['x','y','z'].forEach(a => vals.forEach(v => {
+      u['.rotate-'+a+'-'+v] = { ['--tw-rotate-'+a]: v+'deg', transform: t };
+      if (v) u['.-rotate-'+a+'-'+v] = { ['--tw-rotate-'+a]: '-'+v+'deg', transform: t };
+    }));
+    Object.assign(u, { '.perspective-near': {perspective:'300px'}, '.perspective-normal': {perspective:'500px'}, '.perspective-distant': {perspective:'1200px'}, '.transform-style-preserve-3d': {'transform-style':'preserve-3d'} });
+    addUtilities(u);
+  } ]
+};
+</script>
+<style>
+:root{
+  --paper:#EAEAE5; --ink:#1C1C1C; --stone-900:#1C1917; --stone-700:#44403C; --stone-500:#78716C; --stone-300:#D6D3D1; --stone-200:#E7E5E4; --white:#FFFFFF;
+  --signal:#D4FF3A; --signal-deep:#3F5A00; --mist:#9AA7FF;
+  --ok:#15803D; --warn:#B45309; --err:#B91C1C; --info:#1D4ED8;
+  --ease-out:cubic-bezier(0.16,1,0.3,1);
+  --btn-ink:var(--ink); --btn-paper:var(--paper);
+}
+*{box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--paper);color:var(--ink);overflow-x:hidden}
+.font-mono,.mono{font-family:'Geist Mono',ui-monospace,monospace}
+.serif{font-family:'Instrument Serif',serif;font-weight:400}
+iconify-icon{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle}
+.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{scrollbar-width:none}
+:focus-visible{outline:2px solid var(--ink);outline-offset:3px;border-radius:4px}
+.dark-scope :focus-visible,.dark-scope:focus-visible{outline-color:var(--signal)}
+.dark-scope{--btn-ink:#fff;--btn-paper:var(--stone-900);color:#e7e5e4}
+
+/* ===== Reveal / entrada (digital-architect) ===== */
+.reveal{opacity:0;transform:translateY(2rem);transition:all 1s var(--ease-out)}
+.reveal.active{opacity:1;transform:translateY(0)}
+.text-reveal-wrapper{overflow:hidden;display:inline-block;vertical-align:bottom;padding-bottom:.08em}
+.text-reveal-content{transform:translateY(110%);opacity:0;transition:transform 1.2s var(--ease-out),opacity 1.2s ease;display:block}
+.reveal-active .text-reveal-content{transform:translateY(0);opacity:1}
+.delay-100{transition-delay:.1s}.delay-200{transition-delay:.2s}.delay-300{transition-delay:.3s}.delay-500{transition-delay:.5s}.delay-700{transition-delay:.7s}
+.nav-load{opacity:0;transform:translateY(-10px);transition:all .8s ease-out}.nav-load.loaded{opacity:1;transform:translateY(0)}
+.carousel-slide{position:absolute;inset:0;transition:opacity 1.5s ease-in-out;opacity:0;overflow:hidden}
+.carousel-slide.active{opacity:1}
+.carousel-slide img{transform:scale(1);transition:transform 10s ease-out}
+.carousel-slide.active img{transform:scale(1.1)}
+.parallax-element{will-change:transform}
+.marquee-container{display:flex;overflow:hidden;user-select:none}
+.marquee-content{flex-shrink:0;display:flex;align-items:center;justify-content:space-around;min-width:100%;animation:scroll 40s linear infinite}
+.marquee-fast .marquee-content{animation-duration:22s}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ===== Animações (animations-gemini) ===== */
+@keyframes animationIn{0%{opacity:0;transform:translateY(30px);filter:blur(10px)}100%{opacity:1;transform:translateY(0);filter:blur(0)}}
+@keyframes shimmer{from{transform:translateX(-100%) skewX(-15deg)}to{transform:translateX(200%) skewX(-15deg)}}
+@keyframes textSlide{0%{transform:translateY(110%);opacity:0}100%{transform:translateY(0);opacity:1}}
+.blur-in{animation:animationIn .8s ease-out both}
+.text-clip-anim span{display:inline-block;animation:textSlide .9s var(--ease-out) both}
+.animate-on-scroll{animation-play-state:paused}.animate-on-scroll.animate{animation-play-state:running}
+/* extras do sistema */
+@keyframes drift1{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(8%,10%,0) scale(1.15)}}
+@keyframes drift2{0%,100%{transform:translate3d(0,0,0) scale(1.1)}50%{transform:translate3d(-10%,-8%,0) scale(.92)}}
+@keyframes gridpan{from{background-position:0 0}to{background-position:48px 48px}}
+@keyframes sheen{from{background-position:200% 0}to{background-position:-200% 0}}
+@keyframes ping-dot{0%{transform:scale(.8);opacity:.9}100%{transform:scale(2.6);opacity:0}}
+@keyframes orbit{to{transform:rotate(360deg)}}
+@keyframes progress{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes pop{0%{transform:scale(.94);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes wave{0%,100%{transform:scaleY(.3)}50%{transform:scaleY(1)}}
+
+/* ===== Fundos animados reutilizáveis ===== */
+.bg-aurora{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.bg-aurora::before,.bg-aurora::after{content:"";position:absolute;width:55vmax;max-width:720px;aspect-ratio:1;border-radius:50%;filter:blur(90px);opacity:.38}
+.bg-aurora::before{top:-20%;right:-10%;background:radial-gradient(circle,var(--signal),transparent 65%);animation:drift1 18s ease-in-out infinite}
+.bg-aurora::after{bottom:-25%;left:-10%;background:radial-gradient(circle,var(--mist),transparent 65%);animation:drift2 22s ease-in-out infinite}
+.bg-aurora.soft::before,.bg-aurora.soft::after{opacity:.16}
+.bg-grid{position:absolute;inset:0;pointer-events:none;z-index:0;background-size:48px 48px;background-image:linear-gradient(to right,rgba(28,25,23,.06) 1px,transparent 1px),linear-gradient(to bottom,rgba(28,25,23,.06) 1px,transparent 1px);animation:gridpan 6s linear infinite;-webkit-mask-image:radial-gradient(ellipse at center,#000 30%,transparent 78%);mask-image:radial-gradient(ellipse at center,#000 30%,transparent 78%)}
+.dark-scope .bg-grid,.bg-grid.on-dark{background-image:linear-gradient(to right,rgba(255,255,255,.07) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,.07) 1px,transparent 1px)}
+.bg-noise{position:absolute;inset:0;pointer-events:none;opacity:.07;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+.section-pad{padding:3rem 1.5rem}@media(min-width:768px){.section-pad{padding:4rem 3rem}}
+.sec-head{position:relative;overflow:hidden}
+.glass-panel{background:rgba(23,23,23,.6);backdrop-filter:blur(20px)}
+[style*="--border-gradient"]::before{content:"";position:absolute;inset:0;padding:1px;border-radius:var(--border-radius-before,inherit);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;background:var(--border-gradient);pointer-events:none}
+
+/* Flashlight */
+.flashlight-card{position:relative;overflow:hidden}
+.flashlight-card::before{content:"";position:absolute;inset:0;background:radial-gradient(600px circle at var(--mouse-x,50%) var(--mouse-y,50%),rgba(28,28,28,.09),transparent 40%);opacity:0;transition:opacity .5s;pointer-events:none;z-index:2}
+.dark-scope .flashlight-card::before,.flashlight-card.on-dark::before{background:radial-gradient(700px circle at var(--mouse-x,50%) var(--mouse-y,50%),rgba(255,255,255,.1),transparent 40%)}
+.flashlight-card:hover::before{opacity:1}
+.hero-light{position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(520px circle at var(--hx,70%) var(--hy,30%),rgba(212,255,58,.16),transparent 60%);transition:background .2s}
+
+/* Texto brilhante */
+.shine-text{background:linear-gradient(100deg,#a8a29e 20%,#fff 40%,var(--signal) 50%,#fff 60%,#a8a29e 80%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:sheen 7s linear infinite}
+.gradient-text{background:linear-gradient(135deg,var(--ink) 0%,var(--stone-500) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+/* ===== Botões ===== */
+.btn{--r:6px;position:relative;display:inline-flex;align-items:center;justify-content:center;gap:.6rem;padding:.85rem 1.5rem;border-radius:var(--r);font:500 .875rem/1 'Inter',sans-serif;cursor:pointer;isolation:isolate;overflow:hidden;border:1px solid transparent;transition:transform .5s var(--ease-out),box-shadow .5s var(--ease-out),background-color .4s,color .4s,border-color .4s;text-decoration:none;white-space:nowrap}
+.btn iconify-icon{font-size:1.15rem;transition:transform .4s var(--ease-out)}
+.btn:disabled,.btn.is-disabled{opacity:.4;cursor:not-allowed;pointer-events:none;box-shadow:none;filter:grayscale(.6)}
+.btn-primary{background:var(--btn-ink);color:var(--btn-paper)}
+.btn-primary::before{content:"";position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);transition:left .6s;z-index:-1}
+.btn-primary:hover::before,.btn-primary.is-hover::before{left:100%}
+.btn-primary:hover,.btn-primary.is-hover{transform:translateY(-2px);box-shadow:0 10px 30px -8px rgba(28,28,28,.45),0 0 30px rgba(28,28,28,.12)}
+.dark-scope .btn-primary:hover,.dark-scope .btn-primary.is-hover{box-shadow:0 0 36px rgba(255,255,255,.28)}
+.btn-primary:hover iconify-icon,.btn-primary.is-hover iconify-icon{transform:translateX(4px)}
+.btn:active,.btn.is-active{transform:translateY(0) scale(.97);transition-duration:.12s}
+.btn.is-focus{outline:2px solid var(--ink);outline-offset:3px}.dark-scope .btn.is-focus{outline-color:var(--signal)}
+.btn-signal{--r:999px;background:var(--signal);color:#1c1917;font-weight:600}
+.btn-signal::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent);transform:translateX(-100%) skewX(-15deg);z-index:-1}
+.btn-signal:hover,.btn-signal.is-hover{transform:translateY(-2px);box-shadow:0 0 0 4px rgba(212,255,58,.18),0 0 44px rgba(212,255,58,.55)}
+.btn-signal:hover::after,.btn-signal.is-hover::after{animation:shimmer 1.1s var(--ease-out)}
+.btn-signal:hover iconify-icon,.btn-signal.is-hover iconify-icon{transform:translate(3px,-3px)}
+.btn-outline{--r:999px;background:transparent;color:var(--btn-ink);border-color:var(--btn-ink);text-transform:uppercase;letter-spacing:.14em;font-size:.75rem;padding:.95rem 1.8rem}
+.btn-outline::after{content:"";position:absolute;inset:-1px;background:var(--btn-ink);transform:translateY(101%);transition:transform .55s var(--ease-out);z-index:-1;border-radius:inherit}
+.btn-outline:hover,.btn-outline.is-hover{color:var(--btn-paper)}
+.btn-outline:hover::after,.btn-outline.is-hover::after{transform:translateY(0)}
+.btn-outline:hover iconify-icon,.btn-outline.is-hover iconify-icon{transform:rotate(-45deg)}
+.btn-link{padding:.2rem 0;border-radius:0;color:var(--stone-700);background:linear-gradient(currentColor,currentColor) 0 100%/100% 1px no-repeat;transition:background-size .5s var(--ease-out),color .3s}
+.btn-link:hover,.btn-link.is-hover{color:var(--btn-ink);background-size:0 1px;background-position:100% 100%}
+.dark-scope .btn-link{color:#a8a29e}
+.btn-icon{--r:999px;width:3rem;height:3rem;padding:0;background:var(--stone-900);color:#a8a29e}
+.btn-icon:hover,.btn-icon.is-hover{background:#fff;color:#000;transform:rotate(-12deg) scale(1.06)}
+/* Botão feixe (conic) do animations-gemini */
+.beam{position:relative;display:inline-flex;border-radius:999px;padding:1px;overflow:hidden;cursor:pointer;color:#fff;isolation:isolate;transition:transform .5s var(--ease-out),box-shadow .5s}
+.beam .spin{position:absolute;inset:-1000%;background:conic-gradient(from 0deg,transparent 0 340deg,#fff 360deg);animation:orbit 2s linear infinite;opacity:.55;transition:opacity .4s}
+.beam .face{position:relative;display:flex;align-items:center;gap:.9rem;border-radius:999px;background:#000;padding:1rem 2rem;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);font:500 1rem/1 'Inter';overflow:hidden}
+.beam .face .sh{position:absolute;inset:0;overflow:hidden;border-radius:999px}
+.beam .face .sh::after{content:"";position:absolute;top:0;left:0;height:100%;width:100%;transform:translateX(-100%) skewX(-15deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent)}
+.beam:hover .spin,.beam.is-hover .spin{opacity:1}
+.beam:hover .face .sh::after,.beam.is-hover .face .sh::after{animation:shimmer 1.5s infinite}
+.beam:hover,.beam.is-hover{transform:scale(1.04);box-shadow:0 0 50px rgba(255,255,255,.18)}
+.beam .arr{color:#78716c;transition:transform .2s,color .2s;position:relative}
+.beam:hover .arr,.beam.is-hover .arr{transform:translateX(4px);color:#fff}
+.beam:focus-visible{outline:2px solid var(--signal);outline-offset:4px}
+
+/* ===== Inputs ===== */
+.field{position:relative;display:flex;flex-direction:column;gap:.4rem}
+.field label{font:500 .6875rem/1 'Geist Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--stone-700)}
+.field .ctl{position:relative;display:flex;align-items:center;background:#fff;border:1px solid var(--stone-300);border-radius:6px;transition:border-color .3s,box-shadow .4s var(--ease-out),background .3s}
+.field .ctl>iconify-icon{margin-left:.85rem;color:var(--stone-500);font-size:1.15rem;transition:color .3s}
+.field input,.field select,.field textarea{width:100%;background:transparent;border:0;outline:0;padding:.85rem .9rem;font:400 .9375rem/1.4 'Inter';color:var(--ink)}
+.field input::placeholder{color:#a8a29e}
+.field .ctl::after{content:"";position:absolute;left:0;bottom:-1px;height:2px;width:100%;background:var(--ink);transform:scaleX(0);transform-origin:left;transition:transform .6s var(--ease-out);border-radius:2px}
+.field .ctl:hover,.field .ctl.is-hover{border-color:var(--stone-500)}
+.field .ctl:focus-within,.field .ctl.is-focus{border-color:var(--ink);box-shadow:0 0 0 4px rgba(28,28,28,.08)}
+.field .ctl:focus-within::after,.field .ctl.is-focus::after{transform:scaleX(1)}
+.field .ctl:focus-within>iconify-icon,.field .ctl.is-focus>iconify-icon{color:var(--ink)}
+.field .help{font:400 .75rem/1.4 'Inter';color:var(--stone-500);display:flex;gap:.35rem;align-items:center}
+.field.err .ctl{border-color:var(--err);animation:shake .4s}.field.err .help{color:var(--err)}.field.err .ctl::after{background:var(--err);transform:scaleX(1)}
+.field.ok .ctl{border-color:var(--ok)}.field.ok .help{color:var(--ok)}.field.ok .ctl::after{background:var(--ok);transform:scaleX(1)}
+.field.dis .ctl{background:var(--stone-200);opacity:.6;cursor:not-allowed}.field.dis input{cursor:not-allowed}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.switch{position:relative;width:2.75rem;height:1.5rem;border-radius:999px;background:var(--stone-300);cursor:pointer;transition:background .4s;border:0;flex:none}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:1.125rem;height:1.125rem;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .5s var(--ease-out)}
+.switch[aria-checked=true]{background:var(--ink)}.switch[aria-checked=true]::after{transform:translateX(1.25rem);background:var(--signal)}
+.check{appearance:none;width:1.25rem;height:1.25rem;border:1.5px solid var(--stone-500);border-radius:4px;display:grid;place-content:center;cursor:pointer;transition:all .3s;background:#fff}
+.check::after{content:"";width:.6rem;height:.35rem;border-left:2px solid var(--signal);border-bottom:2px solid var(--signal);transform:rotate(-45deg) scale(0);transition:transform .35s var(--ease-out);margin-top:-2px}
+.check:checked{background:var(--ink);border-color:var(--ink)}.check:checked::after{transform:rotate(-45deg) scale(1)}
+
+/* ===== Cards ===== */
+.card-proj{position:relative;border:1px solid var(--stone-300);background:var(--paper);overflow:hidden;cursor:pointer;transition:background-color .5s,box-shadow .6s var(--ease-out),transform .6s var(--ease-out)}
+.card-proj:hover,.card-proj.is-hover{background:#fff;transform:translateY(-4px);box-shadow:0 24px 50px -24px rgba(28,25,23,.35)}
+.card-proj h4{transition:transform .5s var(--ease-out)}.card-proj:hover h4,.card-proj.is-hover h4{transform:translateX(.5rem)}
+.card-proj img{filter:grayscale(1);opacity:.8;transition:all .7s}
+.card-proj:hover img,.card-proj.is-hover img{transform:scale(1.07);filter:grayscale(0);opacity:1}
+.tilt{transform-style:preserve-3d;transition:transform .25s ease-out}
+.glow-border{position:relative;border-radius:12px;background:#0c0a09;isolation:isolate}
+.glow-border::before{content:"";position:absolute;inset:-1px;border-radius:13px;z-index:-1;background:conic-gradient(from var(--a,0deg),transparent 0 70%,var(--signal) 85%,transparent);animation:orbit 4s linear infinite;opacity:.0;transition:opacity .5s}
+.glow-border::after{content:"";position:absolute;inset:0;border-radius:12px;background:#0c0a09;z-index:-1}
+.glow-border:hover::before,.glow-border.is-hover::before{opacity:1}
+.glow-border:hover::before{animation:none;background:conic-gradient(from 0deg,var(--signal),var(--mist),var(--signal))}
+
+/* ===== Badges ===== */
+.badge{display:inline-flex;align-items:center;gap:.4rem;padding:.3rem .8rem;border-radius:999px;font:500 .6875rem/1.2 'Geist Mono',monospace;letter-spacing:.08em;text-transform:uppercase;border:1px solid rgba(28,28,28,.25);color:var(--ink);transition:all .4s var(--ease-out)}
+.badge:hover{transform:translateY(-2px)}
+.badge-glass{border-color:rgba(255,255,255,.4);color:#fff;backdrop-filter:blur(12px);background:rgba(255,255,255,.06)}
+.badge-solid{background:var(--ink);color:#fff;border-color:var(--ink)}
+.badge-signal{background:var(--signal);color:#1c1917;border-color:var(--signal);box-shadow:0 0 20px rgba(212,255,58,.35)}
+.badge-ok{color:var(--ok);border-color:currentColor;background:rgba(21,128,61,.08)}
+.badge-warn{color:var(--warn);border-color:currentColor;background:rgba(180,83,9,.08)}
+.badge-err{color:var(--err);border-color:currentColor;background:rgba(185,28,28,.07)}
+.badge-info{color:var(--info);border-color:currentColor;background:rgba(29,78,216,.07)}
+.dot{position:relative;width:.45rem;height:.45rem;border-radius:50%;background:currentColor;display:inline-block;flex:none}
+.dot::after{content:"";position:absolute;inset:0;border-radius:50%;background:currentColor;animation:ping-dot 1.8s ease-out infinite}
+
+/* ===== Tooltip ===== */
+[data-tip]{position:relative}
+[data-tip]::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 10px);transform:translate(-50%,6px) scale(.96);background:var(--stone-900);color:#fff;font:400 .75rem/1.4 'Inter';padding:.5rem .75rem;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .3s,transform .45s var(--ease-out);z-index:30;box-shadow:0 10px 30px -10px rgba(0,0,0,.5)}
+[data-tip]::before{content:"";position:absolute;left:50%;bottom:calc(100% + 4px);width:8px;height:8px;background:var(--stone-900);transform:translate(-50%,6px) rotate(45deg);opacity:0;transition:opacity .3s,transform .45s var(--ease-out);z-index:29}
+[data-tip]:hover::after,[data-tip]:focus-visible::after,[data-tip].is-hover::after{opacity:1;transform:translate(-50%,0) scale(1)}
+[data-tip]:hover::before,[data-tip]:focus-visible::before,[data-tip].is-hover::before{opacity:1;transform:translate(-50%,0) rotate(45deg)}
+[data-tip-pos=bottom]::after{bottom:auto;top:calc(100% + 10px)}[data-tip-pos=bottom]::before{bottom:auto;top:calc(100% + 4px)}
+[data-tip-pos=right]::after{left:calc(100% + 10px);bottom:50%;transform:translate(6px,50%) scale(.96)}
+[data-tip-pos=right]:hover::after,[data-tip-pos=right]:focus-visible::after,[data-tip-pos=right].is-hover::after{transform:translate(0,50%) scale(1)}
+[data-tip-pos=right]::before{display:none}
+[data-tip-light]::after{background:#fff;color:var(--ink)}[data-tip-light]::before{background:#fff}
+
+/* ===== Navbar pill ===== */
+.pill-nav{position:relative;display:inline-flex;gap:.25rem;padding:.35rem;border-radius:999px;background:rgba(23,23,23,.6);backdrop-filter:blur(20px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+.pill-nav a{position:relative;z-index:1;padding:.55rem 1.1rem;border-radius:999px;font:500 .8125rem/1 'Inter';color:#a8a29e;transition:color .3s;white-space:nowrap}
+.pill-nav a:hover,.pill-nav a[aria-current=true]{color:#fff}
+.pill-nav .ind{position:absolute;top:.35rem;bottom:.35rem;left:0;width:0;border-radius:999px;background:rgba(255,255,255,.14);box-shadow:inset 0 0 0 1px rgba(255,255,255,.18);transition:transform .6s var(--ease-out),width .6s var(--ease-out)}
+.nav-link{position:relative;font:500 .75rem/1 'Inter';letter-spacing:.14em;text-transform:uppercase;transition:color .3s;padding:.4rem 0;white-space:nowrap}
+.nav-link::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:100%;background:currentColor;transform:scaleX(0);transform-origin:right;transition:transform .5s var(--ease-out)}
+.nav-link:hover::after,.nav-link.is-active::after{transform:scaleX(1);transform-origin:left}
+.nav-link:hover{color:var(--stone-500)}
+
+/* ===== Modal ===== */
+.modal-back{position:fixed;inset:0;z-index:100;background:rgba(12,10,9,.6);backdrop-filter:blur(8px);display:grid;place-items:center;padding:1rem;opacity:0;visibility:hidden;transition:opacity .4s,visibility .4s}
+.modal-back.open{opacity:1;visibility:visible}
+.modal-box{position:relative;width:100%;max-width:30rem;background:var(--paper);color:var(--ink);border:1px solid var(--stone-300);border-radius:12px;padding:2rem;overflow:hidden;transform:translateY(24px) scale(.96);opacity:0;transition:transform .7s var(--ease-out),opacity .5s;box-shadow:0 40px 100px -20px rgba(0,0,0,.6)}
+.modal-back.open .modal-box{transform:none;opacity:1}
+
+/* Marcação de código/spec */
+.spec{display:grid;grid-template-columns:auto 1fr;gap:.35rem 1rem;font:400 .75rem/1.5 'Geist Mono',monospace;color:var(--stone-700)}
+.spec dt{color:var(--stone-500);text-transform:uppercase;letter-spacing:.08em}
+.spec dd{margin:0;word-break:break-word}
+.dark-scope .spec{color:#d6d3d1}.dark-scope .spec dt{color:#78716c}
+.chip{display:inline-block;padding:.15rem .5rem;border:1px solid var(--stone-300);border-radius:4px;font:400 .6875rem/1.4 'Geist Mono',monospace;background:rgba(255,255,255,.5);color:var(--stone-700)}
+.demo-box{border:1px solid var(--stone-300);background:rgba(255,255,255,.55);padding:1.5rem;position:relative;overflow:hidden}
+.demo-box.dark{background:var(--stone-900);border-color:#292524;color:#e7e5e4}
+table.tbl{width:100%;border-collapse:collapse;font-size:.8125rem}
+table.tbl th{font:500 .6875rem/1 'Geist Mono',monospace;text-transform:uppercase;letter-spacing:.1em;color:var(--stone-500);text-align:left;padding:.9rem 1rem;border-bottom:1px solid var(--stone-300);white-space:nowrap}
+table.tbl td{padding:.9rem 1rem;border-bottom:1px solid var(--stone-300);vertical-align:top}
+.scroll-x{overflow-x:auto}
+.icon-cell{transition:background .4s,transform .5s var(--ease-out)}
+.icon-cell:hover{background:#fff;transform:translateY(-3px)}
+.icon-cell iconify-icon{transition:transform .6s var(--ease-out)}
+.icon-cell:hover iconify-icon{transform:scale(1.2) rotate(-6deg)}
+.eq i{display:block;width:5px;height:100%;background:var(--ink);border-radius:2px;transform-origin:bottom;animation:wave 1s ease-in-out infinite}
+.eq i:nth-child(2){animation-delay:.15s}.eq i:nth-child(3){animation-delay:.3s}.eq i:nth-child(4){animation-delay:.45s}.eq i:nth-child(5){animation-delay:.6s}
+.skip{position:absolute;left:-999px;top:0;background:var(--ink);color:#fff;padding:.5rem 1rem;z-index:200}.skip:focus{left:0}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;transition-delay:0s!important;scroll-behavior:auto!important}
+  .reveal,.nav-load{opacity:1;transform:none}.text-reveal-content{transform:none;opacity:1}
+  .marquee-content{animation:none!important}
+}
+</style>
+</head>
+<body class="antialiased min-h-screen selection:bg-stone-800 selection:text-white pb-0">
+<a class="skip" href="#conteudo">Pular para o conteúdo</a>
+
+<div class="max-w-[1400px] mx-auto border-x border-stone-300 relative bg-[#EAEAE5]">
+  <!-- Guias verticais (digital-architect) -->
+  <div class="absolute inset-0 pointer-events-none grid grid-cols-1 md:grid-cols-12 gap-0 z-0 h-full w-full" aria-hidden="true">
+    <div class="hidden md:block md:col-span-3 border-r border-stone-300/40 h-full"></div>
+    <div class="hidden md:block md:col-span-6 border-r border-stone-300/40 h-full"></div>
+    <div class="hidden md:block md:col-span-3 h-full"></div>
+  </div>
+
+  <!-- NAV -->
+  <header class="relative z-50 border-b border-stone-300 sticky top-0 bg-[#EAEAE5]/90 backdrop-blur-md nav-load">
+    <nav aria-label="Principal" class="flex justify-between items-center px-4 md:px-6 py-4 gap-4">
+      <div class="flex items-center gap-5 md:gap-10 overflow-x-auto no-scrollbar min-w-0">
+        <a class="nav-link" href="#tipografia">Tipografia</a>
+        <a class="nav-link" href="#cores">Cores</a>
+        <a class="nav-link hidden sm:block" href="#componentes">Componentes</a>
+      </div>
+      <a href="#topo" class="flex items-center gap-2 group shrink-0" aria-label="Início">
+        <iconify-icon class="text-xl group-hover:rotate-180 transition-transform duration-700" icon="solar:atom-linear"></iconify-icon>
+        <span class="font-bold tracking-tighter text-lg hidden xs:inline sm:inline">ARQ.SYS</span>
+      </a>
+      <div class="flex items-center gap-5 md:gap-10 overflow-x-auto no-scrollbar min-w-0 justify-end">
+        <a class="nav-link hidden md:block" href="#icones">Ícones</a>
+        <a class="nav-link" href="#animacoes">Animações</a>
+        <a class="nav-link hidden sm:block" href="#modal-demo" data-open-modal>Modal</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="conteudo">
+  <!-- ================= HERO ================= -->
+  <section id="topo" class="relative z-10 grid grid-cols-1 md:grid-cols-12 border-b border-stone-300 min-h-[760px] md:min-h-[900px]">
+    <div id="hero" class="dark-scope col-span-1 md:col-span-9 border-b md:border-b-0 md:border-r border-stone-300 relative overflow-hidden bg-stone-950 text-white min-h-[720px]">
+      <!-- carrossel Ken Burns -->
+      <div class="absolute inset-0" id="hero-carousel" aria-hidden="true">
+        <div class="carousel-slide active"><img alt="" class="w-full h-full object-cover grayscale contrast-125 opacity-60" src="assets/c7fa69dd-d7fb-48f2-a866-ef3663_f6b789593f38.webp"/></div>
+        <div class="carousel-slide"><img alt="" class="w-full h-full object-cover grayscale contrast-125 opacity-60" src="assets/6c710de5-9712-4c8e-a7db-59ac54_b647957b5aa5.webp"/></div>
+        <div class="carousel-slide"><img alt="" class="w-full h-full object-cover grayscale contrast-125 opacity-60" src="assets/62cc53b7-3355-4618-b7fa-3283f6_a6d3415bc434.webp"/></div>
+      </div>
+      <div class="absolute inset-0 bg-gradient-to-b from-stone-950/70 via-stone-950/40 to-stone-950/95 pointer-events-none"></div>
+      <div class="bg-aurora" style="z-index:1"></div>
+      <div class="bg-grid on-dark" style="z-index:1"></div>
+      <div class="bg-noise" style="z-index:1"></div>
+      <div class="hero-light" id="hero-light"></div>
+
+      <!-- Selo orbital -->
+      <div class="absolute top-6 right-5 md:top-10 md:right-10 z-20 w-24 h-24 md:w-32 md:h-32 hidden sm:block reveal delay-700 hero-intro" aria-hidden="true">
+        <svg viewBox="0 0 120 120" class="w-full h-full animate-spin-slow" style="animation:orbit 18s linear infinite">
+          <defs><path id="circ" d="M60,60 m-46,0 a46,46 0 1,1 92,0 a46,46 0 1,1 -92,0"/></defs>
+          <text font-size="9.5" letter-spacing="3.2" fill="#d6d3d1" font-family="Geist Mono"><textPath href="#circ">DESIGN SYSTEM • WEB DESIGN COM IA • ASIMOV •</textPath></text>
+        </svg>
+        <div class="absolute inset-0 flex items-center justify-center"><iconify-icon class="text-3xl text-[#D4FF3A] animate-float" icon="solar:stars-minimalistic-bold-duotone"></iconify-icon></div>
+      </div>
+
+      <div class="relative z-10 h-full flex flex-col justify-between p-6 md:p-10 gap-10 min-h-[720px]">
+        <div class="flex items-center gap-3 text-xs font-mono uppercase tracking-[0.25em] text-stone-300 reveal delay-200 hero-intro">
+          <span class="text-[#D4FF3A] dot"></span><span>v3.0 — Sistema vivo</span><span class="hidden sm:inline text-stone-500">/ 2026</span>
+        </div>
+
+        <div>
+          <h1 class="font-semibold tracking-tighter leading-[0.92] text-white" id="hero-title" style="font-size:clamp(3.1rem,11.5vw,8rem)">
+            <span class="text-reveal-wrapper"><span class="text-reveal-content delay-200">Arquitetura</span></span><br/>
+            <span class="text-reveal-wrapper"><span class="text-reveal-content delay-300"><span class="serif shine-text italic-fake" style="font-size:1.08em">digital</span> <span class="text-stone-500">viva</span></span></span>
+          </h1>
+          <div class="mt-6 flex items-center gap-3 text-base md:text-xl text-stone-300 reveal delay-500 hero-intro">
+            <span>Uma interface que</span>
+            <span class="relative inline-block h-[1.4em] overflow-hidden align-bottom min-w-[7.5ch]" aria-live="off">
+              <span id="rotator" class="font-medium text-white block">respira.</span>
+            </span>
+          </div>
+          <p class="mt-5 max-w-xl text-sm md:text-base text-stone-400 leading-relaxed font-light reveal delay-500 hero-intro">
+            Tipografia editorial, paleta pedra com um sinal elétrico, fundos que se movem devagar e componentes com acabamento de detalhe. Tudo documentado, tudo vivo.
+          </p>
+          <div class="mt-9 flex flex-col sm:flex-row gap-4 sm:items-center reveal delay-700 hero-intro">
+            <a href="#componentes" class="beam" data-magnetic>
+              <span class="spin"></span>
+              <span class="face"><span class="sh"></span><span class="relative z-10 tracking-wide">Explorar componentes</span><iconify-icon class="arr text-2xl" icon="solar:arrow-right-bold-duotone"></iconify-icon></span>
+            </a>
+            <a href="#animacoes" class="btn btn-signal" data-magnetic>Ver animações <iconify-icon icon="solar:arrow-right-up-bold-duotone"></iconify-icon></a>
+            <a href="#cores" class="btn btn-link">Paleta &amp; contraste</a>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-end justify-between gap-6 reveal delay-700 hero-intro">
+          <div class="flex flex-wrap gap-2">
+            <span class="badge badge-glass">Tailwind</span><span class="badge badge-glass">Iconify</span><span class="badge badge-glass">Reveal</span><span class="badge badge-glass">Glow</span>
+          </div>
+          <a href="#tipografia" class="flex items-center gap-3 text-xs font-mono uppercase tracking-widest text-stone-400 hover:text-white transition-colors" aria-label="Rolar para baixo">
+            <span class="hidden sm:inline">Role para explorar</span>
+            <span class="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center"><iconify-icon class="text-xl animate-bounce" icon="solar:arrow-down-bold-duotone"></iconify-icon></span>
+          </a>
+        </div>
+        <div class="absolute left-0 bottom-0 h-[2px] w-full bg-white/10"><div id="slide-progress" class="h-full bg-[#D4FF3A] origin-left" style="animation:progress 5s linear infinite"></div></div>
+      </div>
+    </div>
+
+    <!-- Coluna de estatísticas -->
+    <div class="col-span-1 md:col-span-3 grid grid-rows-3 h-full min-h-[400px]">
+      <div class="border-b border-stone-300 p-8 flex flex-col justify-between reveal delay-500 hero-intro group hover:bg-white transition-colors">
+        <iconify-icon class="text-3xl text-stone-400 group-hover:text-stone-800 transition-colors" icon="solar:layers-minimalistic-linear"></iconify-icon>
+        <div><h2 class="text-5xl font-medium tracking-tighter"><span data-count="8">0</span></h2><span class="text-xs font-mono text-stone-500 mt-1 block uppercase">Componentes</span></div>
+      </div>
+      <div class="border-b border-stone-300 p-8 flex flex-col justify-between reveal delay-700 hero-intro group hover:bg-white transition-colors">
+        <iconify-icon class="text-3xl text-stone-400 group-hover:text-stone-800 transition-colors" icon="solar:palette-linear"></iconify-icon>
+        <div><h2 class="text-5xl font-medium tracking-tighter"><span data-count="15">0</span></h2><span class="text-xs font-mono text-stone-500 mt-1 block uppercase">Tokens de cor</span></div>
+      </div>
+      <div class="p-8 flex flex-col justify-between reveal delay-700 hero-intro group hover:bg-white transition-colors relative overflow-hidden">
+        <iconify-icon class="text-3xl text-stone-400 group-hover:text-stone-800 transition-colors" icon="solar:cup-star-linear"></iconify-icon>
+        <div><h2 class="text-5xl font-medium tracking-tighter"><span data-count="16">0</span></h2><span class="text-xs font-mono text-stone-500 mt-1 block uppercase">Animações</span></div>
+        <div class="absolute top-4 right-4 animate-spin-slow"><iconify-icon class="text-stone-200 text-6xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" icon="solar:star-fall-linear"></iconify-icon></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Marquee -->
+  <div class="relative z-10 border-b border-stone-300 overflow-hidden py-6 bg-stone-100/50" aria-hidden="true">
+    <div class="marquee-container">
+      <div class="marquee-content mq">
+        <span class="text-sm font-mono uppercase tracking-widest text-stone-500 mx-8">Inter · Instrument Serif · Geist Mono</span><span class="text-[#3F5A00] mx-8">✦</span>
+        <span class="text-sm font-mono uppercase tracking-widest text-stone-500 mx-8">cubic-bezier(0.16, 1, 0.3, 1)</span><span class="text-[#3F5A00] mx-8">✦</span>
+        <span class="text-sm font-mono uppercase tracking-widest text-stone-500 mx-8">Pedra + Sinal elétrico</span><span class="text-[#3F5A00] mx-8">✦</span>
+        <span class="text-sm font-mono uppercase tracking-widest text-stone-500 mx-8">Curso Asimov — Web design com IA</span><span class="text-[#3F5A00] mx-8">✦</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Banner tipográfico -->
+  <section class="relative z-10 py-24 md:py-32 border-b border-stone-300 overflow-hidden">
+    <div class="bg-aurora soft"></div><div class="bg-grid"></div>
+    <div class="relative flex flex-col items-center gap-2 reveal">
+      <div class="flex items-center gap-4 md:gap-8">
+        <h2 class="text-5xl sm:text-7xl md:text-9xl font-semibold tracking-tighter text-stone-900"><span class="text-reveal-wrapper"><span class="text-reveal-content">Forma</span></span></h2>
+        <div class="w-12 h-12 md:w-20 md:h-20 border border-stone-800 rounded-full flex items-center justify-center mt-2 md:mt-4 hover:bg-stone-900 hover:text-white transition-all duration-500 shrink-0"><iconify-icon class="text-2xl md:text-4xl" icon="solar:arrow-down-linear"></iconify-icon></div>
+        <h2 class="text-5xl sm:text-7xl md:text-9xl font-semibold tracking-tighter serif"><span class="text-reveal-wrapper"><span class="text-reveal-content delay-100">segue</span></span></h2>
+      </div>
+      <h2 class="text-5xl sm:text-7xl md:text-9xl font-semibold tracking-tighter text-stone-400"><span class="text-reveal-wrapper"><span class="text-reveal-content delay-200">sistema</span></span></h2>
+    </div>
+    <div class="absolute top-10 right-[10%] opacity-20 parallax-element hidden sm:block" data-speed="-0.02"><iconify-icon class="text-9xl" icon="solar:record-circle-linear"></iconify-icon></div>
+  </section>
+
+  <!-- ================= 01 TIPOGRAFIA ================= -->
+  <section id="tipografia" class="relative z-10 border-b border-stone-300">
+    <div class="sec-head section-pad border-b border-stone-300 bg-stone-100/50">
+      <div class="bg-aurora soft"></div>
+      <div class="relative reveal"><span class="text-xs font-mono uppercase text-stone-500 block mb-2">01 / Fundamentos</span>
+      <h2 class="text-4xl md:text-5xl font-medium tracking-tight">Tipografia</h2>
+      <p class="mt-3 text-stone-600 max-w-2xl text-sm md:text-base">Três vozes: <b>Inter</b> para estrutura e leitura, <b>Instrument Serif</b> para o acento editorial e <b>Geist Mono</b> para rótulos técnicos.</p></div>
+    </div>
+
+    <div class="grid md:grid-cols-3 border-b border-stone-300">
+      <div class="p-8 md:p-10 border-b md:border-b-0 md:border-r border-stone-300 reveal flashlight-card">
+        <span class="text-xs font-mono text-stone-500 uppercase tracking-widest">Primária · Sans</span>
+        <div class="text-7xl font-semibold tracking-tighter mt-3">Aa</div>
+        <p class="font-semibold mt-2">Inter</p>
+        <dl class="spec mt-4"><dt>Pilha</dt><dd>'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif</dd><dt>Pesos</dt><dd>300 · 400 · 500 · 600</dd><dt>Origem</dt><dd>local — assets/css2_19fd9cc6b396.css (woff2 em assets/)</dd></dl>
+      </div>
+      <div class="p-8 md:p-10 border-b md:border-b-0 md:border-r border-stone-300 reveal delay-100 flashlight-card">
+        <span class="text-xs font-mono text-stone-500 uppercase tracking-widest">Acento · Serifa</span>
+        <div class="text-7xl serif mt-3">Aa</div>
+        <p class="font-semibold mt-2">Instrument Serif</p>
+        <dl class="spec mt-4"><dt>Pilha</dt><dd>'Instrument Serif', Georgia, 'Times New Roman', serif</dd><dt>Pesos</dt><dd>400 (normal)</dd><dt>Origem</dt><dd>local — assets/css2_2b2d87bc82d8.css</dd></dl>
+      </div>
+      <div class="p-8 md:p-10 reveal delay-200 flashlight-card">
+        <span class="text-xs font-mono text-stone-500 uppercase tracking-widest">Monoespaçada</span>
+        <div class="text-7xl font-mono mt-3 tracking-tighter">Aa</div>
+        <p class="font-semibold mt-2">Geist Mono</p>
+        <dl class="spec mt-4"><dt>Pilha</dt><dd>'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace</dd><dt>Pesos</dt><dd>300 · 400 · 500 · 600 · 700</dd><dt>Origem</dt><dd>local — assets/css2_62759cd015bd.css</dd></dl>
+      </div>
+    </div>
+
+    <div class="p-8 md:p-10 border-b border-stone-300 bg-white/40 reveal">
+      <h3 class="text-sm font-bold uppercase tracking-widest mb-4">Estratégia de carregamento</h3>
+      <ul class="grid md:grid-cols-3 gap-4 text-sm text-stone-700">
+        <li class="flex gap-3"><iconify-icon class="text-xl mt-0.5 shrink-0" icon="solar:download-minimalistic-linear"></iconify-icon><span><b>Local.</b> Cada família é um &lt;link&gt; para um css2_*.css que aponta para .woff2 em <span class="chip">assets/</span> — sem rede externa.</span></li>
+        <li class="flex gap-3"><iconify-icon class="text-xl mt-0.5 shrink-0" icon="solar:scale-linear"></iconify-icon><span><b>Faixa de pesos.</b> Inter 300–600 (nunca 700+ na UI: contraste vem do tamanho e do tracking). Mono 400–500 para rótulos.</span></li>
+        <li class="flex gap-3"><iconify-icon class="text-xl mt-0.5 shrink-0" icon="solar:eye-linear"></iconify-icon><span><b>Fallback.</b> <span class="chip">font-display: swap</span> nos css2 e pilhas de sistema evitam texto invisível.</span></li>
+      </ul>
+    </div>
+
+    <div class="scroll-x"><div id="type-list" class="min-w-[640px]"></div></div>
+  </section>
+
+  <!-- ================= 02 CORES ================= -->
+  <section id="cores" class="relative z-10 border-b border-stone-300">
+    <div class="sec-head section-pad border-b border-stone-300 bg-stone-100/50">
+      <div class="bg-aurora soft"></div>
+      <div class="relative reveal"><span class="text-xs font-mono uppercase text-stone-500 block mb-2">02 / Fundamentos</span>
+      <h2 class="text-4xl md:text-5xl font-medium tracking-tight">Sistema de cores</h2>
+      <p class="mt-3 text-stone-600 max-w-2xl text-sm md:text-base">Base monocromática de pedra (digital-architect) com um único <b>sinal</b> elétrico e uma névoa decorativa. HEX, RGB, HSL e as razões de contraste são calculados ao vivo a partir do valor HEX.</p></div>
+    </div>
+    <div id="color-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"></div>
+
+    <div class="grid md:grid-cols-2 border-t border-stone-300">
+      <div class="p-8 md:p-10 border-b md:border-b-0 md:border-r border-stone-300 reveal">
+        <h3 class="text-sm font-bold uppercase tracking-widest mb-6">Variantes de opacidade</h3>
+        <div class="space-y-4" id="opacity-strips"></div>
+      </div>
+      <div class="p-8 md:p-10 reveal delay-100">
+        <h3 class="text-sm font-bold uppercase tracking-widest mb-6">Gradientes</h3>
+        <div class="space-y-4">
+          <div><div class="h-16 border border-stone-300" style="background:linear-gradient(135deg,#D4FF3A,#9AA7FF)"></div><p class="spec mt-2"><span>aurora</span><span>linear-gradient(135deg, #D4FF3A, #9AA7FF) — glows e destaques</span></p></div>
+          <div><div class="h-16 border border-stone-300" style="background:linear-gradient(to bottom,transparent,rgba(28,25,23,.4))"></div><p class="spec mt-2"><span>véu</span><span>transparent → stone-900/40 — sobre imagens</span></p></div>
+          <div><div class="h-16 border border-stone-300" style="background:linear-gradient(135deg,#1C1C1C,#78716C)"></div><p class="spec mt-2"><span>tinta</span><span>#1C1C1C → #78716C — .gradient-text</span></p></div>
+          <div><div class="h-16 bg-stone-900 relative overflow-hidden"><div class="absolute inset-0" style="background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);animation:shimmer 2.2s infinite"></div></div><p class="spec mt-2"><span>feixe</span><span>transparent → white/35 → transparent — shimmer de botão</span></p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-8 md:p-10 border-t border-stone-300 bg-white/40 reveal">
+      <h3 class="text-sm font-bold uppercase tracking-widest mb-6">Regras de uso por contexto</h3>
+      <div class="scroll-x"><table class="tbl min-w-[720px]">
+        <thead><tr><th>Contexto</th><th>Claro (papel)</th><th>Escuro (pedra)</th><th>Observação</th></tr></thead>
+        <tbody>
+          <tr><td class="font-medium">Texto</td><td>Tinta #1C1C1C · secundário Pedra 700</td><td>Branco · secundário #D6D3D1</td><td>Pedra 500 só em texto grande ou sobre branco</td></tr>
+          <tr><td class="font-medium">Fundo</td><td>Papel #EAEAE5 · cartões brancos</td><td>Pedra 900 #1C1917</td><td>Seções alternam claro/escuro</td></tr>
+          <tr><td class="font-medium">Borda</td><td>Pedra 300 #D6D3D1</td><td>white/10 a white/20</td><td>1px sempre; linhas estruturais, não decorativas</td></tr>
+          <tr><td class="font-medium">Hover</td><td>Fundo branco · botão → Pedra 700</td><td>white/10 · botão signal → glow</td><td>Transição .4–.6s, ease-out expo</td></tr>
+          <tr><td class="font-medium">Ativo</td><td>scale .97 + sombra some</td><td>idem</td><td>Duração curta .12s</td></tr>
+          <tr><td class="font-medium">Foco</td><td>Anel 2px Tinta, offset 3px</td><td>Anel 2px Sinal</td><td>Sempre visível via :focus-visible</td></tr>
+          <tr><td class="font-medium">Desabilitado</td><td>opacity .4 + dessaturado</td><td>idem</td><td>cursor not-allowed, sem hover</td></tr>
+        </tbody></table></div>
+    </div>
+  </section>
+
+  <!-- ================= 03 COMPONENTES ================= -->
+  <section id="componentes" class="relative z-10 border-b border-stone-300">
+    <div class="sec-head section-pad border-b border-stone-300 bg-stone-100/50">
+      <div class="bg-aurora soft"></div>
+      <div class="relative reveal"><span class="text-xs font-mono uppercase text-stone-500 block mb-2">03 / Elementos de UI</span>
+      <h2 class="text-4xl md:text-5xl font-medium tracking-tight">Componentes</h2>
+      <p class="mt-3 text-stone-600 max-w-2xl text-sm md:text-base">Cada componente mostra os estados padrão, hover, ativo, foco e desabilitado. Passe o mouse, use Tab e clique.</p></div>
+    </div>
+
+    <!-- BOTÕES -->
+    <div class="p-8 md:p-12 border-b border-stone-300">
+      <h3 class="text-sm font-bold uppercase tracking-widest mb-8 reveal">Botões</h3>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="demo-box reveal">
+          <p class="text-xs font-mono text-stone-500 uppercase mb-5">Em fundo claro</p>
+          <div class="overflow-x-auto no-scrollbar"><table class="tbl min-w-[560px]">
+            <thead><tr><th>Variante</th><th>Padrão</th><th>Hover</th><th>Ativo</th><th>Foco</th><th>Off</th></tr></thead>
+            <tbody>
+              <tr><td class="font-mono text-xs">primary</td>
+                <td><button class="btn btn-primary">Salvar</button></td>
+                <td><button class="btn btn-primary is-hover">Salvar</button></td>
+                <td><button class="btn btn-primary is-active">Salvar</button></td>
+                <td><button class="btn btn-primary is-focus">Salvar</button></td>
+                <td><button class="btn btn-primary" disabled>Salvar</button></td></tr>
+              <tr><td class="font-mono text-xs">outline</td>
+                <td><button class="btn btn-outline">Ver <iconify-icon icon="solar:arrow-right-linear"></iconify-icon></button></td>
+                <td><button class="btn btn-outline is-hover">Ver <iconify-icon icon="solar:arrow-right-linear"></iconify-icon></button></td>
+                <td><button class="btn btn-outline is-active">Ver</button></td>
+                <td><button class="btn btn-outline is-focus">Ver</button></td>
+                <td><button class="btn btn-outline" disabled>Ver</button></td></tr>
+              <tr><td class="font-mono text-xs">link</td>
+                <td><a href="#componentes" class="btn btn-link">Saiba mais</a></td>
+                <td><a href="#componentes" class="btn btn-link is-hover">Saiba mais</a></td>
+                <td><a href="#componentes" class="btn btn-link is-active">Saiba mais</a></td>
+                <td><a href="#componentes" class="btn btn-link is-focus">Saiba mais</a></td>
+                <td><button class="btn btn-link" disabled>Saiba mais</button></td></tr>
+            </tbody></table></div>
+          <dl class="spec mt-5"><dt>Padding</dt><dd>.85rem 1.5rem (outline: .95rem 1.8rem)</dd><dt>Raio</dt><dd>6px (primary) · 999px (pill)</dd><dt>Tipo</dt><dd>Inter 500 .875rem/1 · outline: uppercase, tracking .14em, .75rem</dd><dt>Motion</dt><dd>.5s cubic-bezier(.16,1,.3,1) · feixe de luz .6s · ativo .12s</dd><dt>Classes</dt><dd>.btn .btn-primary .btn-outline .btn-link</dd></dl>
+        </div>
+        <div class="demo-box dark dark-scope reveal delay-100">
+          <div class="bg-aurora"></div><div class="bg-grid on-dark"></div>
+          <div class="relative">
+            <p class="text-xs font-mono text-stone-500 uppercase mb-5">Em fundo escuro (inverte via --btn-ink / --btn-paper)</p>
+            <div class="flex flex-wrap gap-4 items-center">
+              <a href="#componentes" class="beam"><span class="spin"></span><span class="face"><span class="sh"></span><span class="relative z-10">Beam</span><iconify-icon class="arr text-2xl" icon="solar:arrow-right-bold-duotone"></iconify-icon></span></a>
+              <button class="btn btn-signal">Signal <iconify-icon icon="solar:arrow-right-up-bold-duotone"></iconify-icon></button>
+              <button class="btn btn-primary">Primary</button>
+              <button class="btn btn-outline">Outline</button>
+              <button class="btn btn-icon" aria-label="Anterior" data-tip="Anterior"><iconify-icon class="text-xl" icon="solar:arrow-left-bold-duotone"></iconify-icon></button>
+              <button class="btn btn-icon" aria-label="Próximo" data-tip="Próximo"><iconify-icon class="text-xl" icon="solar:arrow-right-bold-duotone"></iconify-icon></button>
+            </div>
+            <div class="flex flex-wrap gap-4 items-center mt-6">
+              <button class="btn btn-signal is-hover">Signal hover</button>
+              <button class="btn btn-signal is-focus">Signal foco</button>
+              <button class="btn btn-signal" disabled>Signal off</button>
+            </div>
+            <dl class="spec mt-6"><dt>Beam</dt><dd>conic-gradient girando 2s linear, brilho em hover (animations-gemini)</dd><dt>Signal</dt><dd>#D4FF3A texto #1C1917, glow 44px + shimmer 1.1s</dd><dt>Ícone</dt><dd>3rem circular, hover gira −12° e inverte para branco</dd></dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INPUTS -->
+    <div class="p-8 md:p-12 border-b border-stone-300 bg-white/30">
+      <h3 class="text-sm font-bold uppercase tracking-widest mb-8 reveal">Inputs</h3>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="demo-box reveal">
+          <form class="grid sm:grid-cols-2 gap-6" onsubmit="return false">
+            <div class="field"><label for="i1">Padrão</label><div class="ctl"><iconify-icon icon="solar:user-linear"></iconify-icon><input id="i1" type="text" placeholder="Seu nome"/></div><span class="help">Texto de ajuda opcional</span></div>
+            <div class="field"><label for="i2">Hover</label><div class="ctl is-hover"><iconify-icon icon="solar:letter-linear"></iconify-icon><input id="i2" type="email" placeholder="voce@email.com"/></div><span class="help">Borda escurece</span></div>
+            <div class="field"><label for="i3">Foco</label><div class="ctl is-focus"><iconify-icon icon="solar:magnifer-linear"></iconify-icon><input id="i3" type="text" value="Digitando..."/></div><span class="help">Linha anima da esquerda</span></div>
+            <div class="field err"><label for="i4">Erro</label><div class="ctl"><iconify-icon icon="solar:danger-triangle-linear"></iconify-icon><input id="i4" type="text" value="abc@" aria-invalid="true"/></div><span class="help"><iconify-icon icon="solar:close-circle-linear"></iconify-icon> E-mail inválido</span></div>
+            <div class="field ok"><label for="i5">Sucesso</label><div class="ctl"><iconify-icon icon="solar:check-circle-linear"></iconify-icon><input id="i5" type="text" value="gabriel@asimov.com"/></div><span class="help"><iconify-icon icon="solar:check-circle-linear"></iconify-icon> Tudo certo</span></div>
+            <div class="field dis"><label for="i6">Desabilitado</label><div class="ctl"><iconify-icon icon="solar:lock-linear"></iconify-icon><input id="i6" type="text" placeholder="Bloqueado" disabled/></div><span class="help">Indisponível</span></div>
+          </form>
+        </div>
+        <div class="demo-box reveal delay-100">
+          <div class="space-y-6">
+            <label class="flex items-center justify-between gap-4 text-sm"><span>Notificações por e-mail</span><button type="button" role="switch" aria-checked="true" class="switch" aria-label="Notificações" data-switch></button></label>
+            <label class="flex items-center justify-between gap-4 text-sm"><span>Modo reduzido de movimento</span><button type="button" role="switch" aria-checked="false" class="switch" aria-label="Movimento" data-switch></button></label>
+            <label class="flex items-center gap-3 text-sm cursor-pointer"><input type="checkbox" class="check" checked/> Aceito os termos do curso</label>
+            <div class="field"><label for="i7">Mensagem</label><div class="ctl"><textarea id="i7" rows="3" placeholder="Escreva aqui..."></textarea></div><span class="help">Máx. 280 caracteres</span></div>
+          </div>
+          <dl class="spec mt-6"><dt>Altura</dt><dd>≈ 48px (padding .85rem)</dd><dt>Raio</dt><dd>6px · borda 1px #D6D3D1</dd><dt>Rótulo</dt><dd>Geist Mono 500 .6875rem · tracking .14em · uppercase</dd><dt>Foco</dt><dd>borda Tinta + halo 4px rgba(28,28,28,.08) + barra .6s</dd><dt>Erro</dt><dd>#B91C1C + shake .4s</dd></dl>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARDS -->
+    <div class="p-8 md:p-12 border-b border-stone-300">
+      <h3 class="text-sm font-bold uppercase tracking-widest mb-8 reveal">Cards</h3>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="reveal">
+          <div class="card-proj" tabindex="0">
+            <div class="grid grid-cols-1 sm:grid-cols-2 min-h-[260px]">
+              <div class="p-8 flex flex-col justify-center">
+                <div class="flex items-center gap-3 mb-4"><span class="text-xs font-mono text-stone-500">01</span><div class="h-px w-8 bg-stone-300"></div><span class="text-xs font-bold uppercase tracking-wider">Projeto</span></div>
+                <h4 class="text-3xl font-medium tracking-tight mb-3">Nova Finance</h4>
+                <p class="text-stone-500 text-sm leading-relaxed">Título desliza, imagem sai do cinza e dá zoom no hover.</p>
+              </div>
+              <div class="relative overflow-hidden bg-stone-100 min-h-[180px]"><img alt="Imagem de projeto" class="absolute inset-0 w-full h-full object-cover" src="assets/4b7d31e6-5b45-47eb-9853-96bbb9_bf1aa5f9d2cf.webp"/></div>
+            </div>
+          </div>
+          <dl class="spec mt-4"><dt>Card projeto</dt><dd>borda 1px · raio 0 · hover: fundo branco, lift −4px, sombra, translateX(.5rem) no título, imagem 700ms · .card-proj</dd></dl>
+        </div>
+        <div class="reveal delay-100 space-y-6">
+          <div class="flashlight-card bg-white/60 border border-stone-300 rounded-lg p-6 cursor-pointer" data-flash>
+            <iconify-icon class="text-3xl mb-3" icon="solar:layers-minimalistic-bold-duotone"></iconify-icon>
+            <h4 class="text-lg font-semibold mb-1">Card lanterna</h4>
+            <p class="text-sm text-stone-600">O brilho segue o cursor (.flashlight-card, raio 600px, 8% de opacidade).</p>
+          </div>
+          <div class="tilt-wrap perspective-distant">
+            <div class="glow-border tilt text-white p-6 cursor-pointer" data-tilt tabindex="0">
+              <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-lg bg-gradient-to-br from-white/10 to-white/0 flex items-center justify-center relative" style="--border-gradient:linear-gradient(135deg,rgba(255,255,255,.25),rgba(255,255,255,0));--border-radius-before:8px"><iconify-icon class="text-2xl text-[#D4FF3A]" icon="solar:cpu-bold-duotone"></iconify-icon></div>
+              <div><h4 class="font-semibold">Card inclinado + borda viva</h4><p class="text-sm text-stone-400">Tilt 3D, conic-gradient girando no hover.</p></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NAVBARS -->
+    <div class="p-8 md:p-12 border-b border-stone-300 bg-white/30">
+      <h3 class="text-sm font-bold uppercase tracking-widest mb-8 reveal">Navbars</h3>
+      <div class="space-y-8">
+        <div class="reveal">
+          <p class="text-xs font-mono text-stone-500 uppercase mb-3">Editorial (digital-architect)</p>
+          <div class="border border-stone-300 bg-[#EAEAE5]"><div class="flex justify-between items-center px-4 md:px-6 py-5 gap-4">
+            <div class="flex items-center gap-6 md:gap-10"><a class="nav-link is-active" href="#componentes">Trabalhos</a><a class="nav-link hidden sm:block" href="#componentes">Escritos</a></div>
+            <div class="flex items-center gap-2 group"><iconify-icon class="text-xl group-hover:rotate-180 transition-transform duration-700" icon="solar:atom-linear"></iconify-icon><span class="font-bold tracking-tighter text-lg">ALEX.DESIGN</span></div>
+            <div class="flex items-center gap-6 md:gap-10"><a class="nav-link hidden sm:block" href="#componentes">Sobre</a><a class="nav-link" href="#componentes">Contato</a></div>
+          </div></div>
+          <dl class="spec mt-3"><dt>Spec</dt><dd>padding 1.25rem 1.5rem · borda inferior 1px · links Inter 500 .75rem uppercase tracking .14em · sublinhado .5s · entrada .nav-load .8s</dd></dl>
+        </div>
+        <div class="reveal delay-100">
+          <p class="text-xs font-mono text-stone-500 uppercase mb-3">Pílula flutuante (indicador deslizante)</p>
+          <div class="dark-scope relative bg-stone-900 p-8 md:p-12 overflow-hidden"><div class="bg-aurora"></div><div class="bg-grid on-dark"></div>
+            <div class="relative flex justify-center overflow-x-auto no-scrollbar">
+              <nav class="pill-nav" id="pill" aria-label="Demonstração"><span class="ind"></span><a href="#componentes" aria-current="true">Visão geral</a><a href="#componentes">Componentes</a><a href="#componentes">Tokens</a><a href="#componentes">Docs</a></nav>
+            </div>
+          </div>
+          <dl class="spec mt-3"><dt>Spec</dt><dd>glass rgba(23,23,23,.6) + blur(20px) · raio 999px · indicador translateX .6s ease-out expo</dd></dl>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEÇÕES -->
+    <div class="p-8 md:p-12 border-b border-stone-300">
+      <h3 class="text-sm font-bold uppercase tracking-widest mb-8 reveal">Seções</h3>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="reveal"><div class="border border-stone-300 relative overflow-hidden h-48 bg-stone-900 dark-scope"><div class="bg-aurora"></div><div class="bg-grid on-dark"></div><div class="relative p-5"><span class="badge badge-glass">Hero</span><p class="serif text-4xl mt-4 text-white">Título <span class="shine-text">vivo</span></p></div></div>
+          <p class="font-medium mt-3 text-sm">Hero escuro</p><p class="text-xs text-stone-500">min-h 760–900px · aurora + grid + ruído + lanterna · 9/3 colunas.</p></div>
+        <div class="reveal delay-100"><div class="border border-stone-300 relative overflow-hidden h-48 bg-stone-100/60"><div class="bg-aurora soft"></div><div class="bg-grid"></div><div class="relative p-5"><span class="text-xs font-mono text-stone-500 uppercase">02 / Rótulo</span><p class="text-3xl font-medium tracking-tight mt-3">Cabeçalho de seção</p></div></div>
+          <p class="font-medium mt-3 text-sm">Cabeçalho de fundamento</p><p class="text-xs text-stone-500">padding 3–4rem · borda inferior · fundo stone-100/50 · aurora suave.</p></div>
+        <div class="reveal delay-200"><div class="border border-stone-300 relative overflow-hidden h-48 bg-stone-900 dark-scope grid place-items-center text-center"><div class="bg-aurora soft"></div><div class="relative"><p class="text-3xl font-medium tracking-tighter text-white">Vamos criar<br/>algo <span class="serif text-[#D4FF3A]">novo</span>?</p><a href="#componentes" class="btn btn-signal mt-4 !py-2.5">Começar</a></div></div>
+          <p class="font-medium mt-3 text-sm">Banda de chamada (CTA)</p><p class="text-xs text-stone-500">centralizada · botão signal · rodapé escuro com texto gigante a 10%.</p></div>
+      </div>
+    </div>
+
+    <!-- MODAL -->
+    <div class="p-8 md:p-12 border-b border-stone-300 bg-white/30" id="modal-demo">
+      <h3 class="text-sm font-bold uppercase tracking-widest mb-8 reveal">Modal</h3>
+      <div class="grid md:grid-cols-2 gap-8 items-center reveal">
+        <div><p class="text-stone-600 text-sm mb-5">Abre com fade + escala em .7s, fundo com blur(8px). Fecha com o botão, clique fora ou <span class="chip">Esc</span>. O foco fica preso dentro do diálogo e volta ao botão.</p>
+        <button class="btn btn-primary" id="open-modal" aria-haspopup="dialog">Abrir modal <iconify-icon icon="solar:arrow-right-up-linear"></iconify-icon></button></div>
+        <dl class="spec"><dt>Largura</dt><dd>máx. 30rem</dd><dt>Raio</dt><dd>12px · padding 2rem</dd><dt>Overlay</dt><dd>rgba(12,10,9,.6) + blur(8px) · z-100</dd><dt>A11y</dt><dd>role="dialog" aria-modal aria-labelledby · trap de foco · Esc</dd></dl>
+      </div>
+    </div>
+
+    <!-- BADGES + TOOLTIPS -->
+    <div class="grid md:grid-cols-2">
+      <div class="p-8 md:p-12 border-b md:border-b-0 md:border-r border-stone-300 reveal">
+        <h3 class="text-sm font-bold uppercase tracking-widest mb-8">Badges</h3>
+        <div class="flex flex-wrap gap-3 items-center">
+          <span class="badge">Outline</span><span class="badge badge-solid">Sólido</span><span class="badge badge-signal">Sinal</span>
+          <span class="badge badge-ok"><span class="dot"></span>Online</span><span class="badge badge-warn">Atenção</span><span class="badge badge-err">Erro</span><span class="badge badge-info">Info</span>
+          <span class="bg-stone-900 p-2 rounded inline-flex"><span class="badge badge-glass">Glass</span></span>
+        </div>
+        <dl class="spec mt-6"><dt>Tipo</dt><dd>Geist Mono 500 .6875rem · uppercase · tracking .08em</dd><dt>Padding</dt><dd>.3rem .8rem · raio 999px</dd><dt>Hover</dt><dd>translateY(−2px) .4s</dd><dt>Feedback</dt><dd>cor do texto = borda; fundo a 8%</dd></dl>
+      </div>
+      <div class="p-8 md:p-12 reveal delay-100">
+        <h3 class="text-sm font-bold uppercase tracking-widest mb-8">Tooltips</h3>
+        <div class="flex flex-wrap gap-6 items-center pt-8">
+          <button class="btn btn-outline" data-tip="Aparece acima">Topo</button>
+          <button class="btn btn-outline" data-tip="Aparece abaixo" data-tip-pos="bottom">Base</button>
+          <button class="btn btn-outline" data-tip="À direita" data-tip-pos="right">Direita</button>
+          <button class="btn btn-outline is-focus" data-tip="Também no foco do teclado" tabindex="0">Foco</button>
+          <button class="btn btn-outline" data-tip="Indisponível" disabled>Off</button>
+        </div>
+        <dl class="spec mt-10"><dt>Fundo</dt><dd>#1C1917 · texto branco Inter 400 .75rem</dd><dt>Raio</dt><dd>6px · seta 8px rotacionada</dd><dt>Motion</dt><dd>opacity .3s · translate+scale .45s ease-out expo</dd><dt>Gatilho</dt><dd>:hover e :focus-visible · atributo data-tip</dd></dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 04 ÍCONES ================= -->
+  <section id="icones" class="relative z-10 border-b border-stone-300">
+    <div class="sec-head section-pad border-b border-stone-300 bg-stone-100/50">
+      <div class="bg-aurora soft"></div>
+      <div class="relative flex flex-wrap items-end justify-between gap-6 reveal"><div><span class="text-xs font-mono uppercase text-stone-500 block mb-2">04 / Ativos</span>
+      <h2 class="text-4xl md:text-5xl font-medium tracking-tight">Iconografia</h2>
+      <p class="mt-3 text-stone-600 max-w-2xl text-sm md:text-base">Conjunto <b>Solar</b> (variantes <span class="chip">-linear</span> e <span class="chip">-bold-duotone</span>) e logos <b>Simple Icons</b> — os mesmos das referências, via &lt;iconify-icon&gt;.</p></div>
+      <div class="inline-flex border border-stone-900 rounded-full p-1" role="group" aria-label="Estilo do ícone"><button class="btn !py-2 !px-4 !text-xs btn-primary !rounded-full" id="sty-linear" aria-pressed="true">Linear</button><button class="btn !py-2 !px-4 !text-xs !rounded-full" id="sty-duo" aria-pressed="false" style="background:transparent;color:var(--ink)">Duotone</button></div></div>
+    </div>
+    <div id="icon-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6"></div>
+    <div class="p-8 md:p-10 border-t border-stone-300 reveal">
+      <p class="text-xs font-mono uppercase text-stone-500 mb-5">Logos (simple-icons) — cinza → cor total no hover</p>
+      <div class="flex flex-wrap gap-10 items-center opacity-60 hover:opacity-100 transition-opacity duration-700">
+        <iconify-icon height="36" icon="simple-icons:airbnb"></iconify-icon><iconify-icon height="36" icon="simple-icons:spotify"></iconify-icon><iconify-icon height="36" icon="simple-icons:notion"></iconify-icon><iconify-icon height="36" icon="simple-icons:linear"></iconify-icon><iconify-icon height="36" icon="simple-icons:vercel"></iconify-icon><iconify-icon height="36" icon="simple-icons:stripe"></iconify-icon>
+      </div>
+      <dl class="spec mt-6"><dt>Tamanhos</dt><dd>text-xl (20) · text-2xl (24) · text-3xl (30) · text-4xl (36)</dd><dt>Cor</dt><dd>herda currentColor — Pedra 400 → Tinta no hover (.4s)</dd><dt>Uso</dt><dd>&lt;iconify-icon icon="solar:atom-linear"&gt;&lt;/iconify-icon&gt;</dd></dl>
+    </div>
+  </section>
+
+  <!-- ================= 05 ANIMAÇÕES ================= -->
+  <section id="animacoes" class="relative z-10 border-b border-stone-300 dark-scope bg-stone-900 overflow-hidden">
+    <div class="bg-aurora"></div><div class="bg-grid on-dark"></div>
+    <div class="relative section-pad border-b border-white/10">
+      <div class="reveal"><span class="text-xs font-mono uppercase text-stone-500 block mb-2">05 / Interação</span>
+      <h2 class="text-4xl md:text-5xl font-medium tracking-tight text-white">Animações &amp; movimento</h2>
+      <p class="mt-3 text-stone-400 max-w-2xl text-sm md:text-base">Catálogo vivo. Cada cartão mostra nome da classe/keyframe, duração e curva. Use “Repetir” para reexecutar as entradas.</p></div>
+    </div>
+    <div class="relative grid sm:grid-cols-2 lg:grid-cols-3 border-white/10" id="anim-grid">
+
+      <article class="p-6 md:p-8 border-b sm:border-r border-white/10 reveal flashlight-card on-dark"><div class="h-28 flex items-center justify-center"><div class="reveal-demo px-5 py-3 border border-white/20 bg-white/5 reveal" data-replay>.reveal</div></div>
+        <h3 class="font-medium text-white mt-4">Revelação por scroll</h3><dl class="spec mt-2"><dt>Classe</dt><dd>.reveal → .active</dd><dt>Duração</dt><dd>1s</dd><dt>Curva</dt><dd>cubic-bezier(.16,1,.3,1)</dd></dl><button class="btn btn-link mt-3 replay" data-target="reveal">Repetir</button></article>
+
+      <article class="p-6 md:p-8 border-b lg:border-r border-white/10 reveal delay-100 flashlight-card on-dark"><div class="h-28 flex items-center justify-center"><h4 class="text-4xl font-semibold tracking-tighter text-white" data-replay-text><span class="text-reveal-wrapper"><span class="text-reveal-content">Máscara</span></span></h4></div>
+        <h3 class="font-medium text-white mt-4">Texto mascarado</h3><dl class="spec mt-2"><dt>Classe</dt><dd>.text-reveal-wrapper/.content</dd><dt>Duração</dt><dd>1.2s</dd><dt>Curva</dt><dd>expo-out</dd></dl><button class="btn btn-link mt-3 replay" data-target="text">Repetir</button></article>
+
+      <article class="p-6 md:p-8 border-b sm:border-r lg:border-r-0 border-white/10 reveal delay-200 flashlight-card on-dark"><div class="h-28 flex items-center justify-center"><div class="px-5 py-3 bg-white/10 text-white" id="blurin-demo" style="animation:animationIn .8s ease-out both">Blur in</div></div>
+        <h3 class="font-medium text-white mt-4">animationIn (blur + subida)</h3><dl class="spec mt-2"><dt>Keyframe</dt><dd>animationIn</dd><dt>Duração</dt><dd>.8s</dd><dt>Curva</dt><dd>ease-out</dd></dl><button class="btn btn-link mt-3 replay" data-target="blur">Repetir</button></article>
+
+      <article class="p-6 md:p-8 border-b sm:border-r border-white/10 reveal flashlight-card on-dark"><div class="h-28 flex items-center justify-center"><a href="#animacoes" class="beam"><span class="spin"></span><span class="face"><span class="sh"></span><span class="relative z-10">Hover</span></span></a></div>
+        <h3 class="font-medium text-white mt-4">Feixe orbital + shimmer</h3><dl class="spec mt-2"><dt>Keyframes</dt><dd>orbit · shimmer</dd><dt>Duração</dt><dd>2s linear · 1.5s</dd><dt>Curva</dt><dd>linear</dd></dl></article>
+
+      <article class="p-6 md:p-8 border-b lg:border-r border-white/10 reveal delay-100 flashlight-card on-dark"><div class="h-28 flex items-center justify-center overflow-hidden w-full"><div class="marquee-container w-full" style="-webkit-mask-image:linear-gradient(90deg,transparent,#000 20%,#000 80%,transparent);mask-image:linear-gradient(90deg,transparent,#000 20%,#000 80%,transparent)"><div class="marquee-content marquee-fast gap-8 text-stone-300 text-3xl"><iconify-icon icon="simple-icons:nvidia"></iconify-icon><iconify-icon icon="simple-icons:vercel"></iconify-icon><iconify-icon icon="simple-icons:apple"></iconify-icon><iconify-icon icon="simple-icons:stripe"></iconify-icon><iconify-icon icon="simple-icons:spacex"></iconify-icon></div><div class="marquee-content marquee-fast gap-8 text-stone-300 text-3xl" aria-hidden="true"><iconify-icon icon="simple-icons:nvidia"></iconify-icon><iconify-icon icon="simple-icons:vercel"></iconify-icon><iconify-icon icon="simple-icons:apple"></iconify-icon><iconify-icon icon="simple-icons:stripe"></iconify-icon><iconify-icon icon="simple-icons:spacex"></iconify-icon></div></div></div>
+        <h3 class="font-medium text-white mt-4">Marquee com máscara alfa</h3><dl class="spec mt-2"><dt>Keyframe</dt><dd>scroll</dd><dt>Duração</dt><dd>40s (22s rápido)</dd><dt>Curva</dt><dd>linear, infinito</dd></dl></article>
+
+      <article class="p-6 md:p-8 border-b sm:border-r lg:border-r-0 border-white/10 reveal delay-200 flashlight-card on-dark" data-flash><div class="h-28 flex items-center justify-center text-stone-400 text-sm font-mono">Mova o mouse aqui</div>
+        <h3 class="font-medium text-white mt-4">Lanterna (flashlight)</h3><dl class="spec mt-2"><dt>Técnica</dt><dd>radial-gradient + --mouse-x/y</dd><dt>Duração</dt><dd>fade .5s</dd><dt>Curva</dt><dd>ease</dd></dl></article>
+
+      <article class="p-6 md:p-8 border-b sm:border-r border-white/10 reveal flashlight-card on-dark"><div class="h-28 relative overflow-hidden"><div class="absolute inset-0 overflow-hidden"><img alt="" class="w-full h-full object-cover grayscale" style="animation:kb 10s ease-out infinite alternate" src="assets/6c710de5-9712-4c8e-a7db-59ac54_b647957b5aa5.webp"/></div></div>
+        <h3 class="font-medium text-white mt-4">Ken Burns / carrossel</h3><dl class="spec mt-2"><dt>Classe</dt><dd>.carousel-slide</dd><dt>Duração</dt><dd>fade 1.5s · zoom 10s</dd><dt>Curva</dt><dd>ease-in-out / ease-out</dd></dl></article>
+
+      <article class="p-6 md:p-8 border-b lg:border-r border-white/10 reveal delay-100 flashlight-card on-dark"><div class="h-28 flex items-center justify-center"><div class="relative w-24 h-24"><div class="absolute inset-0 rounded-full bg-[#D4FF3A]/40 blur-2xl" style="animation:drift1 6s ease-in-out infinite"></div><div class="absolute inset-3 rounded-full bg-[#9AA7FF]/40 blur-xl" style="animation:drift2 7s ease-in-out infinite"></div></div></div>
+        <h3 class="font-medium text-white mt-4">Aurora à deriva</h3><dl class="spec mt-2"><dt>Classe</dt><dd>.bg-aurora</dd><dt>Duração</dt><dd>18s / 22s</dd><dt>Curva</dt><dd>ease-in-out, infinito</dd></dl></article>
+
+      <article class="p-6 md:p-8 border-b sm:border-r lg:border-r-0 border-white/10 reveal delay-200 flashlight-card on-dark"><div class="h-28 relative overflow-hidden border border-white/10"><div class="bg-grid on-dark" style="-webkit-mask-image:none;mask-image:none"></div></div>
+        <h3 class="font-medium text-white mt-4">Grade em movimento</h3><dl class="spec mt-2"><dt>Classe</dt><dd>.bg-grid</dd><dt>Keyframe</dt><dd>gridpan 6s linear</dd></dl></article>
+
+      <article class="p-6 md:p-8 border-b sm:border-r border-white/10 reveal flashlight-card on-dark"><div class="h-28 flex items-center justify-center"><span class="serif text-5xl shine-text">Brilho</span></div>
+        <h3 class="font-medium text-white mt-4">Texto com brilho</h3><dl class="spec mt-2"><dt>Classe</dt><dd>.shine-text</dd><dt>Duração</dt><dd>7s linear infinito</dd></dl></article>
+
+      <article class="p-6 md:p-8 border-b lg:border-r border-white/10 reveal delay-100 flashlight-card on-dark"><div class="h-28 flex items-center justify-center gap-8 text-[#D4FF3A]"><span class="dot" style="width:.8rem;height:.8rem"></span><iconify-icon class="text-4xl animate-bounce text-white" icon="solar:arrow-down-bold-duotone"></iconify-icon><iconify-icon class="text-4xl animate-spin-slow text-white" icon="solar:record-circle-linear"></iconify-icon></div>
+        <h3 class="font-medium text-white mt-4">Pulso · bounce · giro lento</h3><dl class="spec mt-2"><dt>Classes</dt><dd>.dot · animate-bounce · animate-spin-slow</dd><dt>Duração</dt><dd>1.8s · 1s · 18s</dd></dl></article>
+
+      <article class="p-6 md:p-8 border-b sm:border-r lg:border-r-0 border-white/10 reveal delay-200 flashlight-card on-dark"><div class="h-28 flex items-center justify-center"><iconify-icon class="text-6xl text-white animate-float" icon="solar:stars-minimalistic-bold-duotone"></iconify-icon></div>
+        <h3 class="font-medium text-white mt-4">Flutuar</h3><dl class="spec mt-2"><dt>Classe</dt><dd>animate-float</dd><dt>Duração</dt><dd>6s ease-in-out</dd></dl></article>
+
+      <article class="p-6 md:p-8 border-b sm:border-r border-white/10 reveal flashlight-card on-dark"><div class="h-28 flex items-center justify-center"><div class="eq h-12 flex gap-1.5 items-end"><i></i><i></i><i></i><i></i><i></i></div></div>
+        <h3 class="font-medium text-white mt-4">Equalizador (wave)</h3><dl class="spec mt-2"><dt>Keyframe</dt><dd>wave</dd><dt>Duração</dt><dd>1s, defasado .15s</dd></dl></article>
+
+      <article class="p-6 md:p-8 border-b lg:border-r border-white/10 reveal delay-100 flashlight-card on-dark"><div class="h-28 flex items-center justify-center"><div class="tilt-wrap perspective-distant"><div class="tilt w-32 h-20 bg-white/10 ring-1 ring-white/20 flex items-center justify-center text-white text-xs font-mono" data-tilt>tilt 3D</div></div></div>
+        <h3 class="font-medium text-white mt-4">Tilt 3D</h3><dl class="spec mt-2"><dt>Classes</dt><dd>perspective-distant · rotate-x/y</dd><dt>Duração</dt><dd>.25s ease-out</dd></dl></article>
+
+      <article class="p-6 md:p-8 border-b sm:border-r lg:border-r-0 border-white/10 reveal delay-200 flashlight-card on-dark"><div class="h-28 flex items-center justify-center"><button class="btn btn-signal" data-magnetic>Magnético</button></div>
+        <h3 class="font-medium text-white mt-4">Botão magnético</h3><dl class="spec mt-2"><dt>Técnica</dt><dd>translate até 8px seguindo o cursor</dd><dt>Duração</dt><dd>.5s expo-out</dd></dl></article>
+
+      <article class="p-6 md:p-8 sm:border-r border-white/10 reveal flashlight-card on-dark"><div class="h-28 flex items-center justify-center"><div class="w-full h-2 bg-white/10"><div class="h-full bg-[#D4FF3A] origin-left" style="animation:progress 5s linear infinite"></div></div></div>
+        <h3 class="font-medium text-white mt-4">Barra de progresso</h3><dl class="spec mt-2"><dt>Keyframe</dt><dd>progress</dd><dt>Duração</dt><dd>5s linear</dd></dl></article>
+
+      <article class="p-6 md:p-8 lg:border-r border-white/10 reveal delay-100 flashlight-card on-dark"><div class="h-28 flex items-center justify-center"><div class="glass-panel px-6 py-4 ring-1 ring-white/10 text-white" id="pop-demo" style="animation:pop .7s var(--ease-out) both">Pop</div></div>
+        <h3 class="font-medium text-white mt-4">Pop (modal)</h3><dl class="spec mt-2"><dt>Keyframe</dt><dd>pop</dd><dt>Duração</dt><dd>.7s expo-out</dd></dl><button class="btn btn-link mt-3 replay" data-target="pop">Repetir</button></article>
+
+      <article class="p-6 md:p-8 reveal delay-200 flashlight-card on-dark"><div class="h-28 flex items-center justify-center"><div class="relative w-20 h-20"><svg viewBox="0 0 100 100" class="w-full h-full" style="animation:orbit 10s linear infinite"><circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,.2)" stroke-dasharray="3 6"/><circle cx="50" cy="6" r="5" fill="#D4FF3A"/></svg></div></div>
+        <h3 class="font-medium text-white mt-4">Órbita</h3><dl class="spec mt-2"><dt>Keyframe</dt><dd>orbit</dd><dt>Duração</dt><dd>10s linear</dd></dl></article>
+    </div>
+  </section>
+  </main>
+
+  <!-- RODAPÉ -->
+  <footer class="relative z-10 bg-stone-900 text-stone-200 pt-24 pb-10 overflow-hidden dark-scope">
+    <div class="bg-aurora"></div>
+    <div class="relative px-6 md:px-12 mb-20 text-center reveal">
+      <h2 class="text-4xl sm:text-5xl md:text-7xl font-medium tracking-tighter mb-8 text-white">Construa algo<br/><span class="serif shine-text">extraordinário</span>.</h2>
+      <a class="btn btn-outline" href="#topo">Voltar ao topo <iconify-icon icon="solar:arrow-right-up-linear"></iconify-icon></a>
+    </div>
+    <div class="relative border-t border-stone-800 w-full mb-10"></div>
+    <div class="relative grid grid-cols-1 md:grid-cols-12 px-6 md:px-12 gap-10 md:gap-0">
+      <div class="md:col-span-4"><div class="flex items-center gap-2 mb-4"><iconify-icon class="text-xl" icon="solar:atom-linear"></iconify-icon><span class="font-bold tracking-tight text-lg">ARQ.SYS</span></div><p class="text-stone-500 text-sm max-w-xs">Design system criado para o curso Asimov — Web design com IA. Combina digital-architect e animations-gemini.</p></div>
+      <div class="md:col-span-4"><h4 class="text-xs font-mono uppercase text-stone-500 mb-5">Seções</h4><ul class="space-y-3 text-sm font-medium"><li><a class="hover:text-white transition-colors" href="#tipografia">Tipografia</a></li><li><a class="hover:text-white transition-colors" href="#cores">Cores</a></li><li><a class="hover:text-white transition-colors" href="#componentes">Componentes</a></li><li><a class="hover:text-white transition-colors" href="#icones">Ícones</a></li><li><a class="hover:text-white transition-colors" href="#animacoes">Animações</a></li></ul></div>
+      <div class="md:col-span-4 md:text-right flex md:flex-col justify-between"><iconify-icon class="text-4xl text-stone-700 hidden md:block self-end" icon="solar:globe-linear"></iconify-icon><span class="text-xs text-stone-600">© 2026 Design System Arquitetura Digital</span></div>
+    </div>
+    <div class="relative mt-16 text-center opacity-10 pointer-events-none select-none overflow-hidden" aria-hidden="true"><span class="text-[6rem] sm:text-[12rem] md:text-[18rem] font-bold leading-none tracking-tighter whitespace-nowrap">ARQ.SYS</span></div>
+  </footer>
+</div>
+
+<!-- MODAL -->
+<div class="modal-back" id="modal" aria-hidden="true">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">
+    <div class="bg-aurora soft"></div>
+    <div class="relative">
+      <div class="flex items-start justify-between gap-4 mb-4">
+        <div class="w-12 h-12 rounded-lg bg-stone-900 text-[#D4FF3A] flex items-center justify-center"><iconify-icon class="text-2xl" icon="solar:stars-minimalistic-bold-duotone"></iconify-icon></div>
+        <button class="btn btn-icon !w-10 !h-10" data-close-modal aria-label="Fechar"><iconify-icon class="text-xl" icon="solar:close-circle-linear"></iconify-icon></button>
+      </div>
+      <h3 id="modal-title" class="text-2xl font-medium tracking-tight">Modal do sistema</h3>
+      <p class="text-stone-600 text-sm mt-2 leading-relaxed">Entrada com fade + escala, overlay desfocado e foco preso. Feche com Esc, clique fora ou pelos botões.</p>
+      <div class="field mt-5"><label for="m1">E-mail</label><div class="ctl"><iconify-icon icon="solar:letter-linear"></iconify-icon><input id="m1" type="email" placeholder="voce@email.com"/></div></div>
+      <div class="flex flex-wrap gap-3 mt-6 justify-end"><button class="btn btn-outline" data-close-modal>Cancelar</button><button class="btn btn-primary" data-close-modal>Confirmar</button></div>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes kb{from{transform:scale(1)}to{transform:scale(1.18)}}
+.xs\:inline{}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $ = (s, r=document) => r.querySelector(s), $$ = (s, r=document) => [...r.querySelectorAll(s)];
+
+  /* ---------- Dados: tipografia ---------- */
+  const types = [
+    ['Display','h1','Inter',600,'6rem (96px)','1','-0.05em','none','Arquitetura','font-size:clamp(2.6rem,9vw,6rem)'],
+    ['H1','h1','Inter',600,'4.5rem (72px)','1.05','-0.04em','none','Design vivo','font-size:clamp(2.2rem,7vw,4.5rem)'],
+    ['H2','h2','Inter',500,'3rem (48px)','1.1','-0.03em','none','Design & estratégia','font-size:clamp(1.9rem,5vw,3rem)'],
+    ['H3','h3','Inter',500,'2.25rem (36px)','1.15','-0.025em','none','Estudos de caso','font-size:2.25rem'],
+    ['H4','h4','Inter',500,'1.5rem (24px)','1.25','-0.02em','none','Título de cartão','font-size:1.5rem'],
+    ['H5','h5','Inter',600,'1.125rem (18px)','1.35','-0.01em','none','Subtítulo de bloco','font-size:1.125rem'],
+    ['H6','h6','Inter',600,'0.875rem (14px)','1.4','0.14em','uppercase','Rótulo de grupo','font-size:.875rem'],
+    ['Serifa acento','span','Instrument Serif',400,'3rem (48px)','1.05','-0.01em','none','Detalhe editorial','font-size:3rem'],
+    ['Body LG','p','Inter',400,'1.125rem (18px)','1.65','0','none','Pensamentos sobre a interseção entre design, tecnologia e psicologia humana.','font-size:1.125rem;line-height:1.65'],
+    ['Body','p','Inter',400,'1rem (16px)','1.6','0','none','Texto corrido padrão para parágrafos e descrições de interface.','font-size:1rem;line-height:1.6'],
+    ['Body SM','p','Inter',400,'0.875rem (14px)','1.55','0','none','Texto de apoio, descrições curtas e itens de lista.','font-size:.875rem;line-height:1.55'],
+    ['Legenda','span','Geist Mono',400,'0.75rem (12px)','1.4','0.08em','uppercase','Disponível para o 4º trimestre','font-size:.75rem;letter-spacing:.08em'],
+    ['Rótulo','span','Geist Mono',500,'0.6875rem (11px)','1','0.14em','uppercase','Nome do campo','font-size:.6875rem;letter-spacing:.14em'],
+    ['Ajuda','span','Inter',400,'0.75rem (12px)','1.4','0','none','Texto de ajuda ou mensagem de erro','font-size:.75rem'],
+  ];
+  const tl = $('#type-list');
+  types.forEach((t,i) => {
+    const fam = t[2]==='Inter' ? "'Inter',sans-serif" : t[2]==='Geist Mono' ? "'Geist Mono',monospace" : "'Instrument Serif',serif";
+    const ls = t[6]==='0' ? 'normal' : t[6];
+    const row = document.createElement('div');
+    row.className = 'grid grid-cols-1 md:grid-cols-12 border-b border-stone-300 p-6 md:p-10 gap-4 items-baseline reveal group hover:bg-white/60 transition-colors';
+    row.style.transitionDelay = (i%3*0.08)+'s';
+    row.innerHTML = `<div class="md:col-span-2"><div class="text-xs font-mono text-stone-400 uppercase tracking-widest">${t[0]}</div><div class="text-xs font-mono text-stone-400 mt-1">&lt;${t[1]}&gt;</div></div>
+      <div class="md:col-span-6 min-w-0"><div style="font-family:${fam};font-weight:${t[3]};letter-spacing:${ls};text-transform:${t[7]};line-height:${t[5]};${t[9]}" class="text-stone-900 break-words"></div></div>
+      <dl class="spec md:col-span-4"><dt>família</dt><dd>${t[2]}</dd><dt>peso</dt><dd>${t[3]}</dd><dt>tamanho</dt><dd>${t[4]}</dd><dt>altura</dt><dd>${t[5]}</dd><dt>tracking</dt><dd>${t[6]}</dd><dt>caixa</dt><dd>${t[7]}</dd></dl>`;
+    row.firstElementChild.nextElementSibling.firstElementChild.textContent = t[8];
+    tl.appendChild(row);
+  });
+
+  /* ---------- Dados: cores ---------- */
+  const hex2rgb = h => [1,3,5].map(i => parseInt(h.slice(i,i+2),16));
+  const rgb2hsl = ([r,g,b]) => { r/=255;g/=255;b/=255; const mx=Math.max(r,g,b), mn=Math.min(r,g,b); let h=0,s=0,l=(mx+mn)/2; const d=mx-mn;
+    if(d){ s = l>.5 ? d/(2-mx-mn) : d/(mx+mn); h = mx===r ? (g-b)/d+(g<b?6:0) : mx===g ? (b-r)/d+2 : (r-g)/d+4; h*=60; }
+    return `${Math.round(h)}°, ${Math.round(s*100)}%, ${Math.round(l*100)}%`; };
+  const lum = h => { const c = hex2rgb(h).map(v => { v/=255; return v<=.03928 ? v/12.92 : Math.pow((v+.055)/1.055,2.4); }); return .2126*c[0]+.7152*c[1]+.0722*c[2]; };
+  const ratio = (a,b) => { const x=lum(a), y=lum(b); return (Math.max(x,y)+.05)/(Math.min(x,y)+.05); };
+  const grade = r => r>=7 ? ['AAA','badge-ok'] : r>=4.5 ? ['AA','badge-ok'] : r>=3 ? ['AA grande','badge-warn'] : ['falha','badge-err'];
+  const colors = [
+    ['Tinta','--ink','#1C1C1C','Primária','Texto principal, botão primário, bordas fortes, foco.','Inicia o gradiente “tinta”'],
+    ['Pedra 900','--stone-900','#1C1917','Primária','Superfícies escuras (hero, rodapé, animações), tooltips.','Base de véus e glows'],
+    ['Pedra 700','--stone-700','#44403C','Secundária','Texto secundário, hover do botão primário.','—'],
+    ['Pedra 500','--stone-500','#78716C','Secundária','Metadados, legendas. Em fundo papel só texto grande.','Fim do gradiente “tinta”'],
+    ['Sinal','--signal','#D4FF3A','Acento','Destaque elétrico: botão signal, glows, progresso, dot. Sempre sobre escuro ou com texto escuro.','Início do gradiente “aurora”'],
+    ['Sinal profundo','--signal-deep','#3F5A00','Acento','Versão legível do acento para texto/ícones em fundo claro.','—'],
+    ['Papel','--paper','#EAEAE5','Neutra','Fundo geral da página.','—'],
+    ['Pedra 200','--stone-200','#E7E5E4','Neutra','Superfícies secundárias, campos desabilitados.','—'],
+    ['Pedra 300','--stone-300','#D6D3D1','Neutra','Bordas e divisores 1px.','—'],
+    ['Branco','--white','#FFFFFF','Neutra','Cartões elevados, hover de linhas, campos.','Pico do feixe (shimmer)'],
+    ['Névoa','--mist','#9AA7FF','Decorativa','Apenas brilhos de fundo e gradientes; nunca texto.','Fim do gradiente “aurora”'],
+    ['Sucesso','--ok','#15803D','Feedback','Validação positiva, status online.','—'],
+    ['Alerta','--warn','#B45309','Feedback','Avisos e atenção.','—'],
+    ['Erro','--err','#B91C1C','Feedback','Erros, ações destrutivas.','—'],
+    ['Informação','--info','#1D4ED8','Feedback','Mensagens neutras de sistema.','—'],
+  ];
+  const grid = $('#color-grid');
+  colors.forEach((c,i) => {
+    const [name,token,hex,role,use,grad] = c; const rgb = hex2rgb(hex); const txt = lum(hex)>.4 ? '#1C1917' : '#FFFFFF';
+    const tests = [['Papel','#EAEAE5'],['Branco','#FFFFFF'],['Pedra 900','#1C1917']].map(([n,b]) => { const r = ratio(hex,b); const g = grade(r); return `<li class="flex items-center justify-between gap-2"><span>sobre ${n}</span><span class="flex items-center gap-2">${r.toFixed(2)}:1 <span class="badge ${g[1]}" style="padding:.1rem .45rem">${g[0]}</span></span></li>`; }).join('');
+    const el = document.createElement('div');
+    el.className = 'border-b border-stone-300 sm:border-r reveal flashlight-card group';
+    el.style.transitionDelay = (i%3*.1)+'s';
+    el.innerHTML = `<div class="h-36 p-5 flex flex-col justify-between border-b border-stone-300 relative overflow-hidden transition-transform duration-700" style="background:${hex};color:${txt}">
+        <div class="flex justify-between"><span class="font-bold">${name}</span><span class="badge" style="color:${txt};border-color:currentColor">${role}</span></div>
+        <div class="font-mono text-xs opacity-80">${token}</div></div>
+      <div class="p-5 bg-white/40">
+        <dl class="spec"><dt>HEX</dt><dd>${hex}</dd><dt>RGB</dt><dd>${rgb.join(', ')}</dd><dt>HSL</dt><dd>${rgb2hsl(rgb)}</dd><dt>Gradiente</dt><dd>${grad}</dd></dl>
+        <p class="text-xs text-stone-600 mt-3 leading-relaxed">${use}</p>
+        <ul class="mt-3 text-xs font-mono text-stone-700 space-y-1.5">${tests}</ul>
+      </div>`;
+    grid.appendChild(el);
+  });
+  const strips = $('#opacity-strips');
+  [['Tinta','28,28,28'],['Sinal','212,255,58'],['Branco','255,255,255']].forEach(([n,rgb]) => {
+    const bg = n==='Branco' ? 'background:#1C1917' : 'background:#EAEAE5';
+    strips.insertAdjacentHTML('beforeend', `<div><div class="flex border border-stone-300" style="${bg}">${[100,80,60,40,20,10].map(o=>`<div class="flex-1 h-12 flex items-end justify-center pb-1 text-[10px] font-mono" style="background:rgba(${rgb},${o/100});color:${n==='Branco'||o>=60&&n==='Tinta'?'#fff':'#1C1917'}">${o}</div>`).join('')}</div><p class="spec mt-1"><span>${n}</span><span>rgba(${rgb}, 1 → .1)</span></p></div>`);
+  });
+
+  /* ---------- Ícones ---------- */
+  const names = ['atom','layers-minimalistic','clock-circle','cup-star','arrow-right-up','check-circle','star','heart','palette','pen-new-square','scanner','globe','database','cpu','stars-minimalistic','arrow-right','arrow-down','file-download','record-circle','star-fall','user','letter','lock','magnifer'];
+  const ig = $('#icon-grid'); let sty = 'linear';
+  names.forEach((n,i) => {
+    const c = document.createElement('button');
+    c.className = 'icon-cell flex flex-col items-center gap-4 p-8 border-b border-r border-stone-300 reveal'; c.style.transitionDelay=(i%6*.05)+'s';
+    c.setAttribute('data-n', n); c.setAttribute('aria-label','Copiar nome do ícone '+n);
+    c.innerHTML = `<iconify-icon class="text-3xl text-stone-800" icon="solar:${n}-linear"></iconify-icon><span class="text-xs font-mono text-stone-500">solar:${n}</span>`;
+    c.addEventListener('click', () => { const s = c.querySelector('span'); const t = `solar:${n}-${sty}`; navigator.clipboard && navigator.clipboard.writeText(t).catch(()=>{}); s.textContent='copiado ✓'; setTimeout(()=>s.textContent='solar:'+n, 1200); });
+    ig.appendChild(c);
+  });
+  const setSty = s => { sty = s; $$('.icon-cell').forEach(c => c.querySelector('iconify-icon').setAttribute('icon', `solar:${c.dataset.n}-${s}`));
+    const a=$('#sty-linear'), b=$('#sty-duo'); [[a,'linear'],[b,'bold-duotone']].forEach(([el,k]) => { const on = k===s; el.setAttribute('aria-pressed',on); el.className = 'btn !py-2 !px-4 !text-xs !rounded-full'+(on?' btn-primary':''); el.style.background = on?'':'transparent'; el.style.color = on?'':'var(--ink)'; }); };
+  $('#sty-linear').onclick = () => setSty('linear'); $('#sty-duo').onclick = () => setSty('bold-duotone');
+
+  /* ---------- Reveal / observer ---------- */
+  setTimeout(() => $('header').classList.add('loaded'), 100);
+  setTimeout(() => { $('#hero-title').classList.add('reveal-active'); $$('.hero-intro').forEach(e => e.classList.add('active')); countUp(); }, 500);
+  const io = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){ e.target.classList.add('active'); if(e.target.querySelector('.text-reveal-wrapper')) e.target.classList.add('reveal-active'); io.unobserve(e.target); } }), { threshold: .12 });
+  $$('.reveal').forEach(el => { if(!el.classList.contains('hero-intro')) io.observe(el); });
+  $$('h1,h2,h4').forEach(el => { if(el.querySelector('.text-reveal-content') && el.id!=='hero-title') io.observe(el); });
+
+  /* ---------- Contagem ---------- */
+  function countUp(){ $$('[data-count]').forEach(el => { const to = +el.dataset.count; if(reduce){ el.textContent=to; return; } const t0 = performance.now(); const step = t => { const p = Math.min((t-t0)/1400,1); el.textContent = Math.round(to*(1-Math.pow(1-p,4))); if(p<1) requestAnimationFrame(step); }; requestAnimationFrame(step); }); }
+
+  /* ---------- Carrossel ---------- */
+  const slides = $$('.carousel-slide', $('#hero-carousel')); let cur = 0;
+  setInterval(() => { slides[cur].classList.remove('active'); cur = (cur+1)%slides.length; slides[cur].classList.add('active'); }, 5000);
+
+  /* ---------- Rotator de palavras ---------- */
+  const words = ['respira.','brilha.','se move.','ensina.']; const rot = $('#rotator'); let wi = 0;
+  if(!reduce) setInterval(() => { rot.style.transition='transform .5s cubic-bezier(.16,1,.3,1),opacity .5s'; rot.style.transform='translateY(-110%)'; rot.style.opacity='0';
+    setTimeout(() => { wi=(wi+1)%words.length; rot.textContent=words[wi]; rot.style.transition='none'; rot.style.transform='translateY(110%)'; void rot.offsetWidth; rot.style.transition='transform .6s cubic-bezier(.16,1,.3,1),opacity .6s'; rot.style.transform='none'; rot.style.opacity='1'; }, 520); }, 2800);
+
+  /* ---------- Lanterna do hero + parallax + flashlight ---------- */
+  const hero = $('#hero');
+  hero.addEventListener('pointermove', e => { const r = hero.getBoundingClientRect(); hero.style.setProperty('--hx', (e.clientX-r.left)+'px'); hero.style.setProperty('--hy', (e.clientY-r.top)+'px'); });
+  document.addEventListener('pointermove', e => { const f = e.target.closest && e.target.closest('.flashlight-card'); if(f){ const r = f.getBoundingClientRect(); f.style.setProperty('--mouse-x',(e.clientX-r.left)+'px'); f.style.setProperty('--mouse-y',(e.clientY-r.top)+'px'); } });
+  if(!reduce) window.addEventListener('scroll', () => { const y = scrollY; $$('.parallax-element').forEach(el => el.style.transform = `translateY(${y*(el.dataset.speed||.1)}px)`); }, { passive:true });
+
+  /* ---------- Tilt + magnético ---------- */
+  if(!reduce){
+    $$('[data-tilt]').forEach(el => { el.addEventListener('pointermove', e => { const r = el.getBoundingClientRect(); const x = (e.clientX-r.left)/r.width-.5, y = (e.clientY-r.top)/r.height-.5; el.style.transform = `rotateY(${x*14}deg) rotateX(${-y*14}deg)`; }); el.addEventListener('pointerleave', () => el.style.transform=''); });
+    $$('[data-magnetic]').forEach(el => { el.addEventListener('pointermove', e => { const r = el.getBoundingClientRect(); el.style.translate = `${(e.clientX-r.left-r.width/2)*.18}px ${(e.clientY-r.top-r.height/2)*.28}px`; }); el.addEventListener('pointerleave', () => el.style.translate=''); });
+  }
+
+  /* ---------- Switches ---------- */
+  $$('[data-switch]').forEach(s => s.addEventListener('click', () => s.setAttribute('aria-checked', s.getAttribute('aria-checked')!=='true')));
+
+  /* ---------- Pílula com indicador ---------- */
+  const pill = $('#pill'), ind = $('.ind', pill), links = $$('a', pill);
+  const move = a => { ind.style.width = a.offsetWidth+'px'; ind.style.transform = `translateX(${a.offsetLeft}px)`; };
+  links.forEach(a => { a.addEventListener('mouseenter', () => move(a)); a.addEventListener('focus', () => move(a)); a.addEventListener('click', e => { e.preventDefault(); links.forEach(l => l.removeAttribute('aria-current')); a.setAttribute('aria-current','true'); move(a); }); });
+  pill.addEventListener('mouseleave', () => move($('[aria-current=true]', pill)));
+  const initPill = () => move($('[aria-current=true]', pill)); initPill(); addEventListener('load', initPill); addEventListener('resize', initPill);
+  document.fonts && document.fonts.ready.then(initPill);
+
+  /* ---------- Modal ---------- */
+  const modal = $('#modal'), box = $('.modal-box', modal); let lastFocus = null;
+  const focusables = () => $$('button,a[href],input,select,textarea,[tabindex]:not([tabindex="-1"])', box).filter(e => !e.disabled);
+  const openM = () => { lastFocus = document.activeElement; modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; setTimeout(() => (focusables()[1]||box).focus(), 50); };
+  const closeM = () => { modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); document.body.style.overflow=''; lastFocus && lastFocus.focus(); };
+  $('#open-modal').addEventListener('click', openM);
+  $$('[data-open-modal]').forEach(a => a.addEventListener('click', e => { openM(); }));
+  $$('[data-close-modal]').forEach(b => b.addEventListener('click', closeM));
+  modal.addEventListener('mousedown', e => { if(e.target===modal) closeM(); });
+  document.addEventListener('keydown', e => {
+    if(!modal.classList.contains('open')) return;
+    if(e.key==='Escape') closeM();
+    if(e.key==='Tab'){ const f = focusables(); if(!f.length) return; const a=f[0], z=f[f.length-1]; if(e.shiftKey && document.activeElement===a){ e.preventDefault(); z.focus(); } else if(!e.shiftKey && document.activeElement===z){ e.preventDefault(); a.focus(); } }
+  });
+
+  /* ---------- Repetir animações ---------- */
+  $$('.replay').forEach(b => b.addEventListener('click', () => {
+    const t = b.dataset.target;
+    if(t==='reveal'){ const d = $('.reveal-demo'); d.classList.remove('active'); void d.offsetWidth; setTimeout(()=>d.classList.add('active'),60); }
+    if(t==='text'){ const h = $('[data-replay-text]'); h.classList.remove('reveal-active'); void h.offsetWidth; setTimeout(()=>h.classList.add('reveal-active'),60); }
+    if(t==='blur'){ const d = $('#blurin-demo'); d.style.animation='none'; void d.offsetWidth; d.style.animation='animationIn .8s ease-out both'; }
+    if(t==='pop'){ const d = $('#pop-demo'); d.style.animation='none'; void d.offsetWidth; d.style.animation='pop .7s var(--ease-out) both'; }
+  }));
+});
+</script>
+</body>
+</html>
