@@ -1,0 +1,682 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ARTOOLS Pigmentum 0.1 — Caneta de tinta pigmentada</title>
+<meta name="description" content="ARTOOLS Pigmentum 0.1: ponta 0.1 mm e tinta pigmentada para o detalhe do desenho técnico." />
+<meta name="theme-color" content="#EAEAE5" />
+<!-- Compartilhamento (LinkedIn, WhatsApp, X) -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="ARTOOLS Pigmentum 0.1 — Cada traço, preciso." />
+<meta property="og:description" content="Página de produto conceitual com vídeo controlado pelo scroll, folha de teste interativa e ficha técnica viva." />
+<meta property="og:image" content="assets/img/og-cover.jpg" />
+<meta property="og:locale" content="pt_BR" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="preload" as="image" href="assets/img/hero-poster-inicio.webp" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231C1917' stroke-width='1.6'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 3v18M3 12h18'/%3E%3Ccircle cx='12' cy='12' r='2.5' stroke='%23D6A461'/%3E%3C/svg%3E" />
+
+<!-- Fontes do design system (Monólito): Inter 300–600 · Instrument Serif 400 · Geist Mono 300–700 -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300..700&family=Instrument+Serif&family=Inter:wght@300..600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/lenis@1.1.13/dist/lenis.css" />
+
+<link rel="stylesheet" href="css/main.css" />
+</head>
+
+<body>
+<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+<!-- Progresso do scroll da página -->
+<div class="top-progress" id="topProgress" aria-hidden="true"><span class="fill" id="topFill"></span><span class="head" id="topHead"></span></div>
+
+<!-- ============================ NAVBAR ============================ -->
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="wordmark" href="#hero" aria-label="ARTOOLS — início">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="2.5"/></svg>
+      ARTOOLS
+    </a>
+
+    <nav class="pill-menu" aria-label="Seções do produto" id="pillMenu">
+      <span class="pill-indicator" aria-hidden="true"></span>
+      <!-- [CONFIRMAR] destinos das seções quando as demais partes da página existirem -->
+      <a href="#design" aria-current="true">Design</a>
+      <a href="#ponta">Ponta 0.1</a>
+      <a href="#tinta">Tinta</a>
+      <a href="#especificacoes">Especificações</a>
+    </nav>
+
+    <div class="nav-actions">
+      <!-- [CONFIRMAR] URL de checkout -->
+      <a class="btn-primary" href="#comprar">
+        Comprar agora
+        <span class="circle" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+        </span>
+      </a>
+      <button class="burger" id="burger" aria-expanded="false" aria-controls="mobileMenu" aria-label="Abrir menu">
+        <span><span></span><span></span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobileMenu" aria-label="Menu" role="dialog">
+  <a href="#design">Design <span class="mono">01</span></a>
+  <a href="#ponta">Ponta 0.1 <span class="mono">02</span></a>
+  <a href="#tinta">Tinta <span class="mono">03</span></a>
+  <a href="#especificacoes">Especificações <span class="mono">04</span></a>
+  <div style="padding-top: var(--s-4)">
+    <a class="btn-primary" href="#comprar" style="width:100%; justify-content:space-between">
+      Comprar agora
+      <span class="circle" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></span>
+    </a>
+  </div>
+</div>
+
+<!-- ============================ HERO ============================ -->
+<main id="conteudo">
+  <section class="hero" id="hero" aria-labelledby="hero-title">
+    <div class="hero-sticky grain" id="sticky">
+
+      <!-- Vídeo em tela cheia + tinta (mesmo enquadramento) -->
+      <div class="hero-media" id="heroMedia">
+        <video class="hero-video" id="video" muted playsinline preload="auto" poster="assets/img/hero-poster-inicio.webp" disablepictureinpicture aria-label="A caneta ARTOOLS Pigmentum 0.1 é destampada e desce até um caderno com esboços técnicos"></video>
+        <img class="hero-poster hero-poster-final" src="assets/img/hero-poster-final.webp" alt="A caneta ARTOOLS Pigmentum 0.1 sobre um caderno aberto com esboços técnicos" width="1280" height="720" />
+
+        <svg class="ink" id="ink" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <path id="inkPath" d="" fill="none" stroke="#1C1C1C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle id="inkHead" r="2.2" fill="#1C1C1C" opacity="0"/>
+          <!-- cota de espessura (aparece quando o traço termina) -->
+          <g id="inkCota" opacity="0">
+            <path id="inkCotaPath" d="" fill="none" stroke="#1C1C1C" stroke-opacity=".55" stroke-width="1" vector-effect="non-scaling-stroke"/>
+            <rect id="inkCotaBg" rx="4" fill="#EAEAE5" fill-opacity=".85"/>
+            <text id="inkCotaText" font-family="Geist Mono, ui-monospace, monospace" font-size="15" letter-spacing="1.6" fill="#1C1C1C">0.1 MM</text>
+          </g>
+          <g id="debugLayer"></g>
+        </svg>
+      </div>
+
+      <div class="veil veil-side" aria-hidden="true"></div>
+      <div class="veil veil-top" aria-hidden="true"></div>
+
+      <!-- Indicador de scroll lateral -->
+      <div class="ring" aria-hidden="true">
+        <svg viewBox="0 0 52 52"><circle class="base" cx="26" cy="26" r="24"/><circle class="prog" id="ringProg" cx="26" cy="26" r="24" stroke-dasharray="150.8" stroke-dashoffset="150.8"/></svg>
+        <span id="ringPct">00</span>
+      </div>
+    </div>
+
+      <!-- ---------- Texto: 1ª dobra (rola para fora; a 2ª dobra é só o vídeo) ---------- -->
+      <div class="hero-layout">
+        <div class="hero-inner">
+          <div class="hero-copy" id="heroCopy">
+            <p class="eyebrow mono" id="eyebrow"><span class="pulse" aria-hidden="true"></span>Pigment ink pen · 0.1 mm</p>
+
+            <!--
+              Headline escolhida: "Cada traço, / preciso."
+              Alternativas:
+                A) "Um décimo de milímetro, / absoluto."
+                B) "Onde o detalhe / começa."
+            -->
+            <h1 class="headline" id="hero-title">
+              <span class="h-line">Cada traço,</span>
+              <span class="h-line h-serif">preciso<span class="lume-dot">.</span></span>
+            </h1>
+
+            <p class="lede" id="lede">Ponta de 0.1 mm para o detalhe que o desenho técnico exige. Tinta pigmentada, linha Pigmentum da ARTOOLS.</p>
+
+            <div id="hintWrap"><p class="hint mono" id="hint">
+              <span class="mouse" aria-hidden="true">
+                <svg viewBox="0 0 14 20" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1" y="1" width="12" height="18" rx="6"/><line class="wheel" x1="7" y1="5" x2="7" y2="8" stroke-linecap="round"/></svg>
+              </span>
+              Role para desenhar
+            </p></div>
+
+            <div class="ctas" id="ctas">
+              <span class="cta-wrap" data-magnetic>
+                <span class="btn-beam">
+                  <span class="ring" aria-hidden="true"></span>
+                  <!-- [CONFIRMAR] URL de checkout -->
+                  <a class="btn-primary" href="#comprar">
+                    Comprar agora
+                    <span class="circle" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+                    </span>
+                  </a>
+                </span>
+              </span>
+              <!-- [CONFIRMAR] destino de "Ver detalhes" (seção de especificações) -->
+              <a class="btn-outline" href="#ponta" data-magnetic>
+                Ver detalhes
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+  </section>
+
+  <!-- ===================== 2ª DOBRA — A PONTA =====================
+       Especificações abaixo são FICTÍCIAS (projeto de estudo). -->
+  <section class="s2" id="ponta" aria-labelledby="s2-title">
+
+    <!-- Faixa de lettering transparente (marquee do DS) -->
+    <div class="s2-strip" aria-hidden="true">
+      <div class="marquee-container">
+        <div class="marquee-content">
+          <span class="mq-outline">Precisão</span><i>✦</i><span class="mq-serif">0.1 mm</span><i>✦</i><span class="mq-outline">Pigmento</span><i>✦</i><span class="mq-serif">traço contínuo</span><i>✦</i>
+        </div>
+        <div class="marquee-content">
+          <span class="mq-outline">Precisão</span><i>✦</i><span class="mq-serif">0.1 mm</span><i>✦</i><span class="mq-outline">Pigmento</span><i>✦</i><span class="mq-serif">traço contínuo</span><i>✦</i>
+        </div>
+      </div>
+    </div>
+
+    <div class="s2-body">
+      <!-- Curvas de nível desenhadas com "traços de 0.1 mm" (geradas no JS) -->
+      <svg class="topo" id="topo" viewBox="0 0 1440 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+      <div class="s2-orb" aria-hidden="true"></div>
+
+      <div class="s2-inner" id="s2Inner">
+        <!-- ---------- Texto ---------- -->
+        <div class="s2-copy">
+          <p class="s2-eyebrow s2-in">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true"><path d="M9 2h6v6l-1.5 3h-3L9 8V2Z"/><path d="M10.5 11 12 21l1.5-10"/><path d="M12 21v1.5"/></svg>
+            <span class="mono">02 — A ponta</span>
+          </p>
+
+          <h2 class="s2-title" id="s2-title">
+            <span class="t-line t-sans">Um décimo</span>
+            <span class="t-line t-outline" id="s2Outline">de milímetro</span>
+            <span class="t-line t-serif">absoluto<span class="lume-dot">.</span></span>
+          </h2>
+
+          <p class="s2-lede s2-in" id="s2Lede">Uma ponta de aço calibrada para traçar linhas de um décimo de milímetro, idênticas do primeiro ao último traço. A tinta pigmentada assenta na fibra do papel e fica: à prova d'água e resistente à luz.</p>
+
+          <dl class="s2-specs s2-in">
+            <div class="spec">
+              <dt class="mono">Ponta</dt>
+              <dd><span class="spec-n" data-from="1.0" data-to="0.1" data-dec="1">0.1</span><small>mm</small></dd>
+              <p>aço inox calibrado</p>
+            </div>
+            <div class="spec">
+              <dt class="mono">Traço</dt>
+              <dd><span class="spec-n" data-from="0" data-to="400" data-dec="0">400</span><small>m</small></dd>
+              <p>de linha por carga</p>
+            </div>
+            <div class="spec">
+              <dt class="mono">Secagem</dt>
+              <dd><span class="spec-n" data-from="0" data-to="2" data-dec="0">2</span><small>s</small></dd>
+              <p>sem borrar no marcador</p>
+            </div>
+          </dl>
+
+          <div class="s2-ctas s2-in">
+            <span class="cta-wrap" data-magnetic>
+              <span class="btn-beam">
+                <span class="ring" aria-hidden="true"></span>
+                <a class="btn-primary" href="#comprar">
+                  Comprar agora
+                  <span class="circle" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+                  </span>
+                </a>
+              </span>
+            </span>
+            <a class="link-grow" href="#especificacoes">Ficha técnica completa <span aria-hidden="true">→</span></a>
+          </div>
+        </div>
+
+        <!-- ---------- Colagem ---------- -->
+        <div class="s2-collage" id="collage">
+          <figure class="cc cc-main" data-speed="-50">
+            <div class="cc-in">
+              <div class="cc-img"><img src="assets/img/em-pe.webp" alt="A Pigmentum 0.1 em pé sobre um caderno de esboços técnicos" width="480" height="720" loading="lazy" /></div>
+              <figcaption class="cc-tag"><span class="pulse" aria-hidden="true"></span><span class="mono">Pigmentum 0.1 · em pé</span></figcaption>
+            </div>
+          </figure>
+
+          <div class="cc cc-lume" data-speed="-110">
+            <div class="cc-in">
+              <span class="mono lume-top">Edição Pigmentum</span>
+              <p class="lume-word">Pigmentum</p>
+              <svg class="lume-sign" viewBox="0 0 280 60" fill="none" aria-hidden="true">
+                <path id="lumeSign" d="M8 42c18-26 30-30 38-18s-6 26 4 20 18-34 32-30-4 30 10 26 20-28 34-24c10 3-2 22 10 20s22-22 38-20 8 18 22 14 22-16 40-14 26 6 36 2" stroke="#D6A461" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="mono lume-bottom">Pigment ink pen · 0.1</span>
+            </div>
+          </div>
+
+          <figure class="cc cc-ponta" data-speed="60">
+            <div class="cc-in">
+              <div class="cc-img"><img src="assets/img/ponta.webp" alt="Detalhe da ponta de 0.1 mm tocando o papel" width="480" height="480" loading="lazy" /></div>
+              <svg class="ponta-ring" viewBox="0 0 240 240" aria-hidden="true">
+                <circle id="pontaRing" cx="102" cy="202" r="26" fill="none" stroke="#D6A461" stroke-width="1.5" transform="rotate(-90 102 202)"/>
+                <path id="pontaLead" d="M124 188 L176 140 H232" fill="none" stroke="#1C1917" stroke-opacity=".6" stroke-width="1"/>
+              </svg>
+              <figcaption class="cc-label mono">Detalhe A · Ø 0.1 mm</figcaption>
+            </div>
+          </figure>
+
+          <figure class="cc cc-float" data-speed="-20">
+            <div class="cc-in">
+              <div class="cc-img"><img src="assets/img/flutuar.webp" alt="A Pigmentum 0.1 flutuando com a tampa" width="880" height="440" loading="lazy" /></div>
+              <figcaption class="cc-label mono">Corpo · 12 g</figcaption>
+            </div>
+          </figure>
+
+          <div class="cc cc-chip" data-speed="-160">
+            <div class="cc-in"><span class="pulse" aria-hidden="true"></span>Tinta pigmentada · à prova d'água</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 3ª DOBRA — A TINTA (capítulo escuro) =====================
+       Especificações abaixo são FICTÍCIAS (projeto de estudo). -->
+  <section class="s3" id="tinta" aria-labelledby="s3-title">
+    <div class="s3-ink" aria-hidden="true"></div>          <!-- mancha de tinta que se espalha ao entrar -->
+    <div class="s3-grain grain" aria-hidden="true"></div>
+    <div class="s3-orb s3-orb-a" aria-hidden="true"></div>
+    <div class="s3-orb s3-orb-b" aria-hidden="true"></div>
+    <div class="s3-giant" aria-hidden="true"><span>Pigmento</span><span class="serif">pigmento</span><span>Pigmento</span></div>
+
+    <div class="s3-inner" id="s3Inner">
+      <!-- ---------- Cabeçalho ---------- -->
+      <header class="s3-head">
+        <div>
+          <p class="s3-eyebrow s3-in">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c3.5 4.2 6 7.6 6 10.6A6 6 0 0 1 6 13.6C6 10.6 8.5 7.2 12 3Z"/><path d="M9.2 14.2a2.9 2.9 0 0 0 2.6 2.6"/></svg>
+            <span class="mono">03 — A tinta</span>
+          </p>
+          <h2 class="s3-title" id="s3-title">
+            <span class="t-line t-sans">Uma vez no papel,</span>
+            <span class="t-line t-serif">para sempre<span class="lume-dot">.</span></span>
+          </h2>
+        </div>
+        <div class="s3-head-side s3-in">
+          <p class="s3-lede">Pigmento de alta densidade em suspensão: preto profundo, seca em 2 segundos e não cede à água nem à luz. Não acredite em nós — <em>teste na folha</em>.</p>
+          <span class="s3-hint mono"><span class="pulse" aria-hidden="true"></span>A folha é interativa</span>
+        </div>
+      </header>
+
+      <div class="s3-grid">
+        <!-- ---------- Folha de teste ---------- -->
+        <div class="s3-lab s3-in-card">
+          <div class="pad" id="padWrap">
+            <div class="pad-top">
+              <span class="mono">Folha 03 · teste de tinta</span>
+              <span class="mono pad-paper">Papel 90 g/m²</span>
+            </div>
+            <svg class="pad-svg" id="pad" viewBox="0 0 600 420" role="img" aria-label="Folha de teste: desenhe com o mouse ou o dedo">
+              <defs>
+                <pattern id="padDots" width="15" height="15" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1.1" fill="#D6D3D1"/></pattern>
+                <filter id="bleed" x="-20%" y="-60%" width="140%" height="220%">
+                  <feTurbulence type="fractalNoise" baseFrequency=".045" numOctaves="2" seed="7" result="n"/>
+                  <feDisplacementMap id="bleedMap" in="SourceGraphic" in2="n" scale="0" xChannelSelector="R" yChannelSelector="G" result="d"/>
+                  <feGaussianBlur id="bleedBlur" in="d" stdDeviation="0"/>
+                </filter>
+                <filter id="wobble"><feTurbulence type="fractalNoise" baseFrequency=".02" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="22"/></filter>
+              </defs>
+              <rect width="600" height="420" fill="url(#padDots)"/>
+
+              <!-- esboço pré-desenhado com a Pigmentum -->
+              <g id="preset" fill="none" stroke="#1C1C1C" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+                <path class="sk" d="M70 250 L170 205 L280 240 L180 292 Z"/>
+                <path class="sk" d="M70 250 V150 L170 105 V205 M170 105 L280 140 V240 M70 150 L180 192 L280 140 M180 192 V292"/>
+                <path class="sk" d="M90 160 L90 236 M110 168 V244 M130 176 V252 M150 184 V260"/>
+                <path class="sk" d="M196 194 L264 162 M196 210 L264 178 M196 226 L264 194 M196 242 L264 210 M196 258 L264 226"/>
+                <path class="sk" d="M40 300 H320 M40 296 V304 M320 296 V304"/>
+              </g>
+              <text class="pad-label" x="40" y="326">PIGMENTUM 0.1 · TRAÇO SECO</text>
+
+              <!-- amostra de tinta comum (vai borrar na água) -->
+              <g id="common" filter="url(#bleed)">
+                <path id="commonPath" d="M372 210 C 400 170, 430 250, 460 205 S 520 175, 552 220" fill="none" stroke="#1C1C1C" stroke-width="2.6" stroke-linecap="round"/>
+                <path d="M372 250 H552" fill="none" stroke="#1C1C1C" stroke-width="2.6" stroke-linecap="round"/>
+              </g>
+              <text class="pad-label" x="372" y="282">TINTA COMUM</text>
+
+              <g id="userInk" fill="none" stroke-linecap="round" stroke-linejoin="round"></g>
+              <g id="water" filter="url(#wobble)" pointer-events="none"></g>
+            </svg>
+            <div class="pad-strap" aria-hidden="true"></div>
+            <span class="pad-cursor-hint mono" id="padHint" aria-hidden="true">Desenhe aqui ↘</span>
+          </div>
+
+          <!-- Medidor + controles -->
+          <div class="lab-bar">
+            <div class="meter">
+              <div><span class="mono">Seu traço</span><strong id="mLen">0.0<small>cm</small></strong></div>
+              <div><span class="mono">Restam na carga</span><strong id="mLeft">400.0000<small>m</small></strong></div>
+              <div><span class="mono">Carga usada</span><strong id="mPct">0.00000<small>%</small></strong></div>
+            </div>
+            <div class="lab-actions">
+              <button class="btn-glass" id="btnWater" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 3c3.5 4.2 6 7.6 6 10.6A6 6 0 0 1 6 13.6C6 10.6 8.5 7.2 12 3Z"/></svg>
+                Derramar água
+              </button>
+              <button class="btn-text" id="btnClear" type="button">Limpar folha</button>
+            </div>
+            <p class="lab-status mono" id="labStatus" aria-live="polite">Tinta molhada em Lume · seca para o preto em 2 s</p>
+          </div>
+
+          <!-- Lente de microscopia -->
+          <div class="lens" aria-hidden="true">
+            <canvas id="lensCanvas" width="440" height="440"></canvas>
+            <svg class="lens-ring" viewBox="0 0 200 200">
+              <defs><path id="lensCircle" d="M100 100 m-88 0 a88 88 0 1 1 176 0 a88 88 0 1 1 -176 0"/></defs>
+              <text><textPath href="#lensCircle">MICROSCOPIA DO PIGMENTO · ×400 · ASSENTANDO NA FIBRA · </textPath></text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- ---------- Propriedades ---------- -->
+        <ul class="props" role="list">
+          <li class="prop flashlight-card s3-in-card" data-flashlight>
+            <div class="prop-ico ico-pigment" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <span class="mono">Pigmento</span>
+            <strong>0.2<small>µm</small></strong>
+            <p>Partículas que não penetram: assentam e se fixam na fibra do papel.</p>
+          </li>
+          <li class="prop flashlight-card s3-in-card" data-flashlight>
+            <div class="prop-ico" aria-hidden="true">
+              <svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="18" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="2"/><circle class="ring-dash" cx="24" cy="24" r="18" fill="none" stroke="#D6A461" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <span class="mono">Secagem</span>
+            <strong>2<small>s</small></strong>
+            <p>Seca ao toque em dois segundos. Sem borrão na mão de quem desenha.</p>
+          </li>
+          <li class="prop flashlight-card s3-in-card" data-flashlight>
+            <div class="prop-ico ico-drop" aria-hidden="true">
+              <span class="radar"></span><span class="radar r2"></span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="#D6A461" stroke-width="1.4"><path d="M12 3c3.5 4.2 6 7.6 6 10.6A6 6 0 0 1 6 13.6C6 10.6 8.5 7.2 12 3Z"/></svg>
+            </div>
+            <span class="mono">À prova d'água</span>
+            <strong>100<small>%</small></strong>
+            <p>Passe aquarela ou marcador por cima: o traço continua lá.</p>
+          </li>
+          <li class="prop flashlight-card s3-in-card" data-flashlight>
+            <div class="prop-ico ico-sun" aria-hidden="true">
+              <svg viewBox="0 0 48 48" fill="none" stroke="#D6A461" stroke-width="1.6" stroke-linecap="round"><circle cx="24" cy="24" r="7"/><g class="rays"><path d="M24 6v5M24 37v5M6 24h5M37 24h5M11.3 11.3l3.5 3.5M33.2 33.2l3.5 3.5M11.3 36.7l3.5-3.5M33.2 14.8l3.5-3.5"/></g></svg>
+            </div>
+            <span class="mono">Resistente à luz</span>
+            <strong>8<small>/8</small></strong>
+            <p>Escala Blue Wool 8: não desbota sob luz direta, nem com os anos.</p>
+          </li>
+        </ul>
+      </div>
+
+      <div class="s3-foot s3-in">
+        <span class="cta-wrap" data-magnetic>
+          <span class="btn-beam">
+            <span class="ring" aria-hidden="true"></span>
+            <a class="btn-primary btn-on-dark" href="#comprar">
+              Quero essa tinta
+              <span class="circle" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+              </span>
+            </a>
+          </span>
+        </span>
+        <span class="mono s3-foot-note">Tinta pigmentada · preto 0.1 · carga de 400 m</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 4ª DOBRA — ESPECIFICAÇÕES (ficha técnica viva) =====================
+       Medidas, materiais, preços e políticas abaixo são FICTÍCIOS (projeto de estudo). -->
+  <section class="s4" id="especificacoes" aria-labelledby="s4-title">
+    <div class="s4-stage" id="s4Stage">
+      <div class="s4-paper" aria-hidden="true"></div>
+      <div class="s4-inner">
+        <div class="s4-main">
+          <header class="s4-head">
+            <p class="s4-eyebrow s4-in">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 2v20M2 12h20"/></svg>
+              <span class="mono">04 — Especificações</span>
+            </p>
+            <h2 class="s4-title" id="s4-title">
+              <span class="t-line t-sans">Projetada como</span>
+              <span class="t-line"><span class="t-serif">um desenho</span> <span class="t-outline">técnico.</span></span>
+            </h2>
+          </header>
+
+          <!-- Desenho técnico (vista explodida) -->
+          <figure class="bp-wrap s4-in">
+            <svg class="bp" id="bp" viewBox="140 40 1060 400" role="img" aria-labelledby="bpTitle">
+              <title id="bpTitle">Desenho técnico da Pigmentum 0.1: tampa com clipe, corpo, cartucho de pigmento, ponta de 0.1 mm e tampa traseira, em vista explodida</title>
+              <path class="bp-axis" d="M160 210 H1180"/>
+
+              <!-- 06 · tampa traseira -->
+              <g class="part" data-part="6" id="pPlug">
+                <path class="bp-fill" d="M1050 185 H1080 Q1090 185 1090 195 V225 Q1090 235 1080 235 H1050 Z"/>
+                <path class="bp-line" d="M1050 185 H1080 Q1090 185 1090 195 V225 Q1090 235 1080 235 H1050"/>
+                <path class="bp-line thin" d="M1060 185 V235"/>
+              </g>
+              <!-- 03 · corpo -->
+              <g class="part" data-part="3" id="pBody">
+                <path class="bp-fill" d="M440 182 L452 177 H1050 V243 H452 L440 238 Z"/>
+                <path class="bp-line" d="M440 182 L452 177 H1050 V243 H452 L440 238 Z"/>
+                <path class="bp-line thin" d="M600 177 V243 M612 177 V243"/>
+                <text class="bp-text" x="700" y="214">ARTOOLS · PIGMENTUM · 0.1</text>
+              </g>
+              <!-- 04 · cartucho (linha oculta, tracejada) -->
+              <g class="part" data-part="4" id="pCart">
+                <path class="bp-hidden" d="M470 192 H1032 V228 H470 Z M486 192 V228"/>
+              </g>
+              <!-- 05 · ponta -->
+              <g class="part" data-part="5" id="pNib">
+                <path class="bp-line" d="M440 182 L404 197 V223 L440 238"/>
+                <path class="bp-line" d="M404 205 H380 V215 H404"/>
+                <path class="bp-line" d="M380 209 L354 209.6 L351 210 L354 210.4 L380 211"/>
+              </g>
+              <!-- 01 · tampa + 02 · clipe -->
+              <g id="pCapGroup">
+                <g class="part" data-part="1" id="pCap">
+                  <path class="bp-fill" d="M346 172 H474 V248 H346 Q330 248 330 232 V188 Q330 172 346 172 Z"/>
+                  <path class="bp-line" d="M346 172 H474 V248 H346 Q330 248 330 232 V188 Q330 172 346 172 Z"/>
+                  <rect class="bp-line thin" x="362" y="198" width="34" height="24" rx="3"/>
+                  <path class="bp-line thin" d="M462 172 V248"/>
+                </g>
+                <g class="part" data-part="2" id="pClip">
+                  <path class="bp-line" d="M354 172 V160 Q354 154 362 154 H448 Q456 154 456 162 V166"/>
+                  <circle class="bp-line" cx="452" cy="168" r="4"/>
+                </g>
+              </g>
+
+              <!-- cotas -->
+              <g id="bpDims">
+                <g id="bpDimOverall">
+                  <path class="bp-dim" d="M330 254 V308 M1090 254 V308 M330 298 H664 M756 298 H1090 M324 304 L336 292 M1084 304 L1096 292"/>
+                  <text class="bp-dimtext" x="710" y="303" text-anchor="middle">142 mm</text>
+                </g>
+                <path class="bp-dim" d="M1000 140 V177 M1000 243 V280 M995 170 L1000 177 L1005 170 M995 250 L1000 243 L1005 250"/>
+                <text class="bp-dimtext" x="1012" y="146">Ø 9.5</text>
+              </g>
+              <g id="bpNibDim">
+                <path class="bp-dim lume" d="M352 210 L330 292 H214"/>
+                <text class="bp-dimtext lume-t" x="216" y="284">Ø 0.1 mm</text>
+              </g>
+
+              <!-- balões numerados -->
+              <g id="bpBalloons">
+                <g class="balloon" data-part="1"><path d="M250 172 V100"/><circle cx="250" cy="86" r="14"/><text x="250" y="90.5">1</text></g>
+                <g class="balloon" data-part="2"><path d="M300 154 L332 100"/><circle cx="340" cy="86" r="14"/><text x="340" y="90.5">2</text></g>
+                <g class="balloon" data-part="5"><path d="M420 197 L462 122"/><circle cx="470" cy="108" r="14"/><text x="470" y="112.5">5</text></g>
+                <g class="balloon" data-part="3"><path d="M720 177 V100"/><circle cx="720" cy="86" r="14"/><text x="720" y="90.5">3</text></g>
+                <g class="balloon" data-part="4"><path d="M860 228 V330"/><circle cx="860" cy="344" r="14"/><text x="860" y="348.5">4</text></g>
+                <g class="balloon" data-part="6"><path d="M1140 185 L1150 110"/><circle cx="1150" cy="96" r="14"/><text x="1150" y="100.5">6</text></g>
+              </g>
+
+              <!-- carimbo -->
+              <g id="bpTitleBlock">
+                <path class="bp-dim" d="M920 376 H1190 V430 H920 Z M920 403 H1190 M1070 376 V430"/>
+                <text class="bp-tb strong" x="930" y="394">ARTOOLS</text><text class="bp-tb" x="1080" y="394">FOLHA 04</text>
+                <text class="bp-tb" x="930" y="421">PIGMENTUM 0.1</text><text class="bp-tb" x="1080" y="421">ESC. 2:3</text>
+              </g>
+            </svg>
+            <figcaption class="bp-cap mono"><span class="pulse" aria-hidden="true"></span>Vista explodida · explore as peças</figcaption>
+          </figure>
+        </div>
+
+        <!-- Tabela de componentes + medidas -->
+        <aside class="s4-side s4-in" aria-label="Componentes e medidas">
+          <span class="mono s4-side-title">Componentes</span>
+          <ol class="parts" role="list">
+            <li class="part-row" data-part="1" tabindex="0"><span class="n">01</span><span class="t">Tampa</span><span class="d">Policarbonato fosco, com janela</span></li>
+            <li class="part-row" data-part="2" tabindex="0"><span class="n">02</span><span class="t">Clipe</span><span class="d">Aço inox com mola</span></li>
+            <li class="part-row" data-part="3" tabindex="0"><span class="n">03</span><span class="t">Corpo</span><span class="d">Resina fosca · pega anelada</span></li>
+            <li class="part-row" data-part="4" tabindex="0"><span class="n">04</span><span class="t">Cartucho</span><span class="d">Pigmento preto · 400 m</span></li>
+            <li class="part-row" data-part="5" tabindex="0"><span class="n">05</span><span class="t">Ponta</span><span class="d">Aço inox calibrado · Ø 0.1 mm</span></li>
+            <li class="part-row" data-part="6" tabindex="0"><span class="n">06</span><span class="t">Tampa traseira</span><span class="d">Vedação contra ressecamento</span></li>
+          </ol>
+          <dl class="measures">
+            <div><dt class="mono">Comprimento</dt><dd>142<small>mm</small></dd></div>
+            <div><dt class="mono">Diâmetro</dt><dd>9.5<small>mm</small></dd></div>
+            <div><dt class="mono">Peso</dt><dd>12<small>g</small></dd></div>
+            <div><dt class="mono">Traço</dt><dd>0.1<small>mm</small></dd></div>
+          </dl>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FECHAMENTO — COMPRAR ===================== -->
+  <section class="s5" id="comprar" aria-labelledby="s5-title">
+    <div class="s5-inner">
+      <div class="s5-visual s5-in" aria-hidden="true">
+        <div class="s5-halo"></div>
+        <img class="s5-pen" src="assets/img/flutuar.webp" alt="" width="880" height="440" loading="lazy" />
+        <div class="s5-shadow"></div>
+        <span class="s5-tag mono"><span class="pulse"></span>Em estoque</span>
+      </div>
+
+      <div class="s5-buy">
+        <p class="s4-eyebrow s5-in"><span class="mono">05 — Sua Pigmentum</span></p>
+        <h2 class="s5-title" id="s5-title"><span class="t-line t-sans">Seu próximo traço</span><span class="t-line t-serif">começa aqui<span class="lume-dot">.</span></span></h2>
+
+        <form class="packs s5-in" id="packs" onsubmit="event.preventDefault()">
+          <fieldset>
+            <legend class="mono">Escolha o kit</legend>
+            <label class="pack">
+              <input type="radio" name="pack" value="24.90" data-units="1" />
+              <span class="pack-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6.5 5 9l5-6"/></svg></span>
+              <span class="pack-name">Unidade<small>1 caneta</small></span>
+              <span class="pack-price">R$ 24,90</span>
+            </label>
+            <label class="pack">
+              <input type="radio" name="pack" value="64.90" data-units="3" />
+              <span class="pack-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6.5 5 9l5-6"/></svg></span>
+              <span class="pack-name">Kit Estúdio<small>3 canetas · economize 13%</small></span>
+              <span class="pack-price">R$ 64,90</span>
+            </label>
+            <label class="pack">
+              <input type="radio" name="pack" value="99.90" data-units="5" checked />
+              <span class="pack-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6.5 5 9l5-6"/></svg></span>
+              <span class="pack-name">Kit Ateliê<small>5 canetas · economize 20%</small></span>
+              <span class="pack-price">R$ 99,90</span>
+              <span class="pack-badge mono">Mais escolhido</span>
+            </label>
+          </fieldset>
+
+          <div class="total">
+            <div>
+              <span class="mono">Total</span>
+              <strong id="total">R$ 99,90</strong>
+              <span class="total-sub" id="totalSub">ou 3× de R$ 33,30 sem juros · R$ 19,98 por caneta</span>
+            </div>
+            <span class="cta-wrap" data-magnetic>
+              <span class="btn-beam">
+                <span class="ring" aria-hidden="true"></span>
+                <!-- [CONFIRMAR] integração com o checkout -->
+                <button class="btn-primary" type="submit" id="buyBtn">
+                  Comprar agora
+                  <span class="circle" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+                  </span>
+                </button>
+              </span>
+            </span>
+          </div>
+          <p class="buy-msg mono" id="buyMsg" aria-live="polite"></p>
+        </form>
+
+        <ul class="trust s5-in" role="list">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.6"/><circle cx="17" cy="17.5" r="1.6"/></svg>Envio em 24 h</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4"/></svg>Troca em 30 dias</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M12 3 5 6v5c0 4.4 3 8.3 7 10 4-1.7 7-5.6 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg>Garantia de 1 ano</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== RODAPÉ ===================== -->
+  <footer class="ft" id="rodape">
+    <svg class="ft-ink" viewBox="0 0 1440 120" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <path id="ftInk" d="M-10 70 C 120 20, 220 110, 340 64 S 560 18, 700 62 S 900 110, 1040 58 S 1260 24, 1380 66 L 1452 66" fill="none" stroke="#D6A461" stroke-width="1.6" stroke-linecap="round"/>
+      <circle id="ftInkDot" cx="1380" cy="66" r="3.5" fill="#D6A461"/>
+    </svg>
+    <div class="ft-inner">
+      <div class="ft-cols">
+        <div class="ft-brand">
+          <a class="wordmark" href="#hero" aria-label="ARTOOLS — voltar ao início">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="2.5"/></svg>
+            ARTOOLS
+          </a>
+          <p>Pigmentum 0.1 — para quem pensa em décimos de milímetro.</p>
+        </div>
+        <nav class="ft-nav" aria-label="Rodapé">
+          <span class="mono">Produto</span>
+          <a href="#hero">Design</a><a href="#ponta">Ponta 0.1</a><a href="#tinta">Tinta</a><a href="#especificacoes">Especificações</a>
+        </nav>
+        <nav class="ft-nav" aria-label="Atendimento">
+          <span class="mono">Atendimento</span>
+          <!-- [CONFIRMAR] links de atendimento -->
+          <a href="#rodape">Central de ajuda</a><a href="#rodape">Trocas e devoluções</a><a href="#rodape">Rastrear pedido</a>
+        </nav>
+        <form class="ft-news" id="news" onsubmit="event.preventDefault()">
+          <span class="mono">Lançamentos</span>
+          <div class="ft-field">
+            <input id="newsEmail" type="email" placeholder=" " required autocomplete="email" />
+            <label for="newsEmail">Seu e-mail</label>
+            <span class="bar" aria-hidden="true"></span>
+            <button type="submit" aria-label="Inscrever">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </button>
+          </div>
+          <p class="ft-news-msg mono" id="newsMsg" aria-live="polite"></p>
+        </form>
+      </div>
+      <div class="ft-giant" aria-hidden="true">ARTOOLS</div>
+      <div class="ft-bottom">
+        <span class="mono">© 2026 ARTOOLS · Projeto de estudo · Curso Asimov · <a class="ft-ds" href="design-system/">Design system ↗</a></span>
+        <button class="ft-top mono" id="toTop" type="button" data-magnetic>Voltar ao topo
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+        </button>
+      </div>
+    </div>
+  </footer>
+</main>
+
+<div class="cursor" id="cursor" aria-hidden="true"><span id="cursorText">Role</span></div>
+
+<!-- Stack (versões exatas) -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/DrawSVGPlugin.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+
+<script src="js/main.js"></script>
+</body>
+</html>

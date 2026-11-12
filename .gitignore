@@ -1,0 +1,14 @@
+# Sistema operacional
+.DS_Store
+__MACOSX/
+Thumbs.db
+desktop.ini
+
+# Editores
+.vscode/
+.idea/
+
+# Dependências e ferramentas
+node_modules/
+.vercel/
+*.log
