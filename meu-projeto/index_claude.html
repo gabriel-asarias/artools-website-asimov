@@ -29,6 +29,7 @@
   --pedra-500: #78716C;
   --pedra-400: #A8A29E;
   --pedra-300: #D6D3D1;     /* Bordas */
+  --pedra-100: #F5F5F4;     /* Faixas */
   --branco: #FFFFFF;
 
   /* Variações de opacidade (DS: 100/80/60/40/20/10) */
@@ -121,6 +122,12 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   transition: opacity var(--dur-in) ease-out, transform var(--dur-in) ease-out;
 }
 .nav.loaded { opacity: 1; transform: none; }
+.nav::before { /* fundo de vidro (header do DS: bg-[#EAEAE5]/85 + backdrop-blur) — só quando o conteúdo passa por baixo */
+  content: ""; position: absolute; inset: 0; z-index: -1; opacity: 0; pointer-events: none;
+  background: rgba(234, 234, 229, .85); backdrop-filter: blur(var(--blur-glass)); -webkit-backdrop-filter: blur(var(--blur-glass));
+  border-bottom: 1px solid var(--pedra-300); transition: opacity var(--dur-base) var(--ease-architect);
+}
+.nav.solid::before { opacity: 1; }
 .nav-inner {
   max-width: 1400px; height: 100%; margin: 0 auto; padding: 0 var(--gutter);
   display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: var(--s-4);
@@ -323,6 +330,148 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 @media (max-width: 768px) and (max-height: 700px) { .lede { display: none; } }
 
+/* =====================================================================
+   2ª DOBRA — A PONTA
+   ===================================================================== */
+.s2 { position: relative; z-index: 2; background: var(--osso); border-top: 1px solid var(--pedra-300); }
+
+/* Faixa marquee com lettering transparente (DS: .marquee-container / .text-outline) */
+.marquee-container { display: flex; overflow: hidden; user-select: none; }
+.marquee-content { flex-shrink: 0; display: flex; justify-content: space-around; align-items: center; min-width: 100%; animation: scroll 40s linear infinite; }
+@keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+.s2-strip { padding: var(--s-6) 0; border-bottom: 1px solid var(--pedra-300); background: var(--pedra-100, #F5F5F4); }
+.s2-strip i { font-style: normal; color: var(--lume); font-size: 1.25rem; margin: 0 var(--s-4); }
+.mq-outline, .mq-serif { font-size: clamp(2.5rem, 5vw, 4.5rem); line-height: 1; margin: 0 var(--s-6); white-space: nowrap; }
+.mq-outline { font-weight: 600; letter-spacing: var(--tracking-tighter); color: transparent; -webkit-text-stroke: 1px rgba(28, 28, 28, .32); }
+.mq-serif { font-family: var(--font-serif); color: var(--tinta); }
+
+.s2-body { position: relative; overflow: hidden; isolation: isolate; }
+.topo { position: absolute; top: -90px; left: 0; width: 100%; height: calc(100% + 180px); z-index: 0; pointer-events: none; }   /* folga p/ o parallax */
+.topo path { fill: none; stroke: var(--grafite); stroke-opacity: .13; stroke-width: 1; vector-effect: non-scaling-stroke; }
+.topo path.lume { stroke: var(--lume); stroke-opacity: .75; stroke-width: 1.2; }
+.topo g { transform-box: fill-box; transform-origin: center; animation: topoDrift 60s linear infinite; }
+.topo g + g { animation-duration: 80s; animation-direction: reverse; }
+@keyframes topoDrift { to { transform: rotate(360deg); } }
+.s2-orb { position: absolute; z-index: 0; width: 640px; height: 640px; right: -120px; top: 10%; border-radius: var(--radius-full); filter: blur(70px); pointer-events: none;
+  background: radial-gradient(circle, rgba(255,255,255,.9), transparent 65%); animation: orbDrift 22s ease-in-out infinite alternate; }
+@keyframes orbDrift { 0% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(8%,-10%,0) scale(1.15); } 100% { transform: translate3d(-10%,6%,0) scale(.95); } }
+
+.s2-inner {
+  position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 16vh var(--gutter) 18vh;
+  display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 4vw; align-items: center;
+  will-change: transform, filter, opacity;
+}
+
+/* ---------- Texto ---------- */
+.s2-eyebrow { display: inline-flex; align-items: center; gap: var(--s-3); margin: 0 0 var(--s-6); color: var(--tinta); }
+.s2-eyebrow svg { width: 20px; height: 20px; }
+.s2-eyebrow .mono { letter-spacing: var(--tracking-overline); font-size: .6875rem; }
+.s2-title { margin: 0; text-transform: uppercase; line-height: .9; font-size: clamp(2.6rem, 5.4vw, 5.6rem); }
+.s2-title .t-line { display: block; }
+.s2-title .t-sans { font-weight: 600; letter-spacing: var(--tracking-tighter); }
+.s2-title .t-outline { /* DS .text-outline-fill: lettering transparente que se preenche */
+  font-weight: 600; letter-spacing: var(--tracking-tighter);
+  color: transparent; -webkit-text-stroke: 1px rgba(28, 28, 28, .45);
+  background: linear-gradient(90deg, var(--tinta) 0 50%, transparent 50% 100%); background-size: 200% 100%; background-position: 100% 0;
+  -webkit-background-clip: text; background-clip: text;
+  transition: background-position 1.2s var(--ease-architect);
+}
+.s2-title .t-outline.is-filled, .s2-title .t-outline:hover { background-position: 0 0; }
+.s2-title .t-serif { font-family: var(--font-serif); font-weight: 400; letter-spacing: -0.01em; font-size: 1.08em; line-height: .95; }
+.s2-title .lume-dot { color: var(--lume); }
+.s2-lede { margin: var(--s-6) 0 0; max-width: 30rem; font-size: 1.0625rem; line-height: 1.6; color: var(--grafite-80); }
+
+.s2-specs { margin: var(--s-8) 0 0; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--pedra-300); border-bottom: 1px solid var(--pedra-300); }
+.spec { padding: var(--s-5) var(--s-4) var(--s-5) 0; }
+.spec + .spec { padding-left: var(--s-4); border-left: 1px solid var(--pedra-300); }
+.spec dt { color: var(--grafite-80); font-size: .625rem; letter-spacing: .18em; }
+.spec dd { margin: var(--s-2) 0 0; font-size: clamp(1.75rem, 2.6vw, 2.5rem); font-weight: 500; letter-spacing: var(--tracking-tighter); line-height: 1; font-variant-numeric: tabular-nums; }
+.spec dd small { font-size: .45em; margin-left: 3px; letter-spacing: 0; color: var(--grafite-80); }
+.spec p { margin: var(--s-2) 0 0; font-size: .8125rem; color: var(--grafite-80); }
+
+.s2-ctas { margin-top: var(--s-8); display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-6); }
+.link-grow { font-size: .9375rem; font-weight: 500; padding-bottom: 2px; background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size var(--dur-base) var(--ease-architect); }
+.link-grow:hover { background-size: 100% 1px; }
+
+/* ---------- Colagem ---------- */
+.s2-collage { position: relative; aspect-ratio: 7 / 6.4; }
+.cc { position: absolute; margin: 0; will-change: transform; }
+.cc-in { position: relative; width: 100%; height: 100%; }
+.cc-img { position: absolute; inset: 0; overflow: hidden; background: var(--pedra-100, #F5F5F4); }
+.cc-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 1.2s var(--ease-architect), filter 1.2s var(--ease-architect); }
+.cc figure, .cc-in { transition: box-shadow .3s ease, transform .6s var(--ease-architect); }
+.cc-main .cc-in, .cc-ponta .cc-in, .cc-float .cc-in { box-shadow: 0 30px 60px -30px rgba(28, 25, 23, .35); }
+.cc:hover .cc-img img { transform: scale(1.05); }
+.cc-main:hover .cc-in, .cc-ponta:hover .cc-in, .cc-float:hover .cc-in { box-shadow: var(--shadow-glow), 0 30px 60px -30px rgba(28, 25, 23, .35); }
+
+.cc-main { left: 17%; top: 3%; width: 47%; height: 90%; z-index: 1; }
+.cc-main .cc-img img { height: 112%; margin-top: -6%; }   /* folga para o parallax interno */
+.s2w-mask { padding-top: .24em; margin-top: -.24em; }   /* folga para acentos em caixa alta */
+.cc-tag { position: absolute; left: var(--s-4); top: var(--s-4); display: inline-flex; align-items: center; gap: var(--s-2); padding: var(--s-2) var(--s-4); border-radius: var(--radius-full);
+  background: var(--branco-60); backdrop-filter: blur(var(--blur-glass)); -webkit-backdrop-filter: blur(var(--blur-glass)); border: 1px solid var(--pedra-300); }
+.cc-tag .mono { font-size: .625rem; letter-spacing: .14em; }
+
+.cc-lume { right: 0; top: 0; width: 41%; height: 33%; z-index: 3; perspective: 800px; }
+.cc-lume .cc-in {
+  display: flex; flex-direction: column; justify-content: space-between; padding: var(--s-5); border-radius: var(--radius-xl); overflow: hidden;
+  background: radial-gradient(120% 140% at 20% 0%, #2a2522 0%, var(--grafite) 55%, var(--abismo) 100%);
+  color: var(--branco); box-shadow: 0 30px 60px -30px rgba(28, 25, 23, .6);
+}
+.cc-lume .cc-in::before { /* borda gradiente (DS --border-gradient) */
+  content: ""; position: absolute; inset: 0; padding: 1px; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(135deg, rgba(255,255,255,.35), rgba(255,255,255,0) 40%, rgba(214,164,97,.6));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+}
+.lume-top, .lume-bottom { font-size: .5625rem; letter-spacing: .22em; color: rgba(255,255,255,.6); }
+.lume-word {
+  margin: 0; font-family: var(--font-serif); font-size: clamp(1.8rem, 3.2vw, 3.2rem); line-height: 1;
+  background: linear-gradient(100deg, var(--branco) 20%, var(--lume) 45%, var(--branco) 70%); background-size: 250% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent; animation: lumeSweep 6s ease-in-out infinite;   /* DS .text-lume-gradient */
+}
+@keyframes lumeSweep { 0%,100% { background-position: 100% 0; } 50% { background-position: 0 0; } }
+.lume-sign { width: 78%; height: auto; margin-top: -6px; }
+
+.cc-ponta { left: 0; bottom: 4%; width: 30%; aspect-ratio: 1; z-index: 2; }
+.cc-ponta .cc-img { border-radius: var(--radius-xl); border: 6px solid var(--branco); }
+.ponta-ring { position: absolute; inset: 6px; width: calc(100% - 12px); height: calc(100% - 12px); pointer-events: none; overflow: visible; }
+.cc-label { position: absolute; left: 0; top: calc(100% + 10px); font-size: .625rem; letter-spacing: .16em; color: var(--grafite-80); white-space: nowrap; }
+
+.cc-float { right: 3%; bottom: 0; width: 46%; aspect-ratio: 2 / 1; z-index: 2; }
+.cc-float .cc-img { border: 1px solid var(--pedra-300); }
+.cc-float .cc-label { top: auto; bottom: calc(100% + 10px); }
+
+.cc-chip { right: 6%; top: 41%; z-index: 4; }
+.cc-chip .cc-in { display: inline-flex; align-items: center; gap: var(--s-2); white-space: nowrap; padding: var(--s-3) var(--s-5); border-radius: var(--radius-full);
+  background: var(--branco-60); backdrop-filter: blur(var(--blur-glass)); -webkit-backdrop-filter: blur(var(--blur-glass)); border: 1px solid var(--pedra-300);
+  font-size: .8125rem; font-weight: 500; box-shadow: 0 20px 40px -24px rgba(28, 25, 23, .35); }
+
+/* Espaço reservado da 3ª dobra */
+.s3-placeholder { position: relative; z-index: 2; height: 70vh; display: grid; place-items: center; background: var(--osso); border-top: 1px solid var(--pedra-300); }
+.s3-placeholder .mono { color: var(--grafite-80); letter-spacing: var(--tracking-overline); font-size: .6875rem; }
+
+@media (max-width: 1024px) {
+  .s2-inner { grid-template-columns: 1fr; gap: 10vh; padding: 12vh var(--gutter) 14vh; }
+  .s2-collage { max-width: 720px; width: 100%; margin: 0 auto; }
+}
+@media (max-width: 768px) {
+  .s2-strip { padding: var(--s-4) 0; }
+  .s2-title { font-size: clamp(2.3rem, 11vw, 3.2rem); }
+  .s2-lede { font-size: .9375rem; }
+  .s2-specs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .spec { padding-right: var(--s-2); } .spec + .spec { padding-left: var(--s-3); }
+  .spec p { font-size: .6875rem; }
+  .s2-collage { aspect-ratio: 4 / 5; }
+  .cc-main { left: 8%; top: 6%; width: 64%; height: 76%; }
+  .cc-lume { width: 54%; height: 26%; }
+  .cc-lume .cc-in { padding: var(--s-3) var(--s-4); }
+  .lume-top, .lume-bottom { font-size: .5rem; }
+  .cc-ponta { width: 38%; bottom: 3%; }
+  .cc-float { width: 56%; right: 0; }
+  .cc-chip { right: 0; top: 34%; }
+  .cc-chip .cc-in { font-size: .6875rem; padding: var(--s-2) var(--s-3); }
+  .cc-label { font-size: .5625rem; }
+}
+
 /* Movimento reduzido: sem scrub, último frame estático com a linha já desenhada */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; transition-delay: 0s !important; }
@@ -472,6 +621,129 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
         </div>
       </div>
   </section>
+
+  <!-- ===================== 2ª DOBRA — A PONTA =====================
+       Especificações abaixo são FICTÍCIAS (projeto de estudo). -->
+  <section class="s2" id="ponta" aria-labelledby="s2-title">
+
+    <!-- Faixa de lettering transparente (marquee do DS) -->
+    <div class="s2-strip" aria-hidden="true">
+      <div class="marquee-container">
+        <div class="marquee-content">
+          <span class="mq-outline">Precisão</span><i>✦</i><span class="mq-serif">0.1 mm</span><i>✦</i><span class="mq-outline">Pigmento</span><i>✦</i><span class="mq-serif">traço contínuo</span><i>✦</i>
+        </div>
+        <div class="marquee-content">
+          <span class="mq-outline">Precisão</span><i>✦</i><span class="mq-serif">0.1 mm</span><i>✦</i><span class="mq-outline">Pigmento</span><i>✦</i><span class="mq-serif">traço contínuo</span><i>✦</i>
+        </div>
+      </div>
+    </div>
+
+    <div class="s2-body">
+      <!-- Curvas de nível desenhadas com "traços de 0.1 mm" (geradas no JS) -->
+      <svg class="topo" id="topo" viewBox="0 0 1440 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+      <div class="s2-orb" aria-hidden="true"></div>
+
+      <div class="s2-inner" id="s2Inner">
+        <!-- ---------- Texto ---------- -->
+        <div class="s2-copy">
+          <p class="s2-eyebrow s2-in">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true"><path d="M9 2h6v6l-1.5 3h-3L9 8V2Z"/><path d="M10.5 11 12 21l1.5-10"/><path d="M12 21v1.5"/></svg>
+            <span class="mono">02 — A ponta</span>
+          </p>
+
+          <h2 class="s2-title" id="s2-title">
+            <span class="t-line t-sans">Um décimo</span>
+            <span class="t-line t-outline" id="s2Outline">de milímetro</span>
+            <span class="t-line t-serif">absoluto<span class="lume-dot">.</span></span>
+          </h2>
+
+          <p class="s2-lede s2-in" id="s2Lede">Uma ponta de aço calibrada para traçar linhas de um décimo de milímetro, idênticas do primeiro ao último traço. A tinta pigmentada assenta na fibra do papel e fica: à prova d'água e resistente à luz.</p>
+
+          <dl class="s2-specs s2-in">
+            <div class="spec">
+              <dt class="mono">Ponta</dt>
+              <dd><span class="spec-n" data-from="1.0" data-to="0.1" data-dec="1">0.1</span><small>mm</small></dd>
+              <p>aço inox calibrado</p>
+            </div>
+            <div class="spec">
+              <dt class="mono">Traço</dt>
+              <dd><span class="spec-n" data-from="0" data-to="400" data-dec="0">400</span><small>m</small></dd>
+              <p>de linha por carga</p>
+            </div>
+            <div class="spec">
+              <dt class="mono">Secagem</dt>
+              <dd><span class="spec-n" data-from="0" data-to="2" data-dec="0">2</span><small>s</small></dd>
+              <p>sem borrar no marcador</p>
+            </div>
+          </dl>
+
+          <div class="s2-ctas s2-in">
+            <span class="cta-wrap" data-magnetic>
+              <span class="btn-beam">
+                <span class="ring" aria-hidden="true"></span>
+                <a class="btn-primary" href="#comprar">
+                  Comprar agora
+                  <span class="circle" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+                  </span>
+                </a>
+              </span>
+            </span>
+            <a class="link-grow" href="#especificacoes">Ficha técnica completa <span aria-hidden="true">→</span></a>
+          </div>
+        </div>
+
+        <!-- ---------- Colagem ---------- -->
+        <div class="s2-collage" id="collage">
+          <figure class="cc cc-main" data-speed="-50">
+            <div class="cc-in">
+              <div class="cc-img"><img src="pigmentum/em-pe.webp" alt="A Pigmentum 0.1 em pé sobre um caderno de esboços técnicos" width="480" height="720" loading="lazy" /></div>
+              <figcaption class="cc-tag"><span class="pulse" aria-hidden="true"></span><span class="mono">Pigmentum 0.1 · em pé</span></figcaption>
+            </div>
+          </figure>
+
+          <div class="cc cc-lume" data-speed="-110">
+            <div class="cc-in">
+              <span class="mono lume-top">Edição Pigmentum</span>
+              <p class="lume-word">Pigmentum</p>
+              <svg class="lume-sign" viewBox="0 0 280 60" fill="none" aria-hidden="true">
+                <path id="lumeSign" d="M8 42c18-26 30-30 38-18s-6 26 4 20 18-34 32-30-4 30 10 26 20-28 34-24c10 3-2 22 10 20s22-22 38-20 8 18 22 14 22-16 40-14 26 6 36 2" stroke="#D6A461" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="mono lume-bottom">Pigment ink pen · 0.1</span>
+            </div>
+          </div>
+
+          <figure class="cc cc-ponta" data-speed="60">
+            <div class="cc-in">
+              <div class="cc-img"><img src="pigmentum/ponta.webp" alt="Detalhe da ponta de 0.1 mm tocando o papel" width="480" height="480" loading="lazy" /></div>
+              <svg class="ponta-ring" viewBox="0 0 240 240" aria-hidden="true">
+                <circle id="pontaRing" cx="102" cy="202" r="26" fill="none" stroke="#D6A461" stroke-width="1.5" transform="rotate(-90 102 202)"/>
+                <path id="pontaLead" d="M124 188 L176 140 H232" fill="none" stroke="#1C1917" stroke-opacity=".6" stroke-width="1"/>
+              </svg>
+              <figcaption class="cc-label mono">Detalhe A · Ø 0.1 mm</figcaption>
+            </div>
+          </figure>
+
+          <figure class="cc cc-float" data-speed="-20">
+            <div class="cc-in">
+              <div class="cc-img"><img src="pigmentum/flutuar.webp" alt="A Pigmentum 0.1 flutuando com a tampa" width="880" height="440" loading="lazy" /></div>
+              <figcaption class="cc-label mono">Corpo · 12 g</figcaption>
+            </div>
+          </figure>
+
+          <div class="cc cc-chip" data-speed="-160">
+            <div class="cc-in"><span class="pulse" aria-hidden="true"></span>Tinta pigmentada · à prova d'água</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Espaço reservado da 3ª dobra (permite a animação de SAÍDA da 2ª dobra). Substituir depois. -->
+  <section class="s3-placeholder" id="tinta" aria-label="Próxima dobra (em produção)">
+    <p class="mono">03 — Tinta · próxima dobra</p>
+  </section>
 </main>
 
 <div class="cursor" id="cursor" aria-hidden="true"><span id="cursorText">Role</span></div>
@@ -588,6 +860,8 @@ function renderUI(t) {
   $('#topProgress').classList.toggle('moving', page > 0.002 && page < 0.998);
   $('#ringProg').style.strokeDashoffset = 150.8 * (1 - page);
   $('#ringPct').textContent = String(Math.min(Math.round(page * 100), 99)).padStart(2, '0');
+  const s2 = document.getElementById('ponta');
+  if (s2) $('#nav').classList.toggle('solid', s2.getBoundingClientRect().top < $('#nav').offsetHeight);
   const txt = t >= 2.45 ? 'Traçar' : 'Role';
   if (txt !== lastStageTxt) { $('#cursorText').textContent = txt; lastStageTxt = txt; }
 }
@@ -681,8 +955,18 @@ function setupNav() {
   links.forEach((a) => {
     a.addEventListener('mouseenter', () => move(a));
     a.addEventListener('focus', () => move(a));
-    a.addEventListener('click', (e) => { e.preventDefault(); links.forEach((l) => l.removeAttribute('aria-current')); a.setAttribute('aria-current', 'true'); move(a); });
+    a.addEventListener('click', (e) => {
+      e.preventDefault(); setActive(a.getAttribute('href'));
+      const id = a.getAttribute('href') === '#design' ? '#hero' : a.getAttribute('href');
+      const target = document.querySelector(id);
+      if (target && window.__lenis) window.__lenis.scrollTo(target, { duration: 1.4 });
+    });
   });
+  function setActive(href) {
+    const a = links.find((l) => l.getAttribute('href') === href); if (!a) return;
+    links.forEach((l) => l.removeAttribute('aria-current')); a.setAttribute('aria-current', 'true'); move(a);
+  }
+  window.__setNav = setActive;
   menu.addEventListener('mouseleave', () => move(active()));
   const place = () => { ind.style.transition = 'none'; move(active()); ind.offsetWidth; ind.style.transition = ''; };
   document.fonts.ready.then(place); addEventListener('resize', place);
@@ -757,6 +1041,95 @@ function setupTriggers() {
     .fromTo('#heroMedia', { scale: base }, { scale: base * 1.035, duration: 1 }, 0);
 }
 
+/* =====================================================================
+   2ª DOBRA — A PONTA
+   ===================================================================== */
+// Curvas de nível: anéis "desenhados à mão" com a mesma espessura de 0.1 mm (1px)
+function buildTopo() {
+  const svg = $('#topo'), ns = 'http://www.w3.org/2000/svg';
+  const fields = [
+    { x: 180, y: 860, rings: 11, r0: 50, gap: 44, seed: 1.3 },
+    { x: 1300, y: 140, rings: 9, r0: 40, gap: 50, seed: 4.1 },
+  ];
+  fields.forEach((f, fi) => {
+    const g = document.createElementNS(ns, 'g');
+    for (let k = 0; k < f.rings; k++) {
+      const amp = 8 + k * 3.2, pts = [];
+      for (let i = 0; i <= 140; i++) {
+        const a = (i / 140) * Math.PI * 2;
+        const r = f.r0 + k * f.gap + amp * (Math.sin(3 * a + f.seed + k * .35) + .6 * Math.sin(5 * a - f.seed * 2 + k * .2) + .35 * Math.sin(2 * a + k));
+        pts.push(`${(f.x + Math.cos(a) * r * 1.25).toFixed(1)} ${(f.y + Math.sin(a) * r).toFixed(1)}`);
+      }
+      const p = document.createElementNS(ns, 'path');
+      p.setAttribute('d', 'M' + pts.join('L') + 'Z');
+      if (fi === 0 && k === 6) p.classList.add('lume');   // um único traço Lume
+      g.appendChild(p);
+    }
+    svg.appendChild(g);
+  });
+}
+
+function countSpec(el) {
+  const from = parseFloat(el.dataset.from), to = parseFloat(el.dataset.to), dec = +el.dataset.dec;
+  const o = { v: from };
+  gsap.to(o, { v: to, duration: 1.6, ease: 'expo.out', overwrite: true, onUpdate: () => { el.textContent = o.v.toFixed(dec); } });
+}
+
+function setupFold2() {
+  buildTopo();
+  if (REDUCED) return;
+
+  // ---- ENTRADA (dispara aos 70% da tela; ao subir de volta, reverte = saída para cima) ----
+  // wordsClass "s2w" → máscara "s2w-mask" (CSS dá folga em cima para os acentos de DÉCIMO/MILÍMETRO)
+  const sans = SplitText.create('#s2-title .t-sans', { type: 'words', mask: 'words', wordsClass: 's2w' });
+  const serif = SplitText.create('#s2-title .t-serif', { type: 'words', mask: 'words', wordsClass: 's2w' });
+  const animIn = { y: 30, opacity: 0, filter: 'blur(10px)', duration: 0.8, ease: 'power1.out' };   // DS animationIn
+  const enter = gsap.timeline({
+    defaults: { ease: 'expo.out' },
+    scrollTrigger: {
+      trigger: '#s2Inner', start: 'top 70%', toggleActions: 'play none none reverse',
+      onEnter: () => document.querySelectorAll('.spec-n').forEach(countSpec),
+      onEnterBack: () => document.querySelectorAll('.spec-n').forEach(countSpec),
+    },
+  });
+  enter
+    .from('#topo path', { drawSVG: '0%', duration: 2.6, stagger: 0.025 }, 0)
+    .from('.s2-eyebrow', animIn, 0.05)
+    .from(sans.words, { yPercent: 110, opacity: 0, duration: 1.2, stagger: 0.07 }, 0.1)                            // text-reveal
+    .fromTo('#s2Outline', { clipPath: 'inset(-20% 100% -10% 0)' }, { clipPath: 'inset(-20% 0% -10% 0)', duration: 1.4 }, 0.3)   // lettering vazado "risca" da esquerda p/ direita
+    .from(serif.words, { yPercent: 110, opacity: 0, duration: 1.2 }, 0.5)
+    .from(['#s2Lede', '.s2-specs', '.s2-ctas'], { ...animIn, stagger: 0.1 }, 0.65)
+    .from('.cc .cc-in', { y: 90, opacity: 0, scale: 0.94, filter: 'blur(14px)', duration: 1.4, stagger: 0.12 }, 0.2)
+    .from('#lumeSign', { drawSVG: '0%', duration: 1.8, ease: 'power2.inOut' }, 0.9)
+    .fromTo('#pontaRing', { drawSVG: '0%' }, { drawSVG: '100%', duration: 1.1 }, 1.1)
+    .fromTo('#pontaLead', { drawSVG: '0%' }, { drawSVG: '100%', duration: 0.8, ease: 'power2.inOut' }, 1.4);
+
+  // ---- PARALLAX (camadas em velocidades diferentes) ----
+  const para = gsap.timeline({ defaults: { ease: 'none' }, scrollTrigger: { trigger: '#ponta', start: 'top bottom', end: 'bottom top', scrub: 0.6 } });
+  document.querySelectorAll('.cc[data-speed]').forEach((el) => para.fromTo(el, { y: -(+el.dataset.speed) }, { y: +el.dataset.speed }, 0));
+  para.fromTo('.cc-main .cc-img img', { yPercent: -5 }, { yPercent: 5 }, 0)
+      .fromTo('#topo', { y: 60 }, { y: -60 }, 0)
+      .fromTo('.s2-orb', { yPercent: 20 }, { yPercent: -30 }, 0)
+      .fromTo('.s2-strip .marquee-container', { x: 0 }, { x: -160 }, 0);
+
+  // ---- SAÍDA (rolando para a próxima dobra: sobe, desfoca e some) ----
+  gsap.fromTo('#s2Inner', { opacity: 1, y: 0, filter: 'blur(0px)' }, {
+    opacity: 0.15, y: -70, filter: 'blur(8px)', ease: 'none',
+    scrollTrigger: { trigger: '#s2Inner', start: 'bottom 80%', end: 'bottom 15%', scrub: true },
+  });
+
+  // ---- Hero sai de cena enquanto a 2ª dobra sobe ----
+  gsap.fromTo('#sticky', { filter: 'blur(0px)', opacity: 1 }, {
+    filter: 'blur(10px)', opacity: 0.35, ease: 'none',
+    scrollTrigger: { trigger: '#ponta', start: 'top bottom', end: 'top 30%', scrub: true },
+  });
+
+  // ---- Menu pílula acompanha a seção ----
+  const nav = (h) => window.__setNav && window.__setNav(h);
+  ScrollTrigger.create({ trigger: '#ponta', start: 'top 55%', end: 'bottom 55%',
+    onEnter: () => nav('#ponta'), onEnterBack: () => nav('#ponta'), onLeave: () => nav('#tinta'), onLeaveBack: () => nav('#design') });
+}
+
 /* ---------- Movimento reduzido: estado final estático ---------- */
 function staticFinal() {
   state.smooth = state.target = state.duration; state.progress = 1;
@@ -772,6 +1145,7 @@ document.fonts.ready.then(intro);
 
 if (REDUCED) {
   staticFinal();
+  setupFold2();
 } else {
   setupScroll();
   setupCursor();
@@ -780,6 +1154,7 @@ if (REDUCED) {
   loadVideo().then(() => {
     state.ready = true;
     setupTriggers();
+    document.fonts.ready.then(() => { setupFold2(); ScrollTrigger.refresh(); });
     ScrollTrigger.refresh();
     // ?debug&p=0.5 → pula direto para um ponto do scroll (para calibrar / testar)
     if (params.has('p')) {
