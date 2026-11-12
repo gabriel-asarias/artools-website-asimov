@@ -445,7 +445,353 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   background: var(--branco-60); backdrop-filter: blur(var(--blur-glass)); -webkit-backdrop-filter: blur(var(--blur-glass)); border: 1px solid var(--pedra-300);
   font-size: .8125rem; font-weight: 500; box-shadow: 0 20px 40px -24px rgba(28, 25, 23, .35); }
 
-/* Espaço reservado da 3ª dobra */
+/* =====================================================================
+   3ª DOBRA — A TINTA (capítulo escuro do DS: Abismo / Grafite)
+   ===================================================================== */
+.s3 { position: relative; z-index: 2; background: var(--osso); color: var(--branco); overflow: hidden; isolation: isolate; }
+/* a tinta se espalha a partir do topo (raio controlado por --r via GSAP) */
+.s3-ink {
+  position: absolute; inset: 0; z-index: 0; --r: 106%;
+  background: radial-gradient(120% 80% at 50% 0%, #1a1714 0%, var(--grafite) 35%, var(--abismo) 100%);
+  -webkit-mask-image: radial-gradient(circle at 50% 0%, #000 calc(var(--r) - 1.5%), transparent var(--r));
+          mask-image: radial-gradient(circle at 50% 0%, #000 calc(var(--r) - 1.5%), transparent var(--r));
+}
+.s3-grain { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+.s3-grain::after { opacity: .09; }
+.s3-orb { position: absolute; z-index: 1; border-radius: var(--radius-full); filter: blur(70px); pointer-events: none; animation: orbDrift 22s ease-in-out infinite alternate; }
+.s3-orb-a { width: 560px; height: 560px; left: -140px; top: 30%; background: radial-gradient(circle, rgba(214,164,97,.22), transparent 65%); }
+.s3-orb-b { width: 480px; height: 480px; right: -120px; top: 8%; background: radial-gradient(circle, rgba(138,150,163,.18), transparent 65%); animation-delay: -9s; }
+.s3-giant { /* lettering transparente gigante (DS .text-outline-light) */
+  position: absolute; z-index: 1; top: 7vh; left: 0; display: flex; gap: 4vw; white-space: nowrap; pointer-events: none; user-select: none;
+  font-size: clamp(8rem, 22vw, 22rem); font-weight: 600; letter-spacing: var(--tracking-tighter); line-height: 1;
+  color: transparent; -webkit-text-stroke: 1px rgba(255, 255, 255, .09); will-change: transform;
+}
+.s3-giant .serif { font-family: var(--font-serif); font-weight: 400; letter-spacing: 0; }
+
+.s3-inner { position: relative; z-index: 2; max-width: 1400px; margin: 0 auto; padding: 18vh var(--gutter) 16vh; will-change: transform, filter, opacity; }
+
+/* ---------- Cabeçalho ---------- */
+.s3-head { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 4fr); gap: 4vw; align-items: end; margin-bottom: 9vh; }
+.s3-eyebrow { display: inline-flex; align-items: center; gap: var(--s-3); margin: 0 0 var(--s-6); color: var(--lume); }
+.s3-eyebrow svg { width: 20px; height: 20px; }
+.s3-eyebrow .mono { color: var(--branco); letter-spacing: var(--tracking-overline); font-size: .6875rem; }
+.s3-title { margin: 0; font-size: clamp(2.8rem, 6.4vw, 6.6rem); line-height: .92; }
+.s3-title .t-line { display: block; }
+.s3-title .t-sans { font-weight: 600; letter-spacing: var(--tracking-tighter); }
+.s3-title .t-serif {
+  font-family: var(--font-serif); font-weight: 400; font-size: 1.12em; letter-spacing: -0.01em;
+  background: linear-gradient(100deg, var(--branco) 20%, var(--lume) 45%, var(--branco) 70%); background-size: 250% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent; animation: lumeSweep 6s ease-in-out infinite;   /* DS .text-lume-gradient (versão escura) */
+}
+.s3-title .lume-dot { -webkit-text-fill-color: var(--lume); }
+.s3w-mask { padding-top: .2em; margin-top: -.2em; padding-bottom: .08em; margin-bottom: -.08em; }
+.s3-lede { margin: 0; font-size: 1.0625rem; line-height: 1.65; color: rgba(255, 255, 255, .72); }
+.s3-lede em { font-family: var(--font-serif); font-style: normal; font-size: 1.2em; color: var(--lume); }
+.s3-hint { display: inline-flex; align-items: center; gap: var(--s-2); margin-top: var(--s-5); color: rgba(255, 255, 255, .6); font-size: .625rem; letter-spacing: .2em; }
+
+/* ---------- Grade principal ---------- */
+.s3-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 4vw; align-items: start; }
+.s3-lab { position: relative; }
+
+/* Folha de teste */
+.pad {
+  position: relative; background: var(--pedra-100); color: var(--tinta); border-radius: var(--radius-md);
+  transform: rotate(-1.4deg); box-shadow: 0 40px 80px -20px rgba(0, 0, 0, .6), 0 0 0 1px rgba(255, 255, 255, .06);
+  transition: transform .8s var(--ease-architect);
+}
+.pad:hover { transform: rotate(-0.6deg) translateY(-4px); }
+.pad-top { display: flex; justify-content: space-between; padding: var(--s-4) var(--s-5); border-bottom: 1px solid var(--pedra-300); }
+.pad-top .mono { font-size: .5625rem; letter-spacing: .2em; color: var(--grafite-80); }
+.pad, .pad-svg { -webkit-user-select: none; user-select: none; }   /* arrastar = desenhar, nunca selecionar texto */
+.pad-svg { display: block; width: 100%; height: auto; cursor: crosshair; touch-action: none; border-radius: 0 0 var(--radius-md) var(--radius-md); }
+.pad-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 1.6px; fill: var(--grafite-80); }
+.pad-strap { position: absolute; top: -2%; bottom: -2%; right: 2.2%; width: 10px; border-radius: 3px; background: linear-gradient(90deg, #0b0a09, #24201d 50%, #0b0a09); box-shadow: 0 6px 14px rgba(0,0,0,.4); pointer-events: none; }
+.pad-cursor-hint { position: absolute; left: 50%; top: 84%; font-size: .625rem; letter-spacing: .2em; color: var(--lume-escuro); pointer-events: none; animation: floatY 3s ease-in-out infinite; transition: opacity var(--dur-base); }
+.pad-cursor-hint.gone { opacity: 0; }
+@keyframes floatY { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+#userInk path { stroke: var(--lume); stroke-width: 1.5; filter: drop-shadow(0 0 3px rgba(214,164,97,.55)); transition: stroke 2s var(--ease-architect), filter 2s var(--ease-architect); }   /* molhada */
+#userInk path.dry { stroke: var(--tinta); filter: none; }                                                                                                                       /* seca em 2 s */
+#water circle { fill: rgba(138, 150, 163, .16); stroke: rgba(138, 150, 163, .45); stroke-width: 1; }
+
+/* Medidor + controles */
+.lab-bar { margin-top: var(--s-8); display: grid; gap: var(--s-5); }
+.meter { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid rgba(255,255,255,.12); border-bottom: 1px solid rgba(255,255,255,.12); }
+.meter > div { padding: var(--s-4) var(--s-4) var(--s-4) 0; }
+.meter > div + div { padding-left: var(--s-4); border-left: 1px solid rgba(255,255,255,.12); }
+.meter .mono { display: block; font-size: .5625rem; letter-spacing: .18em; color: rgba(255,255,255,.6); }
+.meter strong { display: block; margin-top: var(--s-2); font-size: clamp(1.2rem, 1.9vw, 1.75rem); font-weight: 500; letter-spacing: var(--tracking-tight); font-variant-numeric: tabular-nums; }
+.meter small { font-size: .5em; margin-left: 3px; color: rgba(255,255,255,.6); font-weight: 400; }
+.lab-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-5); }
+.btn-glass {
+  position: relative; overflow: hidden; display: inline-flex; align-items: center; gap: var(--s-2); height: 48px; padding: 0 var(--s-6);
+  border-radius: var(--radius-full); border: 1px solid rgba(255,255,255,.22); color: var(--branco); font-size: .875rem; font-weight: 500;
+  background: rgba(23, 23, 23, .6); backdrop-filter: blur(var(--blur-glass)); -webkit-backdrop-filter: blur(var(--blur-glass));   /* .glass-panel */
+  transition: background var(--dur-base) var(--ease-architect), border-color var(--dur-base), transform .3s ease, box-shadow .3s ease;
+}
+.btn-glass svg { width: 18px; height: 18px; color: var(--lume); }
+.btn-glass::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: translateX(-100%) skewX(-15deg); background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent); }
+.btn-glass:hover { border-color: var(--lume); transform: translateY(-2px); box-shadow: 0 0 30px rgba(214,164,97,.25); }
+.btn-glass:hover::after { animation: shimmer 1.5s infinite; }   /* shimmer do Gemini */
+.btn-glass:disabled { opacity: .5; cursor: wait; }
+@keyframes shimmer { from { transform: translateX(-100%) skewX(-15deg); } to { transform: translateX(200%) skewX(-15deg); } }
+.btn-text { font-size: .875rem; color: rgba(255,255,255,.72); padding-bottom: 2px; background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size var(--dur-base) var(--ease-architect), color var(--dur-base); }
+.btn-text:hover { color: var(--branco); background-size: 100% 1px; }
+.lab-status { margin: 0; font-size: .625rem; letter-spacing: .16em; color: rgba(255,255,255,.6); min-height: 1.2em; }
+.lab-status b { color: var(--lume); font-weight: 600; }
+
+/* Lente de microscopia */
+.lens { position: absolute; right: -3%; top: -9%; width: clamp(150px, 15vw, 220px); aspect-ratio: 1; z-index: 3; border-radius: var(--radius-full);
+  box-shadow: 0 30px 60px -20px rgba(0,0,0,.7), 0 0 0 1px rgba(214,164,97,.35), 0 0 0 8px rgba(5,5,5,.7), 0 0 0 9px rgba(255,255,255,.08); }
+.lens canvas { width: 100%; height: 100%; border-radius: inherit; display: block; background: var(--abismo); }
+.lens-ring { position: absolute; inset: -22%; width: 144%; height: 144%; animation: spin 40s linear infinite; pointer-events: none; }
+.lens-ring text { font-family: var(--font-mono); font-size: 7px; letter-spacing: 2.4px; fill: rgba(255,255,255,.55); }
+
+/* Propriedades (cards vidro escuro + lanterna do Gemini) */
+.props { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); }
+.prop {
+  position: relative; overflow: hidden; padding: var(--s-6); min-height: 236px; display: flex; flex-direction: column; border-radius: var(--radius-xl);
+  background: rgba(23, 23, 23, .6); backdrop-filter: blur(var(--blur-glass)); -webkit-backdrop-filter: blur(var(--blur-glass));
+  transition: transform .6s var(--ease-architect), box-shadow .3s ease;
+}
+.prop::after { /* borda gradiente (--border-gradient do DS) */
+  content: ""; position: absolute; inset: 0; padding: 1px; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,0) 45%, rgba(214,164,97,.35));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+}
+.prop:hover { transform: translateY(-4px); box-shadow: 0 0 40px rgba(214,164,97,.12); }
+.flashlight-card::before {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: 0; transition: opacity var(--dur-base);
+  background: radial-gradient(500px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(214,164,97,.14), transparent 40%);
+}
+.flashlight-card:hover::before { opacity: 1; }
+.prop > * { position: relative; z-index: 1; }
+.prop .mono { margin-top: auto; font-size: .5625rem; letter-spacing: .2em; color: rgba(255,255,255,.6); }
+.prop strong { margin-top: var(--s-2); font-size: clamp(2rem, 3vw, 2.75rem); font-weight: 500; letter-spacing: var(--tracking-tighter); line-height: 1; }
+.prop strong small { font-size: .42em; margin-left: 3px; color: rgba(255,255,255,.6); letter-spacing: 0; }
+.prop p { margin: var(--s-3) 0 0; font-size: .8125rem; line-height: 1.55; color: rgba(255,255,255,.72); }
+.prop-ico { width: 48px; height: 48px; position: relative; display: grid; place-items: center; margin-bottom: var(--s-6); }
+.prop-ico svg { width: 100%; height: 100%; }
+.ico-pigment { grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 8px; }
+.ico-pigment i { width: 6px; height: 6px; border-radius: var(--radius-full); background: var(--lume); animation: pulse-sec 1.6s ease-in-out infinite; }
+.ico-pigment i:nth-child(3n+2) { animation-delay: .2s; } .ico-pigment i:nth-child(3n+3) { animation-delay: .4s; }
+.ico-pigment i:nth-child(n+4) { animation-duration: 1.9s; } .ico-pigment i:nth-child(n+7) { animation-duration: 2.2s; }
+@keyframes pulse-sec { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .25; transform: scale(.6); } }   /* gemini2 */
+.ring-dash { transform-origin: center; transform: rotate(-90deg); animation: ring-dash 1.8s ease-in-out infinite; }
+@keyframes ring-dash { 0% { stroke-dasharray: 1, 200; stroke-dashoffset: 0; } 50% { stroke-dasharray: 90, 200; stroke-dashoffset: -35px; } 100% { stroke-dasharray: 90, 200; stroke-dashoffset: -124px; } }   /* gemini2 */
+.ico-drop svg { width: 26px; height: 26px; position: relative; z-index: 1; }
+.radar { position: absolute; inset: 8px; border-radius: var(--radius-full); border: 2px solid var(--lume); animation: radar 2.2s cubic-bezier(0,0,.2,1) infinite; }
+.radar.r2 { animation-delay: 1.1s; }
+@keyframes radar { 0% { transform: scale(.5); opacity: 1; border-width: 2px; } 100% { transform: scale(2.2); opacity: 0; border-width: 0; } }   /* gemini2 */
+.ico-sun .rays { transform-origin: 24px 24px; animation: spin 12s linear infinite; }   /* animate-spin-slow do DS */
+
+/* Rodapé da seção */
+.s3-foot { margin-top: 10vh; display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-8); padding-top: var(--s-8); border-top: 1px solid rgba(255,255,255,.12); }
+.btn-primary.btn-on-dark { background: var(--branco); color: var(--tinta); }
+.s3-foot-note { font-size: .625rem; letter-spacing: .2em; color: rgba(255,255,255,.6); }
+
+@media (max-width: 1024px) {
+  .s3-head { grid-template-columns: 1fr; gap: var(--s-8); }
+  .s3-grid { grid-template-columns: 1fr; gap: 10vh; }
+  .lens { right: 0; top: -12%; }
+}
+@media (max-width: 768px) {
+  .s3-inner { padding: 14vh var(--gutter) 12vh; }
+  .s3-title { font-size: clamp(2.3rem, 10.5vw, 3.4rem); }
+  .s3-lede { font-size: .9375rem; }
+  .pad { transform: rotate(-1deg); }
+  .pad-label { font-size: 12px; }
+  .meter strong { font-size: 1.05rem; }
+  .meter > div + div { padding-left: var(--s-3); }
+  .lens { width: 120px; top: -64px; right: -4px; }
+  .lens-ring text { font-size: 8px; }
+  .props { grid-template-columns: 1fr 1fr; gap: var(--s-3); }
+  .prop { padding: var(--s-4); min-height: 210px; }
+  .prop strong { font-size: 1.75rem; }
+  .prop p { font-size: .75rem; }
+  .prop-ico { margin-bottom: var(--s-4); width: 40px; height: 40px; }
+}
+
+/* =====================================================================
+   4ª DOBRA — ESPECIFICAÇÕES (folha de desenho que sobe por cima da tinta)
+   ===================================================================== */
+.s4 { position: relative; z-index: 3; margin-top: -14vh; background: var(--osso); border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  box-shadow: 0 -40px 80px -20px rgba(0, 0, 0, .55); }
+.s4-stage { position: relative; min-height: 100vh; min-height: 100svh; display: flex; align-items: center; overflow: hidden; border-radius: inherit; }
+.s4-paper { /* papel quadriculado de desenho (DS .grid-bg) com margem */
+  position: absolute; inset: 0; pointer-events: none;
+  background-size: 40px 40px, 40px 40px, 8px 8px, 8px 8px;
+  background-image: linear-gradient(to right, rgba(0,0,0,.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,.05) 1px, transparent 1px),
+                    linear-gradient(to right, rgba(0,0,0,.018) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,.018) 1px, transparent 1px);
+  -webkit-mask-image: radial-gradient(ellipse 80% 75% at 40% 55%, #000 30%, transparent 85%); mask-image: radial-gradient(ellipse 80% 75% at 40% 55%, #000 30%, transparent 85%);
+}
+.s4-inner { position: relative; z-index: 1; width: 100%; max-width: 1400px; margin: 0 auto; padding: calc(var(--nav-h) + 4vh) var(--gutter) 5vh;
+  display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: 3vw; align-items: center; }
+.s4-eyebrow { display: inline-flex; align-items: center; gap: var(--s-3); margin: 0 0 var(--s-5); color: var(--tinta); }
+.s4-eyebrow svg { width: 20px; height: 20px; }
+.s4-eyebrow .mono { letter-spacing: var(--tracking-overline); font-size: .6875rem; }
+.s4-title { margin: 0; font-size: clamp(2.4rem, 4.6vw, 4.6rem); line-height: .95; }
+.s4-title .t-line { display: block; }
+.s4-title .t-sans { font-weight: 600; letter-spacing: var(--tracking-tighter); }
+.s4-title .t-serif { font-family: var(--font-serif); font-weight: 400; font-size: 1.1em; color: var(--pedra-500); }
+.s4-title .t-outline { font-weight: 600; letter-spacing: var(--tracking-tighter); color: transparent; -webkit-text-stroke: 1px rgba(28,28,28,.5); }
+.s4w-mask { padding-top: .2em; margin-top: -.2em; }
+
+/* Desenho técnico */
+.bp-wrap { margin: 3vh 0 0; position: relative; }
+.bp { width: 100%; height: auto; display: block; overflow: visible; }
+.bp-axis { fill: none; stroke: var(--grafite); stroke-opacity: .45; stroke-width: 1; stroke-dasharray: 26 6 4 6; vector-effect: non-scaling-stroke; }
+.bp-line { fill: none; stroke: var(--tinta); stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; transition: stroke var(--dur-base) var(--ease-architect); }
+.bp-line.thin { stroke-width: .9; stroke-opacity: .7; }
+.bp-fill { fill: var(--osso); transition: fill var(--dur-base) var(--ease-architect); }
+.bp-hidden { fill: none; stroke: var(--tinta); stroke-opacity: .6; stroke-width: 1; stroke-dasharray: 6 5; vector-effect: non-scaling-stroke; }
+.bp-text { font-family: var(--font-mono); font-size: 10px; letter-spacing: 3px; fill: var(--grafite-80); }
+.bp-dim { fill: none; stroke: var(--grafite); stroke-opacity: .55; stroke-width: .9; vector-effect: non-scaling-stroke; }
+.bp-dim.lume { stroke: var(--lume); stroke-opacity: 1; stroke-width: 1.2; }
+.bp-dimtext { font-family: var(--font-mono); font-size: 13px; letter-spacing: 1px; fill: var(--tinta); }
+.bp-dimtext.lume-t { fill: var(--lume-escuro); font-weight: 600; }
+.bp-tb { font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.6px; fill: var(--grafite-80); }
+.bp-tb.strong { fill: var(--tinta); font-weight: 600; }
+.balloon { cursor: pointer; }
+.balloon path { fill: none; stroke: var(--grafite); stroke-opacity: .55; stroke-width: .9; vector-effect: non-scaling-stroke; }
+.balloon circle { fill: var(--osso); stroke: var(--tinta); stroke-width: 1.2; vector-effect: non-scaling-stroke; transition: fill var(--dur-base) var(--ease-architect), stroke var(--dur-base); }
+.balloon text { font-family: var(--font-mono); font-size: 13px; font-weight: 600; text-anchor: middle; fill: var(--tinta); transition: fill var(--dur-base); }
+.part { cursor: pointer; transition: opacity var(--dur-base) var(--ease-architect); }
+.bp.has-hl .part:not(.hl), .bp.has-hl .balloon:not(.hl) { opacity: .28; }
+.part.hl .bp-line, .part.hl .bp-hidden { stroke: var(--lume-escuro); stroke-opacity: 1; }
+.part.hl .bp-fill { fill: rgba(214, 164, 97, .16); }
+.balloon.hl circle { fill: var(--grafite); stroke: var(--grafite); }
+.balloon.hl text { fill: var(--lume); }
+.bp-cap { display: inline-flex; align-items: center; gap: var(--s-2); margin-top: var(--s-4); font-size: .5625rem; letter-spacing: .2em; color: var(--grafite-80); }
+
+/* Tabela lateral */
+.s4-side { align-self: center; }
+.s4-side-title { display: block; font-size: .625rem; letter-spacing: .2em; color: var(--grafite-80); margin-bottom: var(--s-3); }
+.parts { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--pedra-300); }
+.part-row { display: grid; grid-template-columns: 34px 1fr; column-gap: var(--s-3); padding: var(--s-3) var(--s-3) var(--s-3) var(--s-2); border-bottom: 1px solid var(--pedra-300); cursor: pointer; position: relative;
+  transition: background var(--dur-base) var(--ease-architect), padding var(--dur-base) var(--ease-architect); }
+.part-row::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--lume); transform: scaleY(0); transition: transform var(--dur-base) var(--ease-architect); }
+.part-row .n { grid-row: span 2; font-family: var(--font-mono); font-size: .75rem; color: var(--grafite-80); padding-top: 2px; }
+.part-row .t { font-weight: 500; font-size: .9375rem; letter-spacing: var(--tracking-tight); }
+.part-row .d { font-size: .8125rem; color: var(--grafite-80); }
+.part-row.hl, .part-row:focus-visible { background: var(--branco); padding-left: var(--s-4); outline: none; }
+.part-row.hl::before, .part-row:focus-visible::before { transform: scaleY(1); }
+.part-row.hl .n { color: var(--lume-escuro); }
+.measures { margin: var(--s-6) 0 0; display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--pedra-300); }
+.measures > div { padding: var(--s-4); }
+.measures > div:nth-child(odd) { border-right: 1px solid var(--pedra-300); }
+.measures > div:nth-child(-n+2) { border-bottom: 1px solid var(--pedra-300); }
+.measures dt { font-size: .5625rem; letter-spacing: .18em; color: var(--grafite-80); }
+.measures dd { margin: var(--s-2) 0 0; font-size: 1.75rem; font-weight: 500; letter-spacing: var(--tracking-tighter); line-height: 1; }
+.measures dd small { font-size: .45em; margin-left: 3px; color: var(--grafite-80); letter-spacing: 0; }
+
+/* =====================================================================
+   FECHAMENTO — COMPRAR
+   ===================================================================== */
+.s5 { position: relative; z-index: 3; background: var(--osso); border-top: 1px solid var(--pedra-300); overflow: hidden; }
+.s5-inner { max-width: 1400px; margin: 0 auto; padding: 16vh var(--gutter); display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: 5vw; align-items: center; }
+.s5-visual { position: relative; aspect-ratio: 1 / 1; display: grid; place-items: center; }
+.s5-halo { position: absolute; inset: 6%; border-radius: var(--radius-full);
+  background: radial-gradient(circle, var(--branco) 0%, rgba(255,255,255,.6) 40%, transparent 70%); }
+.s5-halo::before, .s5-halo::after { content: ""; position: absolute; inset: 12%; border-radius: inherit; border: 1px solid var(--pedra-300); animation: spin 60s linear infinite; border-top-color: var(--lume); }
+.s5-halo::after { inset: 24%; animation-duration: 40s; animation-direction: reverse; border-top-color: transparent; border-left-color: var(--lume); }
+.s5-pen { position: relative; width: 112%; max-width: none; transform: rotate(-14deg); animation: penFloat 6s ease-in-out infinite; mix-blend-mode: multiply;
+  -webkit-mask-image: radial-gradient(ellipse 50% 40% at 50% 50%, #000 60%, transparent 100%); mask-image: radial-gradient(ellipse 50% 40% at 50% 50%, #000 60%, transparent 100%); }
+@keyframes penFloat { 0%,100% { translate: 0 0; } 50% { translate: 0 -14px; } }   /* floatY do DS */
+.s5-shadow { position: absolute; bottom: 18%; width: 46%; height: 18px; border-radius: 50%; background: rgba(28,25,23,.2); filter: blur(10px); animation: shadowPulse 6s ease-in-out infinite; }
+@keyframes shadowPulse { 0%,100% { transform: scaleX(1); opacity: .9; } 50% { transform: scaleX(.82); opacity: .55; } }
+.s5-tag { position: absolute; top: 14%; right: 8%; display: inline-flex; align-items: center; gap: var(--s-2); padding: var(--s-2) var(--s-4); border-radius: var(--radius-full);
+  border: 1px solid var(--pedra-300); background: var(--branco-60); backdrop-filter: blur(var(--blur-glass)); -webkit-backdrop-filter: blur(var(--blur-glass)); font-size: .5625rem; letter-spacing: .18em; }
+
+.s5-title { margin: 0; font-size: clamp(2.4rem, 4.8vw, 4.8rem); line-height: .95; }
+.s5-title .t-line { display: block; }
+.s5-title .t-sans { font-weight: 600; letter-spacing: var(--tracking-tighter); }
+.s5-title .t-serif { font-family: var(--font-serif); font-weight: 400; font-size: 1.1em; color: var(--pedra-500); }
+.s5-title .lume-dot { color: var(--lume); }
+
+.packs { margin-top: var(--s-8); }
+.packs fieldset { margin: 0; padding: 0; border: 0; display: grid; gap: var(--s-3); }
+.packs legend { font-size: .625rem; letter-spacing: .2em; color: var(--grafite-80); margin-bottom: var(--s-3); padding: 0; }
+.pack { position: relative; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: var(--s-4); padding: var(--s-4) var(--s-5);
+  border: 1px solid var(--pedra-300); border-radius: var(--radius-xl); background: var(--branco-55); cursor: pointer;
+  transition: border-color var(--dur-base) var(--ease-architect), background var(--dur-base), transform .3s ease, box-shadow .3s ease; }
+.pack:hover { transform: translateY(-2px); box-shadow: var(--shadow-glow); }
+.pack input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.pack-check { width: 22px; height: 22px; border-radius: var(--radius-full); border: 1px solid var(--pedra-400); display: grid; place-items: center; color: var(--branco); transition: all var(--dur-base) var(--ease-architect); }
+.pack-check svg { width: 12px; height: 12px; stroke-dasharray: 20; stroke-dashoffset: 20; transition: stroke-dashoffset .4s var(--ease-architect) .05s; }   /* checkbox do DS */
+.pack-name { display: flex; flex-direction: column; font-weight: 500; font-size: 1rem; letter-spacing: var(--tracking-tight); }
+.pack-name small { font-weight: 400; font-size: .8125rem; color: var(--grafite-80); letter-spacing: 0; }
+.pack-price { font-weight: 500; font-variant-numeric: tabular-nums; }
+.pack-badge { position: absolute; top: -9px; right: var(--s-5); padding: 3px 10px; border-radius: var(--radius-full); background: var(--lume); color: var(--grafite); font-size: .5rem; letter-spacing: .16em; }
+.pack:has(input:checked) { border-color: var(--grafite); background: var(--branco); }
+.pack input:checked + .pack-check { background: var(--grafite); border-color: var(--grafite); }
+.pack input:checked + .pack-check svg { stroke-dashoffset: 0; }
+.pack input:focus-visible + .pack-check { outline: 2px solid var(--lume); outline-offset: 3px; }
+.total { margin-top: var(--s-6); padding-top: var(--s-6); border-top: 1px solid var(--pedra-300); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-5); }
+.total .mono { display: block; font-size: .5625rem; letter-spacing: .2em; color: var(--grafite-80); }
+.total strong { display: block; font-size: clamp(2rem, 3.2vw, 2.75rem); font-weight: 500; letter-spacing: var(--tracking-tighter); line-height: 1.1; font-variant-numeric: tabular-nums; }
+.total-sub { font-size: .8125rem; color: var(--grafite-80); }
+.buy-msg { margin: var(--s-4) 0 0; font-size: .625rem; letter-spacing: .16em; color: var(--lume-escuro); min-height: 1.2em; }
+.trust { list-style: none; margin: var(--s-8) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s-3); }
+.trust li { display: inline-flex; align-items: center; gap: var(--s-2); padding: var(--s-2) var(--s-4); border-radius: var(--radius-full); border: 1px solid var(--pedra-300); font-size: .8125rem; }
+.trust svg { width: 18px; height: 18px; color: var(--lume-escuro); }
+
+/* =====================================================================
+   RODAPÉ
+   ===================================================================== */
+.ft { position: relative; z-index: 3; background: var(--grafite); color: rgba(255,255,255,.72); overflow: hidden; }
+.ft-ink { display: block; width: 100%; height: 120px; margin-bottom: -40px; }
+.ft-inner { max-width: 1400px; margin: 0 auto; padding: 6vh var(--gutter) var(--s-8); }
+.ft-cols { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1.4fr; gap: 4vw; padding-bottom: 8vh; border-bottom: 1px solid rgba(255,255,255,.1); }
+.ft .wordmark { color: var(--branco); }
+.ft-brand p { margin: var(--s-4) 0 0; max-width: 18rem; font-size: .9375rem; line-height: 1.6; }
+.ft-nav { display: flex; flex-direction: column; gap: var(--s-3); }
+.ft .mono { font-size: .5625rem; letter-spacing: .2em; color: rgba(255,255,255,.6); margin-bottom: var(--s-2); }
+.ft-nav a { width: max-content; font-size: .9375rem; color: rgba(255,255,255,.85); background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size var(--dur-base) var(--ease-architect), color var(--dur-base); }
+.ft-nav a:hover { color: var(--branco); background-size: 100% 1px; }
+.ft-field { position: relative; margin-top: var(--s-2); }
+.ft-field input { width: 100%; background: transparent; border: 0; border-bottom: 1px solid rgba(255,255,255,.25); padding: 1.3rem 44px .6rem 0; font: inherit; font-size: 1rem; color: var(--branco); outline: none; border-radius: 0; }
+.ft-field label { position: absolute; left: 0; top: 1.2rem; font-size: 1rem; color: rgba(255,255,255,.6); pointer-events: none; transition: all .4s var(--ease-architect); }
+.ft-field input:focus + label, .ft-field input:not(:placeholder-shown) + label { top: 0; font-size: .625rem; letter-spacing: .14em; text-transform: uppercase; font-family: var(--font-mono); color: var(--lume); }
+.ft-field .bar { position: absolute; left: 0; bottom: 0; height: 1px; width: 100%; background: var(--lume); transform: scaleX(0); transform-origin: left; transition: transform .6s var(--ease-architect); }   /* input do DS */
+.ft-field input:focus ~ .bar { transform: scaleX(1); }
+.ft-field button { position: absolute; right: 0; bottom: 6px; width: 36px; height: 36px; border-radius: var(--radius-full); display: grid; place-items: center; color: var(--grafite); background: var(--lume); transition: transform var(--dur-base) var(--ease-architect); }
+.ft-field button:hover { transform: translateX(3px); }
+.ft-field button svg { width: 16px; height: 16px; }
+.ft-news-msg { margin: var(--s-3) 0 0; min-height: 1.2em; color: var(--lume) !important; }
+.ft-giant { /* lettering transparente que se preenche (DS .text-outline-fill, versão escura) */
+  margin: 4vh 0 2vh; text-align: center; white-space: nowrap; user-select: none;
+  font-size: clamp(5rem, 19vw, 19rem); font-weight: 600; letter-spacing: -0.04em; line-height: .9;
+  color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,.22);
+  background: linear-gradient(90deg, rgba(255,255,255,.95) 0 50%, transparent 50% 100%); background-size: 200% 100%; background-position: 100% 0;
+  -webkit-background-clip: text; background-clip: text; transition: background-position 1.4s var(--ease-architect);
+}
+.ft-giant:hover, .ft-giant.is-filled { background-position: 0 0; }
+.ft-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--s-4); padding-top: var(--s-6); border-top: 1px solid rgba(255,255,255,.1); }
+.ft-bottom .mono { margin: 0; }
+.ft-top { display: inline-flex; align-items: center; gap: var(--s-2); padding: var(--s-3) var(--s-5); border-radius: var(--radius-full); border: 1px solid rgba(255,255,255,.2); color: var(--branco); font-size: .625rem; letter-spacing: .2em;
+  transition: background var(--dur-base) var(--ease-architect), color var(--dur-base); }
+.ft-top svg { width: 14px; height: 14px; transition: transform var(--dur-base) var(--ease-architect); }
+.ft-top:hover { background: var(--branco); color: var(--tinta); }
+.ft-top:hover svg { transform: translateY(-3px); }
+
+@media (max-width: 1024px) {
+  .s4-stage { min-height: 0; }
+  .s4-inner { grid-template-columns: 1fr; padding: 14vh var(--gutter) 10vh; }
+  .s5-inner { grid-template-columns: 1fr; padding: 12vh var(--gutter); }
+  .s5-visual { max-width: 520px; width: 100%; margin: 0 auto; }
+  .ft-cols { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 768px) {
+  .s4 { margin-top: -8vh; }
+  .s4-title, .s5-title { font-size: clamp(2.2rem, 10vw, 3.2rem); }
+  .bp-text, .bp-tb { display: none; }
+  .bp-dimtext, .balloon text { font-size: 18px; }
+  .pack { padding: var(--s-3) var(--s-4); gap: var(--s-3); }
+  .pack-name { font-size: .9375rem; }
+  .ft-cols { grid-template-columns: 1fr; gap: var(--s-8); }
+}
+
+/* Espaço reservado da próxima dobra */
 .s3-placeholder { position: relative; z-index: 2; height: 70vh; display: grid; place-items: center; background: var(--osso); border-top: 1px solid var(--pedra-300); }
 .s3-placeholder .mono { color: var(--grafite-80); letter-spacing: var(--tracking-overline); font-size: .6875rem; }
 
@@ -612,7 +958,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
                 </span>
               </span>
               <!-- [CONFIRMAR] destino de "Ver detalhes" (seção de especificações) -->
-              <a class="btn-outline" href="#detalhes" data-magnetic>
+              <a class="btn-outline" href="#ponta" data-magnetic>
                 Ver detalhes
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
               </a>
@@ -740,10 +1086,393 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     </div>
   </section>
 
-  <!-- Espaço reservado da 3ª dobra (permite a animação de SAÍDA da 2ª dobra). Substituir depois. -->
-  <section class="s3-placeholder" id="tinta" aria-label="Próxima dobra (em produção)">
-    <p class="mono">03 — Tinta · próxima dobra</p>
+  <!-- ===================== 3ª DOBRA — A TINTA (capítulo escuro) =====================
+       Especificações abaixo são FICTÍCIAS (projeto de estudo). -->
+  <section class="s3" id="tinta" aria-labelledby="s3-title">
+    <div class="s3-ink" aria-hidden="true"></div>          <!-- mancha de tinta que se espalha ao entrar -->
+    <div class="s3-grain grain" aria-hidden="true"></div>
+    <div class="s3-orb s3-orb-a" aria-hidden="true"></div>
+    <div class="s3-orb s3-orb-b" aria-hidden="true"></div>
+    <div class="s3-giant" aria-hidden="true"><span>Pigmento</span><span class="serif">pigmento</span><span>Pigmento</span></div>
+
+    <div class="s3-inner" id="s3Inner">
+      <!-- ---------- Cabeçalho ---------- -->
+      <header class="s3-head">
+        <div>
+          <p class="s3-eyebrow s3-in">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c3.5 4.2 6 7.6 6 10.6A6 6 0 0 1 6 13.6C6 10.6 8.5 7.2 12 3Z"/><path d="M9.2 14.2a2.9 2.9 0 0 0 2.6 2.6"/></svg>
+            <span class="mono">03 — A tinta</span>
+          </p>
+          <h2 class="s3-title" id="s3-title">
+            <span class="t-line t-sans">Uma vez no papel,</span>
+            <span class="t-line t-serif">para sempre<span class="lume-dot">.</span></span>
+          </h2>
+        </div>
+        <div class="s3-head-side s3-in">
+          <p class="s3-lede">Pigmento de alta densidade em suspensão: preto profundo, seca em 2 segundos e não cede à água nem à luz. Não acredite em nós — <em>teste na folha</em>.</p>
+          <span class="s3-hint mono"><span class="pulse" aria-hidden="true"></span>A folha é interativa</span>
+        </div>
+      </header>
+
+      <div class="s3-grid">
+        <!-- ---------- Folha de teste ---------- -->
+        <div class="s3-lab s3-in-card">
+          <div class="pad" id="padWrap">
+            <div class="pad-top">
+              <span class="mono">Folha 03 · teste de tinta</span>
+              <span class="mono pad-paper">Papel 90 g/m²</span>
+            </div>
+            <svg class="pad-svg" id="pad" viewBox="0 0 600 420" role="img" aria-label="Folha de teste: desenhe com o mouse ou o dedo">
+              <defs>
+                <pattern id="padDots" width="15" height="15" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1.1" fill="#D6D3D1"/></pattern>
+                <filter id="bleed" x="-20%" y="-60%" width="140%" height="220%">
+                  <feTurbulence type="fractalNoise" baseFrequency=".045" numOctaves="2" seed="7" result="n"/>
+                  <feDisplacementMap id="bleedMap" in="SourceGraphic" in2="n" scale="0" xChannelSelector="R" yChannelSelector="G" result="d"/>
+                  <feGaussianBlur id="bleedBlur" in="d" stdDeviation="0"/>
+                </filter>
+                <filter id="wobble"><feTurbulence type="fractalNoise" baseFrequency=".02" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="22"/></filter>
+              </defs>
+              <rect width="600" height="420" fill="url(#padDots)"/>
+
+              <!-- esboço pré-desenhado com a Pigmentum -->
+              <g id="preset" fill="none" stroke="#1C1C1C" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+                <path class="sk" d="M70 250 L170 205 L280 240 L180 292 Z"/>
+                <path class="sk" d="M70 250 V150 L170 105 V205 M170 105 L280 140 V240 M70 150 L180 192 L280 140 M180 192 V292"/>
+                <path class="sk" d="M90 160 L90 236 M110 168 V244 M130 176 V252 M150 184 V260"/>
+                <path class="sk" d="M196 194 L264 162 M196 210 L264 178 M196 226 L264 194 M196 242 L264 210 M196 258 L264 226"/>
+                <path class="sk" d="M40 300 H320 M40 296 V304 M320 296 V304"/>
+              </g>
+              <text class="pad-label" x="40" y="326">PIGMENTUM 0.1 · TRAÇO SECO</text>
+
+              <!-- amostra de tinta comum (vai borrar na água) -->
+              <g id="common" filter="url(#bleed)">
+                <path id="commonPath" d="M372 210 C 400 170, 430 250, 460 205 S 520 175, 552 220" fill="none" stroke="#1C1C1C" stroke-width="2.6" stroke-linecap="round"/>
+                <path d="M372 250 H552" fill="none" stroke="#1C1C1C" stroke-width="2.6" stroke-linecap="round"/>
+              </g>
+              <text class="pad-label" x="372" y="282">TINTA COMUM</text>
+
+              <g id="userInk" fill="none" stroke-linecap="round" stroke-linejoin="round"></g>
+              <g id="water" filter="url(#wobble)" pointer-events="none"></g>
+            </svg>
+            <div class="pad-strap" aria-hidden="true"></div>
+            <span class="pad-cursor-hint mono" id="padHint" aria-hidden="true">Desenhe aqui ↘</span>
+          </div>
+
+          <!-- Medidor + controles -->
+          <div class="lab-bar">
+            <div class="meter">
+              <div><span class="mono">Seu traço</span><strong id="mLen">0.0<small>cm</small></strong></div>
+              <div><span class="mono">Restam na carga</span><strong id="mLeft">400.0000<small>m</small></strong></div>
+              <div><span class="mono">Carga usada</span><strong id="mPct">0.00000<small>%</small></strong></div>
+            </div>
+            <div class="lab-actions">
+              <button class="btn-glass" id="btnWater" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 3c3.5 4.2 6 7.6 6 10.6A6 6 0 0 1 6 13.6C6 10.6 8.5 7.2 12 3Z"/></svg>
+                Derramar água
+              </button>
+              <button class="btn-text" id="btnClear" type="button">Limpar folha</button>
+            </div>
+            <p class="lab-status mono" id="labStatus" aria-live="polite">Tinta molhada em Lume · seca para o preto em 2 s</p>
+          </div>
+
+          <!-- Lente de microscopia -->
+          <div class="lens" aria-hidden="true">
+            <canvas id="lensCanvas" width="440" height="440"></canvas>
+            <svg class="lens-ring" viewBox="0 0 200 200">
+              <defs><path id="lensCircle" d="M100 100 m-88 0 a88 88 0 1 1 176 0 a88 88 0 1 1 -176 0"/></defs>
+              <text><textPath href="#lensCircle">MICROSCOPIA DO PIGMENTO · ×400 · ASSENTANDO NA FIBRA · </textPath></text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- ---------- Propriedades ---------- -->
+        <ul class="props" role="list">
+          <li class="prop flashlight-card s3-in-card" data-flashlight>
+            <div class="prop-ico ico-pigment" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <span class="mono">Pigmento</span>
+            <strong>0.2<small>µm</small></strong>
+            <p>Partículas que não penetram: assentam e se fixam na fibra do papel.</p>
+          </li>
+          <li class="prop flashlight-card s3-in-card" data-flashlight>
+            <div class="prop-ico" aria-hidden="true">
+              <svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="18" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="2"/><circle class="ring-dash" cx="24" cy="24" r="18" fill="none" stroke="#D6A461" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <span class="mono">Secagem</span>
+            <strong>2<small>s</small></strong>
+            <p>Seca ao toque em dois segundos. Sem borrão na mão de quem desenha.</p>
+          </li>
+          <li class="prop flashlight-card s3-in-card" data-flashlight>
+            <div class="prop-ico ico-drop" aria-hidden="true">
+              <span class="radar"></span><span class="radar r2"></span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="#D6A461" stroke-width="1.4"><path d="M12 3c3.5 4.2 6 7.6 6 10.6A6 6 0 0 1 6 13.6C6 10.6 8.5 7.2 12 3Z"/></svg>
+            </div>
+            <span class="mono">À prova d'água</span>
+            <strong>100<small>%</small></strong>
+            <p>Passe aquarela ou marcador por cima: o traço continua lá.</p>
+          </li>
+          <li class="prop flashlight-card s3-in-card" data-flashlight>
+            <div class="prop-ico ico-sun" aria-hidden="true">
+              <svg viewBox="0 0 48 48" fill="none" stroke="#D6A461" stroke-width="1.6" stroke-linecap="round"><circle cx="24" cy="24" r="7"/><g class="rays"><path d="M24 6v5M24 37v5M6 24h5M37 24h5M11.3 11.3l3.5 3.5M33.2 33.2l3.5 3.5M11.3 36.7l3.5-3.5M33.2 14.8l3.5-3.5"/></g></svg>
+            </div>
+            <span class="mono">Resistente à luz</span>
+            <strong>8<small>/8</small></strong>
+            <p>Escala Blue Wool 8: não desbota sob luz direta, nem com os anos.</p>
+          </li>
+        </ul>
+      </div>
+
+      <div class="s3-foot s3-in">
+        <span class="cta-wrap" data-magnetic>
+          <span class="btn-beam">
+            <span class="ring" aria-hidden="true"></span>
+            <a class="btn-primary btn-on-dark" href="#comprar">
+              Quero essa tinta
+              <span class="circle" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+              </span>
+            </a>
+          </span>
+        </span>
+        <span class="mono s3-foot-note">Tinta pigmentada · preto 0.1 · carga de 400 m</span>
+      </div>
+    </div>
   </section>
+
+  <!-- ===================== 4ª DOBRA — ESPECIFICAÇÕES (ficha técnica viva) =====================
+       Medidas, materiais, preços e políticas abaixo são FICTÍCIOS (projeto de estudo). -->
+  <section class="s4" id="especificacoes" aria-labelledby="s4-title">
+    <div class="s4-stage" id="s4Stage">
+      <div class="s4-paper" aria-hidden="true"></div>
+      <div class="s4-inner">
+        <div class="s4-main">
+          <header class="s4-head">
+            <p class="s4-eyebrow s4-in">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 2v20M2 12h20"/></svg>
+              <span class="mono">04 — Especificações</span>
+            </p>
+            <h2 class="s4-title" id="s4-title">
+              <span class="t-line t-sans">Projetada como</span>
+              <span class="t-line"><span class="t-serif">um desenho</span> <span class="t-outline">técnico.</span></span>
+            </h2>
+          </header>
+
+          <!-- Desenho técnico (vista explodida) -->
+          <figure class="bp-wrap s4-in">
+            <svg class="bp" id="bp" viewBox="140 40 1060 400" role="img" aria-labelledby="bpTitle">
+              <title id="bpTitle">Desenho técnico da Pigmentum 0.1: tampa com clipe, corpo, cartucho de pigmento, ponta de 0.1 mm e tampa traseira, em vista explodida</title>
+              <path class="bp-axis" d="M160 210 H1180"/>
+
+              <!-- 06 · tampa traseira -->
+              <g class="part" data-part="6" id="pPlug">
+                <path class="bp-fill" d="M1050 185 H1080 Q1090 185 1090 195 V225 Q1090 235 1080 235 H1050 Z"/>
+                <path class="bp-line" d="M1050 185 H1080 Q1090 185 1090 195 V225 Q1090 235 1080 235 H1050"/>
+                <path class="bp-line thin" d="M1060 185 V235"/>
+              </g>
+              <!-- 03 · corpo -->
+              <g class="part" data-part="3" id="pBody">
+                <path class="bp-fill" d="M440 182 L452 177 H1050 V243 H452 L440 238 Z"/>
+                <path class="bp-line" d="M440 182 L452 177 H1050 V243 H452 L440 238 Z"/>
+                <path class="bp-line thin" d="M600 177 V243 M612 177 V243"/>
+                <text class="bp-text" x="700" y="214">ARTOOLS · PIGMENTUM · 0.1</text>
+              </g>
+              <!-- 04 · cartucho (linha oculta, tracejada) -->
+              <g class="part" data-part="4" id="pCart">
+                <path class="bp-hidden" d="M470 192 H1032 V228 H470 Z M486 192 V228"/>
+              </g>
+              <!-- 05 · ponta -->
+              <g class="part" data-part="5" id="pNib">
+                <path class="bp-line" d="M440 182 L404 197 V223 L440 238"/>
+                <path class="bp-line" d="M404 205 H380 V215 H404"/>
+                <path class="bp-line" d="M380 209 L354 209.6 L351 210 L354 210.4 L380 211"/>
+              </g>
+              <!-- 01 · tampa + 02 · clipe -->
+              <g id="pCapGroup">
+                <g class="part" data-part="1" id="pCap">
+                  <path class="bp-fill" d="M346 172 H474 V248 H346 Q330 248 330 232 V188 Q330 172 346 172 Z"/>
+                  <path class="bp-line" d="M346 172 H474 V248 H346 Q330 248 330 232 V188 Q330 172 346 172 Z"/>
+                  <rect class="bp-line thin" x="362" y="198" width="34" height="24" rx="3"/>
+                  <path class="bp-line thin" d="M462 172 V248"/>
+                </g>
+                <g class="part" data-part="2" id="pClip">
+                  <path class="bp-line" d="M354 172 V160 Q354 154 362 154 H448 Q456 154 456 162 V166"/>
+                  <circle class="bp-line" cx="452" cy="168" r="4"/>
+                </g>
+              </g>
+
+              <!-- cotas -->
+              <g id="bpDims">
+                <g id="bpDimOverall">
+                  <path class="bp-dim" d="M330 254 V308 M1090 254 V308 M330 298 H664 M756 298 H1090 M324 304 L336 292 M1084 304 L1096 292"/>
+                  <text class="bp-dimtext" x="710" y="303" text-anchor="middle">142 mm</text>
+                </g>
+                <path class="bp-dim" d="M1000 140 V177 M1000 243 V280 M995 170 L1000 177 L1005 170 M995 250 L1000 243 L1005 250"/>
+                <text class="bp-dimtext" x="1012" y="146">Ø 9.5</text>
+              </g>
+              <g id="bpNibDim">
+                <path class="bp-dim lume" d="M352 210 L330 292 H214"/>
+                <text class="bp-dimtext lume-t" x="216" y="284">Ø 0.1 mm</text>
+              </g>
+
+              <!-- balões numerados -->
+              <g id="bpBalloons">
+                <g class="balloon" data-part="1"><path d="M250 172 V100"/><circle cx="250" cy="86" r="14"/><text x="250" y="90.5">1</text></g>
+                <g class="balloon" data-part="2"><path d="M300 154 L332 100"/><circle cx="340" cy="86" r="14"/><text x="340" y="90.5">2</text></g>
+                <g class="balloon" data-part="5"><path d="M420 197 L462 122"/><circle cx="470" cy="108" r="14"/><text x="470" y="112.5">5</text></g>
+                <g class="balloon" data-part="3"><path d="M720 177 V100"/><circle cx="720" cy="86" r="14"/><text x="720" y="90.5">3</text></g>
+                <g class="balloon" data-part="4"><path d="M860 228 V330"/><circle cx="860" cy="344" r="14"/><text x="860" y="348.5">4</text></g>
+                <g class="balloon" data-part="6"><path d="M1140 185 L1150 110"/><circle cx="1150" cy="96" r="14"/><text x="1150" y="100.5">6</text></g>
+              </g>
+
+              <!-- carimbo -->
+              <g id="bpTitleBlock">
+                <path class="bp-dim" d="M920 376 H1190 V430 H920 Z M920 403 H1190 M1070 376 V430"/>
+                <text class="bp-tb strong" x="930" y="394">ARTOOLS</text><text class="bp-tb" x="1080" y="394">FOLHA 04</text>
+                <text class="bp-tb" x="930" y="421">PIGMENTUM 0.1</text><text class="bp-tb" x="1080" y="421">ESC. 2:3</text>
+              </g>
+            </svg>
+            <figcaption class="bp-cap mono"><span class="pulse" aria-hidden="true"></span>Vista explodida · explore as peças</figcaption>
+          </figure>
+        </div>
+
+        <!-- Tabela de componentes + medidas -->
+        <aside class="s4-side s4-in" aria-label="Componentes e medidas">
+          <span class="mono s4-side-title">Componentes</span>
+          <ol class="parts" role="list">
+            <li class="part-row" data-part="1" tabindex="0"><span class="n">01</span><span class="t">Tampa</span><span class="d">Policarbonato fosco, com janela</span></li>
+            <li class="part-row" data-part="2" tabindex="0"><span class="n">02</span><span class="t">Clipe</span><span class="d">Aço inox com mola</span></li>
+            <li class="part-row" data-part="3" tabindex="0"><span class="n">03</span><span class="t">Corpo</span><span class="d">Resina fosca · pega anelada</span></li>
+            <li class="part-row" data-part="4" tabindex="0"><span class="n">04</span><span class="t">Cartucho</span><span class="d">Pigmento preto · 400 m</span></li>
+            <li class="part-row" data-part="5" tabindex="0"><span class="n">05</span><span class="t">Ponta</span><span class="d">Aço inox calibrado · Ø 0.1 mm</span></li>
+            <li class="part-row" data-part="6" tabindex="0"><span class="n">06</span><span class="t">Tampa traseira</span><span class="d">Vedação contra ressecamento</span></li>
+          </ol>
+          <dl class="measures">
+            <div><dt class="mono">Comprimento</dt><dd>142<small>mm</small></dd></div>
+            <div><dt class="mono">Diâmetro</dt><dd>9.5<small>mm</small></dd></div>
+            <div><dt class="mono">Peso</dt><dd>12<small>g</small></dd></div>
+            <div><dt class="mono">Traço</dt><dd>0.1<small>mm</small></dd></div>
+          </dl>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FECHAMENTO — COMPRAR ===================== -->
+  <section class="s5" id="comprar" aria-labelledby="s5-title">
+    <div class="s5-inner">
+      <div class="s5-visual s5-in" aria-hidden="true">
+        <div class="s5-halo"></div>
+        <img class="s5-pen" src="pigmentum/flutuar.webp" alt="" width="880" height="440" loading="lazy" />
+        <div class="s5-shadow"></div>
+        <span class="s5-tag mono"><span class="pulse"></span>Em estoque</span>
+      </div>
+
+      <div class="s5-buy">
+        <p class="s4-eyebrow s5-in"><span class="mono">05 — Sua Pigmentum</span></p>
+        <h2 class="s5-title" id="s5-title"><span class="t-line t-sans">Seu próximo traço</span><span class="t-line t-serif">começa aqui<span class="lume-dot">.</span></span></h2>
+
+        <form class="packs s5-in" id="packs" onsubmit="event.preventDefault()">
+          <fieldset>
+            <legend class="mono">Escolha o kit</legend>
+            <label class="pack">
+              <input type="radio" name="pack" value="24.90" data-units="1" />
+              <span class="pack-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6.5 5 9l5-6"/></svg></span>
+              <span class="pack-name">Unidade<small>1 caneta</small></span>
+              <span class="pack-price">R$ 24,90</span>
+            </label>
+            <label class="pack">
+              <input type="radio" name="pack" value="64.90" data-units="3" />
+              <span class="pack-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6.5 5 9l5-6"/></svg></span>
+              <span class="pack-name">Kit Estúdio<small>3 canetas · economize 13%</small></span>
+              <span class="pack-price">R$ 64,90</span>
+            </label>
+            <label class="pack">
+              <input type="radio" name="pack" value="99.90" data-units="5" checked />
+              <span class="pack-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6.5 5 9l5-6"/></svg></span>
+              <span class="pack-name">Kit Ateliê<small>5 canetas · economize 20%</small></span>
+              <span class="pack-price">R$ 99,90</span>
+              <span class="pack-badge mono">Mais escolhido</span>
+            </label>
+          </fieldset>
+
+          <div class="total">
+            <div>
+              <span class="mono">Total</span>
+              <strong id="total">R$ 99,90</strong>
+              <span class="total-sub" id="totalSub">ou 3× de R$ 33,30 sem juros · R$ 19,98 por caneta</span>
+            </div>
+            <span class="cta-wrap" data-magnetic>
+              <span class="btn-beam">
+                <span class="ring" aria-hidden="true"></span>
+                <!-- [CONFIRMAR] integração com o checkout -->
+                <button class="btn-primary" type="submit" id="buyBtn">
+                  Comprar agora
+                  <span class="circle" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+                  </span>
+                </button>
+              </span>
+            </span>
+          </div>
+          <p class="buy-msg mono" id="buyMsg" aria-live="polite"></p>
+        </form>
+
+        <ul class="trust s5-in" role="list">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.6"/><circle cx="17" cy="17.5" r="1.6"/></svg>Envio em 24 h</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4"/></svg>Troca em 30 dias</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M12 3 5 6v5c0 4.4 3 8.3 7 10 4-1.7 7-5.6 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg>Garantia de 1 ano</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== RODAPÉ ===================== -->
+  <footer class="ft" id="rodape">
+    <svg class="ft-ink" viewBox="0 0 1440 120" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <path id="ftInk" d="M-10 70 C 120 20, 220 110, 340 64 S 560 18, 700 62 S 900 110, 1040 58 S 1260 24, 1380 66 L 1452 66" fill="none" stroke="#D6A461" stroke-width="1.6" stroke-linecap="round"/>
+      <circle id="ftInkDot" cx="1380" cy="66" r="3.5" fill="#D6A461"/>
+    </svg>
+    <div class="ft-inner">
+      <div class="ft-cols">
+        <div class="ft-brand">
+          <a class="wordmark" href="#hero" aria-label="ARTOOLS — voltar ao início">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="2.5"/></svg>
+            ARTOOLS
+          </a>
+          <p>Pigmentum 0.1 — para quem pensa em décimos de milímetro.</p>
+        </div>
+        <nav class="ft-nav" aria-label="Rodapé">
+          <span class="mono">Produto</span>
+          <a href="#hero">Design</a><a href="#ponta">Ponta 0.1</a><a href="#tinta">Tinta</a><a href="#especificacoes">Especificações</a>
+        </nav>
+        <nav class="ft-nav" aria-label="Atendimento">
+          <span class="mono">Atendimento</span>
+          <!-- [CONFIRMAR] links de atendimento -->
+          <a href="#rodape">Central de ajuda</a><a href="#rodape">Trocas e devoluções</a><a href="#rodape">Rastrear pedido</a>
+        </nav>
+        <form class="ft-news" id="news" onsubmit="event.preventDefault()">
+          <span class="mono">Lançamentos</span>
+          <div class="ft-field">
+            <input id="newsEmail" type="email" placeholder=" " required autocomplete="email" />
+            <label for="newsEmail">Seu e-mail</label>
+            <span class="bar" aria-hidden="true"></span>
+            <button type="submit" aria-label="Inscrever">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </button>
+          </div>
+          <p class="ft-news-msg mono" id="newsMsg" aria-live="polite"></p>
+        </form>
+      </div>
+      <div class="ft-giant" aria-hidden="true">ARTOOLS</div>
+      <div class="ft-bottom">
+        <span class="mono">© 2026 ARTOOLS · Projeto de estudo · Curso Asimov</span>
+        <button class="ft-top mono" id="toTop" type="button" data-magnetic>Voltar ao topo
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+        </button>
+      </div>
+    </div>
+  </footer>
 </main>
 
 <div class="cursor" id="cursor" aria-hidden="true"><span id="cursorText">Role</span></div>
@@ -1130,6 +1859,286 @@ function setupFold2() {
     onEnter: () => nav('#ponta'), onEnterBack: () => nav('#ponta'), onLeave: () => nav('#tinta'), onLeaveBack: () => nav('#design') });
 }
 
+/* =====================================================================
+   3ª DOBRA — A TINTA
+   ===================================================================== */
+const SVGNS = 'http://www.w3.org/2000/svg';
+
+// ---- Folha de teste: desenhar, secar em 2 s, medir, testar água ----
+function setupPad() {
+  const svg = $('#pad'), layer = $('#userInk'), water = $('#water'), status = $('#labStatus');
+  const DEFAULT_STATUS = 'Tinta molhada em Lume · seca para o preto em 2 s';
+  let path = null, last = null, total = 0, dryTimer;
+  const setStatus = (html) => { status.innerHTML = html; };
+  const toLocal = (e) => { const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); };
+  // escala da folha: 600 unidades = 15 cm → 1 unidade = 0.25 mm
+  const meter = () => {
+    $('#mLen').innerHTML = `${(total * 0.025).toFixed(1)}<small>cm</small>`;
+    $('#mLeft').innerHTML = `${(400 - total * 0.00025).toFixed(4)}<small>m</small>`;
+    $('#mPct').innerHTML = `${((total * 0.00025) / 400 * 100).toFixed(5)}<small>%</small>`;
+  };
+  svg.addEventListener('pointerdown', (e) => {
+    if (e.button > 0) return;
+    svg.setPointerCapture(e.pointerId);
+    const p = toLocal(e); last = p;
+    path = document.createElementNS(SVGNS, 'path');
+    path.setAttribute('d', `M${p.x.toFixed(1)} ${p.y.toFixed(1)}`);
+    layer.appendChild(path);
+    $('#padHint').classList.add('gone');
+    clearTimeout(dryTimer); setStatus('<b>Molhada</b> · traçando com a ponta 0.1');
+  });
+  svg.addEventListener('pointermove', (e) => {
+    if (!path) return;
+    const p = toLocal(e), d = Math.hypot(p.x - last.x, p.y - last.y);
+    if (d < 1.2) return;
+    total += d; last = p;
+    path.setAttribute('d', path.getAttribute('d') + `L${p.x.toFixed(1)} ${p.y.toFixed(1)}`);
+    meter();
+  });
+  const end = () => {
+    if (!path) return;
+    const p = path; path = null;
+    requestAnimationFrame(() => p.classList.add('dry'));          // transição de 2 s: Lume → preto
+    setStatus('Secando…');
+    clearTimeout(dryTimer); dryTimer = setTimeout(() => setStatus('<b>Seco em 2 s</b> · pode passar a mão'), 2000);
+  };
+  svg.addEventListener('pointerup', end); svg.addEventListener('pointercancel', end);
+
+  // Teste da água: Pigmentum fica, tinta comum borra
+  $('#btnWater').addEventListener('click', () => {
+    const btn = $('#btnWater'); btn.disabled = true;
+    layer.querySelectorAll('path').forEach((p) => p.classList.add('dry'));
+    setStatus('Derramando água…');
+    const drops = [[440, 230], [500, 260], [380, 190], [210, 220], [560, 180], [300, 300], [120, 180]];
+    drops.forEach(([x, y], i) => {
+      const c = document.createElementNS(SVGNS, 'circle');
+      c.setAttribute('cx', x); c.setAttribute('cy', y); c.setAttribute('r', 0); water.appendChild(c);
+      gsap.to(c, { attr: { r: 50 + (i % 3) * 30 }, duration: REDUCED ? 0 : 1.8, delay: REDUCED ? 0 : i * 0.12, ease: 'expo.out' });
+    });
+    const t = REDUCED ? 0 : 2.2;
+    gsap.to('#bleedMap', { attr: { scale: 18 }, duration: t, ease: 'power2.out' });
+    gsap.to('#bleedBlur', { attr: { stdDeviation: 1.8 }, duration: t, ease: 'power2.out' });
+    gsap.to('#common path', { attr: { stroke: '#5B6470' }, opacity: 0.7, duration: t });
+    setTimeout(() => {
+      gsap.to('#water circle', { opacity: 0, duration: REDUCED ? 0 : 1.6, onComplete: () => { water.innerHTML = ''; } });   // a água evapora
+      setStatus('<b>Pigmentum intacta.</b> A tinta comum borrou.');
+      btn.disabled = false;
+    }, REDUCED ? 0 : 2600);
+  });
+
+  $('#btnClear').addEventListener('click', () => {
+    layer.innerHTML = ''; water.innerHTML = ''; total = 0; meter();
+    gsap.to('#bleedMap', { attr: { scale: 0 }, duration: 0.6 });
+    gsap.to('#bleedBlur', { attr: { stdDeviation: 0 }, duration: 0.6 });
+    gsap.to('#common path', { attr: { stroke: '#1C1C1C' }, opacity: 1, duration: 0.6 });
+    $('#padHint').classList.remove('gone'); setStatus(DEFAULT_STATUS);
+  });
+}
+
+// ---- Lente: partículas de pigmento assentando nas fibras (campo escuro) ----
+function setupLens() {
+  const c = $('#lensCanvas'), ctx = c.getContext('2d'), W = c.width, H = c.height;
+  const fibers = [];
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  function buildFibers() {
+    fibers.length = 0;
+    for (let f = 0; f < 7; f++) {
+      const y0 = rnd(30, H - 30), y1 = rnd(30, H - 30), cy = rnd(0, H), pts = [];
+      for (let i = 0; i <= 60; i++) { const t = i / 60, mt = 1 - t; pts.push([t * W, mt * mt * y0 + 2 * mt * t * cy + t * t * y1]); }
+      fibers.push(pts);
+    }
+  }
+  let parts = [];
+  function init() {
+    buildFibers();
+    parts = Array.from({ length: 190 }, () => {
+      const fib = fibers[(Math.random() * fibers.length) | 0], pt = fib[(Math.random() * fib.length) | 0];
+      return { x: rnd(0, W), y: rnd(0, H), vx: rnd(-1, 1), vy: rnd(-1, 1), tx: pt[0] + rnd(-3, 3), ty: pt[1] + rnd(-3, 3), s: rnd(0.8, 2.2), lume: Math.random() < 0.18, stuck: false };
+    });
+    ctx.fillStyle = '#050505'; ctx.fillRect(0, 0, W, H);
+  }
+  function step(draw = true) {
+    for (const p of parts) {
+      if (p.stuck) { p.x += rnd(-0.15, 0.15); p.y += rnd(-0.15, 0.15); continue; }
+      p.vx += (p.tx - p.x) * 0.0012 + rnd(-0.25, 0.25); p.vy += (p.ty - p.y) * 0.0012 + rnd(-0.25, 0.25);
+      p.vx *= 0.95; p.vy *= 0.95; p.x += p.vx; p.y += p.vy;
+      if (Math.hypot(p.tx - p.x, p.ty - p.y) < 2.5) p.stuck = true;
+    }
+    if (!draw) return;
+    ctx.fillStyle = 'rgba(5, 5, 5, .3)'; ctx.fillRect(0, 0, W, H);            // rastro
+    ctx.lineCap = 'round';
+    for (const f of fibers) {
+      ctx.beginPath(); f.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+      ctx.strokeStyle = 'rgba(255,255,255,.05)'; ctx.lineWidth = 7; ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,255,255,.08)'; ctx.lineWidth = 1.2; ctx.stroke();
+    }
+    for (const p of parts) {
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.s, 0, Math.PI * 2);
+      ctx.fillStyle = p.lume ? 'rgba(214,164,97,.95)' : (p.stuck ? 'rgba(255,255,255,.9)' : 'rgba(255,255,255,.55)');
+      ctx.fill();
+    }
+    const v = ctx.createRadialGradient(W / 2, H / 2, W * 0.28, W / 2, H / 2, W * 0.52);   // vinheta da lente
+    v.addColorStop(0, 'rgba(5,5,5,0)'); v.addColorStop(1, 'rgba(5,5,5,.95)');
+    ctx.fillStyle = v; ctx.fillRect(0, 0, W, H);
+  }
+  init();
+  if (REDUCED) { for (let i = 0; i < 900; i++) step(false); ctx.fillStyle = '#050505'; ctx.fillRect(0, 0, W, H); step(); return; }
+  let running = false, hiddenAt = 0;
+  const tick = () => { if (!running) return; step(); requestAnimationFrame(tick); };
+  new IntersectionObserver(([e]) => {
+    if (e.isIntersecting) { if (performance.now() - hiddenAt > 4000) init(); if (!running) { running = true; tick(); } }   // replay ao voltar
+    else { running = false; hiddenAt = performance.now(); }
+  }, { threshold: 0.1 }).observe(c);
+}
+
+function setupFold3() {
+  setupPad();
+  setupLens();
+  // lanterna (flashlight do Gemini) nos cards
+  document.addEventListener('pointermove', (e) => {
+    const card = e.target.closest && e.target.closest('[data-flashlight]'); if (!card) return;
+    const r = card.getBoundingClientRect();
+    card.style.setProperty('--mouse-x', `${e.clientX - r.left}px`); card.style.setProperty('--mouse-y', `${e.clientY - r.top}px`);
+  });
+  if (REDUCED) return;
+
+  // ---- A tinta se espalha pela página enquanto a seção sobe ----
+  // power2.in: a mancha começa pequena (gota) e acelera até cobrir tudo
+  gsap.fromTo('.s3-ink', { '--r': '0%' }, { '--r': '106%', ease: 'power2.in', scrollTrigger: { trigger: '#tinta', start: 'top bottom', end: 'top 5%', scrub: true } });
+  // a 2ª dobra afunda na tinta
+  gsap.fromTo('.s2-body', { filter: 'blur(0px)' }, { filter: 'blur(6px)', ease: 'none', scrollTrigger: { trigger: '#tinta', start: 'top 70%', end: 'top 10%', scrub: true } });
+
+  // ---- ENTRADA ----
+  const sans = SplitText.create('#s3-title .t-sans', { type: 'words', mask: 'words', wordsClass: 's3w' });
+  const animIn = { y: 30, opacity: 0, filter: 'blur(10px)', duration: 0.8, ease: 'power1.out' };
+  gsap.timeline({ defaults: { ease: 'expo.out' }, scrollTrigger: { trigger: '#s3Inner', start: 'top 40%', toggleActions: 'play none none reverse' } })
+    .from('.s3-eyebrow', animIn, 0)
+    .from(sans.words, { yPercent: 110, opacity: 0, duration: 1.2, stagger: 0.07 }, 0.05)
+    .from('#s3-title .t-serif', { y: 40, opacity: 0, filter: 'blur(14px)', duration: 1.4, clearProps: 'filter' }, 0.35)   // serif com gradiente: blur-in inteiro
+    .from('.s3-head-side', animIn, 0.5)
+    .from('.s3-in-card', { y: 90, opacity: 0, scale: 0.94, filter: 'blur(14px)', duration: 1.4, stagger: 0.1 }, 0.4)
+    .from('#preset .sk', { drawSVG: '0%', duration: 1.6, stagger: 0.18, ease: 'power2.inOut' }, 0.9)
+    .from('.lens', { scale: 0.4, rotate: -60, opacity: 0, filter: 'blur(10px)', duration: 1.6 }, 1)
+    .from('.s3-foot', animIn, 1.1);
+
+  // ---- PARALLAX ----
+  gsap.timeline({ defaults: { ease: 'none' }, scrollTrigger: { trigger: '#tinta', start: 'top bottom', end: 'bottom top', scrub: 0.6 } })
+    .fromTo('.s3-giant', { xPercent: 4 }, { xPercent: -34 }, 0)
+    .fromTo('.s3-orb-a', { yPercent: 40 }, { yPercent: -40 }, 0)
+    .fromTo('.s3-orb-b', { yPercent: -20 }, { yPercent: 50 }, 0)
+    .fromTo('.lens', { y: 70 }, { y: -70 }, 0)
+    .fromTo('.props', { y: 60 }, { y: -40 }, 0);
+
+  // ---- SAÍDA ----
+  gsap.fromTo('#s3Inner', { opacity: 1, y: 0, filter: 'blur(0px)' }, {
+    opacity: 0.15, y: -70, filter: 'blur(8px)', ease: 'none',
+    scrollTrigger: { trigger: '#s3Inner', start: 'bottom 80%', end: 'bottom 15%', scrub: true },
+  });
+
+  // ---- Menu ----
+  const nav = (h) => window.__setNav && window.__setNav(h);
+  ScrollTrigger.create({ trigger: '#tinta', start: 'top 55%', end: 'bottom 55%',
+    onEnter: () => nav('#tinta'), onEnterBack: () => nav('#tinta'), onLeave: () => nav('#especificacoes'), onLeaveBack: () => nav('#ponta') });
+}
+
+/* =====================================================================
+   4ª DOBRA — ESPECIFICAÇÕES · COMPRAR · RODAPÉ
+   ===================================================================== */
+function setupFold4() {
+  // Âncoras internas (Comprar agora, Ficha técnica, rodapé…) com rolagem suave do Lenis
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest && e.target.closest('a[href^="#"]');
+    if (!a || a.closest('#pillMenu')) return;
+    const target = a.getAttribute('href').length > 1 && document.querySelector(a.getAttribute('href'));
+    if (!target) return;
+    e.preventDefault();
+    if (window.__lenis && !REDUCED) window.__lenis.scrollTo(target, { duration: 1.4 }); else target.scrollIntoView();
+  });
+
+  // Peça ↔ linha da tabela ↔ balão (destaque cruzado, mouse e teclado)
+  const bp = $('#bp');
+  const hl = (n) => { document.querySelectorAll('[data-part]').forEach((el) => el.classList.toggle('hl', el.dataset.part === n)); bp.classList.toggle('has-hl', !!n); };
+  document.querySelectorAll('.part, .balloon, .part-row').forEach((el) => {
+    el.addEventListener('pointerenter', () => hl(el.dataset.part)); el.addEventListener('pointerleave', () => hl(null));
+    el.addEventListener('focus', () => hl(el.dataset.part)); el.addEventListener('blur', () => hl(null));
+  });
+
+  // Kits: total animado (preços FICTÍCIOS)
+  const brl = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  const tot = { v: 99.9 };
+  const update = (animate = true) => {
+    const r = document.querySelector('input[name="pack"]:checked'), v = +r.value, u = +r.dataset.units;
+    gsap.to(tot, { v, duration: animate && !REDUCED ? 0.9 : 0, ease: 'expo.out', overwrite: true, onUpdate: () => { $('#total').textContent = brl(tot.v); } });
+    $('#totalSub').textContent = `ou 3× de ${brl(v / 3)} sem juros · ${brl(v / u)} por caneta`;
+    $('#buyMsg').textContent = '';
+  };
+  document.querySelectorAll('input[name="pack"]').forEach((r) => r.addEventListener('change', () => update()));
+  update(false);
+  $('#packs').addEventListener('submit', () => {
+    const r = document.querySelector('input[name="pack"]:checked');
+    const name = r.closest('.pack').querySelector('.pack-name').firstChild.textContent.trim();
+    $('#buyMsg').textContent = `${name} adicionado ao carrinho · checkout [CONFIRMAR]`;
+  });
+  $('#news').addEventListener('submit', () => { $('#newsMsg').textContent = 'Inscrição confirmada ✓'; $('#newsEmail').value = ''; });
+  $('#toTop').addEventListener('click', () => { if (window.__lenis && !REDUCED) window.__lenis.scrollTo(0, { duration: 2.2 }); else scrollTo(0, 0); });
+
+  if (REDUCED) {   // estado final: vista explodida montada, tudo visível
+    gsap.set('#pCapGroup', { x: -150 }); gsap.set('#pPlug', { x: 70 }); gsap.set('#bpDimOverall', { opacity: 0 });
+    $('.ft-giant').classList.add('is-filled');
+    return;
+  }
+
+  const animIn = { y: 30, opacity: 0, filter: 'blur(10px)', duration: 0.8, ease: 'power1.out' };
+  const nav = (h) => window.__setNav && window.__setNav(h);
+
+  // ---- Entrada do cabeçalho ----
+  const s4sans = SplitText.create('#s4-title .t-sans', { type: 'words', mask: 'words', wordsClass: 's4w' });
+  gsap.timeline({ defaults: { ease: 'expo.out' }, scrollTrigger: { trigger: '#especificacoes', start: 'top 60%', toggleActions: 'play none none reverse' } })
+    .from('#especificacoes .s4-eyebrow', animIn, 0)
+    .from(s4sans.words, { yPercent: 110, opacity: 0, duration: 1.2, stagger: 0.07 }, 0.05)
+    .from('#s4-title .t-line:last-child', { y: 30, opacity: 0, filter: 'blur(12px)', duration: 1.2, clearProps: 'filter' }, 0.3)
+    .from('.s4-side', { ...animIn, y: 40, duration: 1.1 }, 0.4)
+    .from('.bp-cap', { opacity: 0, duration: 0.8 }, 0.6);
+
+  // ---- O desenho se constrói e explode com o scroll ----
+  const build = (st) => gsap.timeline({ defaults: { ease: 'none' }, scrollTrigger: st })
+    .fromTo('#bp .bp-axis', { opacity: 0 }, { opacity: 1, duration: 0.1 }, 0)
+    .fromTo('#bp .bp-line', { drawSVG: '0%' }, { drawSVG: '100%', duration: 0.3, stagger: 0.008 }, 0.02)                 // contorno
+    .fromTo('#bp .bp-fill, #bp .bp-text', { opacity: 0 }, { opacity: 1, duration: 0.08 }, 0.26)
+    .fromTo('#bpDims path, #bpTitleBlock path', { drawSVG: '0%' }, { drawSVG: '100%', duration: 0.14, stagger: 0.02 }, 0.3)   // cotas
+    .fromTo('#bpDims text, #bpTitleBlock text', { opacity: 0 }, { opacity: 1, duration: 0.05, stagger: 0.015 }, 0.38)
+    .to('#bpDimOverall', { opacity: 0, duration: 0.05 }, 0.5)
+    .to('#pCapGroup', { x: -150, duration: 0.18, ease: 'power2.inOut' }, 0.5)                                              // vista explodida
+    .to('#pPlug', { x: 70, duration: 0.18, ease: 'power2.inOut' }, 0.53)
+    .fromTo('#pCart', { opacity: 0 }, { opacity: 1, duration: 0.08 }, 0.6)                                                   // linha oculta
+    .fromTo('#bpNibDim path', { drawSVG: '0%' }, { drawSVG: '100%', duration: 0.08 }, 0.66)
+    .fromTo('#bpNibDim text', { opacity: 0 }, { opacity: 1, duration: 0.04 }, 0.72)
+    .fromTo('.balloon', { opacity: 0, scale: 0.3, transformOrigin: '50% 50%' }, { opacity: 1, scale: 1, duration: 0.05, stagger: 0.035, ease: 'expo.out' }, 0.74)
+    .fromTo('.part-row', { opacity: 0.35 }, { opacity: 1, duration: 0.05, stagger: 0.035 }, 0.74)
+    .set({}, {}, 1);
+  const mm = gsap.matchMedia();
+  mm.add('(min-width: 1025px)', () => { build({ trigger: '#s4Stage', start: 'top top', end: '+=170%', pin: true, scrub: 0.8, anticipatePin: 1 }); });
+  mm.add('(max-width: 1024px)', () => { build({ trigger: '#bp', start: 'top 85%', end: 'bottom 20%', scrub: 0.8 }); });
+
+  // ---- Comprar: entrada + parallax ----
+  gsap.timeline({ defaults: { ease: 'expo.out' }, scrollTrigger: { trigger: '#comprar', start: 'top 65%', toggleActions: 'play none none reverse' } })
+    .from('.s5-visual', { scale: 0.9, opacity: 0, filter: 'blur(14px)', duration: 1.4, clearProps: 'filter' }, 0)
+    .from('.s5-pen', { xPercent: -25, rotate: -40, opacity: 0, duration: 1.6 }, 0.05)
+    .from('#comprar .s4-eyebrow', animIn, 0.2)
+    .from('#s5-title .t-line', { yPercent: 60, opacity: 0, filter: 'blur(10px)', duration: 1.2, stagger: 0.12, clearProps: 'filter' }, 0.25)
+    .from('.pack', { y: 30, opacity: 0, filter: 'blur(8px)', duration: 0.9, stagger: 0.08, clearProps: 'filter' }, 0.45)
+    .from(['.total', '.trust'], { y: 24, opacity: 0, duration: 0.8, stagger: 0.1 }, 0.7);
+  gsap.fromTo('.s5-visual', { y: 60 }, { y: -60, ease: 'none', scrollTrigger: { trigger: '#comprar', start: 'top bottom', end: 'bottom top', scrub: 0.6 } });
+
+  // ---- Rodapé: o último traço atravessa a página ----
+  gsap.fromTo('#ftInk', { drawSVG: '0%' }, { drawSVG: '100%', ease: 'none', scrollTrigger: { trigger: '.ft', start: 'top bottom', end: 'top 35%', scrub: true } });
+  gsap.fromTo('#ftInkDot', { scale: 0, transformOrigin: '50% 50%' }, { scale: 1, duration: 0.6, ease: 'expo.out', scrollTrigger: { trigger: '.ft', start: 'top 38%', toggleActions: 'play none none reverse' } });
+  gsap.from('.ft-cols > *', { ...animIn, stagger: 0.1, scrollTrigger: { trigger: '.ft-cols', start: 'top 85%', toggleActions: 'play none none reverse' } });
+  ScrollTrigger.create({ trigger: '.ft-giant', start: 'top 90%', onEnter: () => $('.ft-giant').classList.add('is-filled'), onLeaveBack: () => $('.ft-giant').classList.remove('is-filled') });
+
+  ScrollTrigger.create({ trigger: '#especificacoes', start: 'top 55%', onEnter: () => nav('#especificacoes'), onLeaveBack: () => nav('#tinta') });
+}
+
 /* ---------- Movimento reduzido: estado final estático ---------- */
 function staticFinal() {
   state.smooth = state.target = state.duration; state.progress = 1;
@@ -1146,6 +2155,8 @@ document.fonts.ready.then(intro);
 if (REDUCED) {
   staticFinal();
   setupFold2();
+  setupFold3();
+  setupFold4();
 } else {
   setupScroll();
   setupCursor();
@@ -1154,7 +2165,7 @@ if (REDUCED) {
   loadVideo().then(() => {
     state.ready = true;
     setupTriggers();
-    document.fonts.ready.then(() => { setupFold2(); ScrollTrigger.refresh(); });
+    document.fonts.ready.then(() => { setupFold2(); setupFold3(); setupFold4(); ScrollTrigger.refresh(); });
     ScrollTrigger.refresh();
     // ?debug&p=0.5 → pula direto para um ponto do scroll (para calibrar / testar)
     if (params.has('p')) {
