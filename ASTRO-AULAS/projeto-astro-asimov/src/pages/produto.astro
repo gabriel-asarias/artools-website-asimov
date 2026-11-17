@@ -1,0 +1,593 @@
+---
+// Página do produto (PDP) — Pigmentum 0.1, sem estoque: o CTA é "Avise-me".
+// O formulário coleta nome, e-mail e telefone. Por enquanto os dados ficam só no navegador
+// (localStorage, para demonstração). Para enviar de verdade, preencha AVISE_ENDPOINT no script.
+// Preços, prazos e especificações são FICTÍCIOS (projeto de estudo).
+import Layout from '../layouts/Layout.astro';
+import Button from '../components/Button.astro';
+
+const fotos = [
+  { slug: 'pairando', alt: 'A Pigmentum 0.1 inteira, flutuando', w: 1040, h: 520 },
+  { slug: 'em-pe', alt: 'A caneta em pé sobre um caderno de esboços', w: 480, h: 720 },
+  { slug: 'logo', alt: 'Logotipo ARTOOLS Pigmentum no corpo da caneta', w: 540, h: 210 },
+  { slug: 'ponta-papel', alt: 'A ponta de 0.1 mm tocando o papel', w: 300, h: 300 },
+  { slug: 'clipe', alt: 'Tampa com clipe metálico', w: 360, h: 220 },
+];
+
+const pontas = [
+  { mm: '0.05', disponivel: false },
+  { mm: '0.1', disponivel: true },
+  { mm: '0.3', disponivel: false },
+  { mm: '0.5', disponivel: false },
+  { mm: '0.8', disponivel: false },
+];
+
+const kits = [
+  { id: 'unidade', nome: 'Unidade', detalhe: '1 caneta', preco: 24.9, unidades: 1 },
+  { id: 'estudio', nome: 'Kit Estúdio', detalhe: '3 canetas', preco: 64.9, unidades: 3 },
+  { id: 'atelie', nome: 'Kit Ateliê', detalhe: '5 canetas', preco: 99.9, unidades: 5 },
+];
+const brl = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+const ficha = [
+  ['Ponta', 'Aço inox calibrado · Ø 0.1 mm'],
+  ['Tinta', 'Pigmentada, preta, à prova d\'água'],
+  ['Secagem', '2 s ao toque'],
+  ['Carga', '400 m de traço'],
+  ['Comprimento', '142 mm'],
+  ['Peso', '12 g'],
+];
+---
+
+<Layout title="Pigmentum 0.1 — ARTOOLS" description="ARTOOLS Pigmentum 0.1: ponta de 0.1 mm e tinta pigmentada. Sem estoque no momento — cadastre-se para ser avisado.">
+  <main id="conteudo" class="pdp">
+    <div class="pdp-bg" aria-hidden="true"></div>
+
+    <nav class="crumbs mono" aria-label="Você está em">
+      <a href="/">Início</a><span aria-hidden="true">/</span><a href="/galeria">Galeria</a><span aria-hidden="true">/</span><span aria-current="page">Pigmentum 0.1</span>
+    </nav>
+
+    <div class="pdp-grid">
+      <!-- ============ Vitrine ============ -->
+      <section class="vitrine" aria-label="Fotos do produto" data-reveal>
+        <div class="foto-main" id="fotoMain" style={`--img: url(/assets/img/galeria/${fotos[0].slug}.webp)`}>
+          <img id="fotoImg" src={`/assets/img/galeria/${fotos[0].slug}.webp`} alt={fotos[0].alt} width={fotos[0].w} height={fotos[0].h} />
+          <span class="lupa" id="lupa" aria-hidden="true"></span>
+          <span class="selo mono"><span class="dot" aria-hidden="true"></span>Esgotado</span>
+          <span class="lupa-dica mono" aria-hidden="true">Passe o mouse para ampliar</span>
+        </div>
+        <ul class="thumbs" role="list">
+          {fotos.map((f, i) => (
+            <li>
+              <button type="button" class="thumb" data-slug={f.slug} data-alt={f.alt} data-w={f.w} data-h={f.h} aria-label={`Ver foto: ${f.alt}`} aria-pressed={i === 0 ? 'true' : 'false'}>
+                <img src={`/assets/img/galeria/${f.slug}.webp`} alt="" width={f.w} height={f.h} loading="lazy" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <!-- ============ Compra ============ -->
+      <section class="info" aria-labelledby="pdp-title">
+        <p class="eyebrow mono" data-reveal><span class="pulse" aria-hidden="true"></span>Pigment ink pen · Linha Pigmentum</p>
+        <h1 class="pdp-title" id="pdp-title" data-reveal style="--i:1">Pigmentum <span class="serif">0.1</span></h1>
+        <p class="pdp-lede" data-reveal style="--i:2">Ponta de aço calibrada e tinta pigmentada para o desenho técnico: um décimo de milímetro, do primeiro ao último traço.</p>
+
+        <div class="preco" data-reveal style="--i:3">
+          <strong id="preco">{brl(kits[0].preco)}</strong>
+          <span id="precoSub">ou 3× de {brl(kits[0].preco / 3)} sem juros</span>
+        </div>
+
+        <p class="estoque mono" data-reveal style="--i:3"><span class="estoque-dot" aria-hidden="true"></span>Sem estoque no momento · nova remessa a caminho</p>
+
+        <fieldset class="opcoes" data-reveal style="--i:4">
+          <legend class="mono">Ponta</legend>
+          <div class="pontas">
+            {pontas.map((p) => (
+              <label class:list={['ponta', { 'is-off': !p.disponivel }]} title={p.disponivel ? undefined : 'Em breve'}>
+                <input type="radio" name="ponta" value={p.mm} checked={p.mm === '0.1'} disabled={!p.disponivel} />
+                <span>{p.mm}</span>
+              </label>
+            ))}
+          </div>
+          <span class="opcoes-nota">Outras espessuras em breve.</span>
+        </fieldset>
+
+        <fieldset class="opcoes" data-reveal style="--i:5">
+          <legend class="mono">Kit</legend>
+          <div class="kits">
+            {kits.map((k, i) => (
+              <label class="kit">
+                <input type="radio" name="kit" value={k.id} data-preco={k.preco} data-unidades={k.unidades} data-nome={k.nome} checked={i === 0} />
+                <span class="kit-nome">{k.nome}<small>{k.detalhe}</small></span>
+                <span class="kit-preco">{brl(k.preco)}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
+        <div class="cta" id="ctaPrincipal" data-reveal style="--i:6">
+          <Button beam icon="bell" id="abrirAvise" aria-haspopup="dialog">Avise-me quando chegar</Button>
+          <p class="cta-nota">Sem compromisso: você só recebe um aviso quando ela voltar.</p>
+        </div>
+
+        <ul class="garantias" role="list" data-reveal style="--i:7">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.6"/><circle cx="17" cy="17.5" r="1.6"/></svg>Envio em 24 h</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4"/></svg>Troca em 30 dias</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M12 3 5 6v5c0 4.4 3 8.3 7 10 4-1.7 7-5.6 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg>Garantia de 1 ano</li>
+        </ul>
+
+        <!-- Sanfonas nativas (<details>): abrem e fecham sem JavaScript -->
+        <div class="sanfonas" data-reveal style="--i:8">
+          <details open>
+            <summary>Ficha técnica</summary>
+            <dl class="ficha">
+              {ficha.map(([k, v]) => (<div><dt class="mono">{k}</dt><dd>{v}</dd></div>))}
+            </dl>
+          </details>
+          <details>
+            <summary>A tinta</summary>
+            <p>Pigmento de alta densidade que assenta na fibra do papel em vez de penetrar: preto profundo, seco em 2 segundos, resistente à água e à luz. Pode passar aquarela ou marcador por cima.</p>
+          </details>
+          <details>
+            <summary>Cuidados</summary>
+            <p>Guarde tampada e na horizontal. Use com pressão leve: a ponta de 0.1 mm foi feita para deslizar, não para ser forçada.</p>
+          </details>
+          <details>
+            <summary>Envio e trocas</summary>
+            <p>Envio em até 24 h úteis após a compra e troca grátis em até 30 dias. Como ela está sem estoque, cadastre-se no aviso: você recebe a mensagem assim que a nova remessa chegar.</p>
+          </details>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============ Faixa: veja na galeria ============ -->
+    <section class="faixa" aria-labelledby="faixa-title">
+      <div class="faixa-head" data-reveal>
+        <h2 id="faixa-title">Veja cada <span class="serif">detalhe</span><span class="lume-dot">.</span></h2>
+        <a class="link-seta" href="/galeria">Abrir a galeria <span aria-hidden="true">→</span></a>
+      </div>
+      <ul class="faixa-list" role="list">
+        {['ultimo-traco', 'esbocos', 'destampar', 'tampa'].map((slug, i) => (
+          <li data-reveal style={`--i:${i}`}><a href="/galeria" aria-label="Abrir a galeria"><img src={`/assets/img/galeria/${slug}.webp`} alt="" loading="lazy" /></a></li>
+        ))}
+      </ul>
+    </section>
+  </main>
+
+  <!-- Barra fixa no celular: aparece quando o botão principal sai da tela -->
+  <div class="barra" id="barra" aria-hidden="true">
+    <div><strong id="barraPreco">{brl(kits[0].preco)}</strong><span class="mono">Sem estoque</span></div>
+    <button type="button" class="barra-btn" id="barraBtn" tabindex="-1">Avise-me</button>
+  </div>
+
+  <!-- ============ Formulário "Avise-me" ============ -->
+  <dialog class="avise" id="avise" aria-labelledby="aviseTitle">
+    <div class="avise-panel">
+      <button type="button" class="avise-close" id="aviseClose" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+
+      <!-- passo 1: formulário -->
+      <form class="avise-form" id="aviseForm" novalidate>
+        <span class="mono avise-eyebrow"><span class="estoque-dot" aria-hidden="true"></span>Lista de espera</span>
+        <h2 id="aviseTitle">Avise-me quando <span class="serif">chegar</span><span class="lume-dot">.</span></h2>
+        <p class="avise-lede">Deixe seu contato e avisamos por e-mail e WhatsApp assim que a Pigmentum 0.1 voltar — <strong id="aviseKit">Unidade</strong>.</p>
+
+        <div class="field" data-field="nome">
+          <input id="fNome" name="nome" type="text" placeholder=" " autocomplete="name" required minlength="3" aria-describedby="eNome" />
+          <label for="fNome">Nome completo</label>
+          <p class="erro" id="eNome" aria-live="polite"></p>
+        </div>
+        <div class="field" data-field="email">
+          <input id="fEmail" name="email" type="email" placeholder=" " autocomplete="email" inputmode="email" required aria-describedby="eEmail" />
+          <label for="fEmail">E-mail</label>
+          <p class="erro" id="eEmail" aria-live="polite"></p>
+        </div>
+        <div class="field" data-field="tel">
+          <input id="fTel" name="telefone" type="tel" placeholder=" " autocomplete="tel-national" inputmode="numeric" required maxlength="15" aria-describedby="eTel" />
+          <label for="fTel">Telefone / WhatsApp</label>
+          <p class="erro" id="eTel" aria-live="polite"></p>
+        </div>
+
+        <label class="consent">
+          <input type="checkbox" id="fConsent" name="consentimento" required aria-describedby="eConsent" />
+          <span class="box" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6.5 5 9l5-6"/></svg></span>
+          <span>Autorizo a ARTOOLS a usar meus dados só para avisar sobre a disponibilidade deste produto. Posso pedir a exclusão a qualquer momento.</span>
+        </label>
+        <p class="erro" id="eConsent" aria-live="polite"></p>
+
+        <div class="avise-actions">
+          <Button type="submit" beam icon="bell" id="aviseEnviar">Quero ser avisado</Button>
+        </div>
+      </form>
+
+      <!-- passo 2: sucesso -->
+      <div class="avise-ok" id="aviseOk" hidden>
+        <svg class="ok-check" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="29"/><path d="M19 33l9 9 17-19"/></svg>
+        <h2 tabindex="-1" id="okTitle">Pronto, <span class="serif" id="okNome">você</span>!</h2>
+        <p>Você está na lista. Assim que a nova remessa chegar, avisamos em <strong id="okEmail"></strong> e no WhatsApp <strong id="okTel"></strong>.</p>
+        <button type="button" class="ok-close" id="okClose">Continuar navegando</button>
+      </div>
+    </div>
+  </dialog>
+</Layout>
+
+<style>
+  /* ---------- Base ---------- */
+  .pdp { position: relative; isolation: isolate; padding: calc(var(--nav-h) + 2vh) var(--gutter) 0; max-width: 1400px; margin: 0 auto; }
+  .pdp-bg { position: absolute; inset: 0 calc(50% - 50vw); z-index: -1; pointer-events: none;
+    background-size: 40px 40px; background-image: linear-gradient(to right, var(--linha-grid) 1px, transparent 1px), linear-gradient(to bottom, var(--linha-grid) 1px, transparent 1px);
+    -webkit-mask-image: radial-gradient(ellipse 60% 50% at 25% 30%, #000 20%, transparent 75%); mask-image: radial-gradient(ellipse 60% 50% at 25% 30%, #000 20%, transparent 75%); }
+  .serif { font-family: var(--font-serif); font-weight: 400; letter-spacing: -0.01em; }
+  .lume-dot { color: var(--lume); }
+  .pulse, .estoque-dot { position: relative; display: inline-block; width: 6px; height: 6px; border-radius: var(--radius-full); background: var(--lume); flex: none; }
+  .estoque-dot { background: var(--erro); }
+  .pulse::after, .estoque-dot::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: inherit; animation: ping-soft 1.8s cubic-bezier(0,0,.2,1) infinite; }
+  @keyframes ping-soft { 0% { transform: scale(1); opacity: .7; } 100% { transform: scale(2.6); opacity: 0; } }
+  [data-reveal] { opacity: 0; transform: translateY(30px); filter: blur(10px); transition: opacity .8s ease-out, transform 1s var(--ease-architect), filter .8s ease-out; transition-delay: calc(var(--i, 0) * 80ms); }
+  [data-reveal].is-in { opacity: 1; transform: none; filter: none; }
+
+  .crumbs { display: flex; flex-wrap: wrap; gap: var(--s-2); padding: var(--s-6) 0; font-size: .625rem; color: var(--grafite-80); }
+  .crumbs a { background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size var(--dur-base) var(--ease-architect); }
+  .crumbs a:hover { background-size: 100% 1px; }
+  .crumbs [aria-current] { color: var(--tinta); }
+
+  .pdp-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 5vw; align-items: start; padding-bottom: 12vh; }
+
+  /* ---------- Vitrine + lupa ---------- */
+  .vitrine { position: sticky; top: calc(var(--nav-h) + 16px); }
+  .foto-main { position: relative; aspect-ratio: 4 / 3; border-radius: var(--radius-xl); overflow: hidden; background: var(--pedra-100); border: 1px solid var(--pedra-300);
+    box-shadow: 0 40px 80px -40px rgba(28, 25, 23, .35); cursor: crosshair; }
+  .foto-main img { width: 100%; height: 100%; object-fit: contain; display: block; transition: opacity .3s ease, filter .3s ease, transform 1.2s var(--ease-architect); }
+  .foto-main img.is-swapping { opacity: 0; filter: blur(8px); transform: scale(.98); }
+  .lupa { position: absolute; left: 0; top: 0; width: 180px; height: 180px; margin: -90px 0 0 -90px; border-radius: var(--radius-full); pointer-events: none;
+    background-image: var(--img); background-repeat: no-repeat; background-color: var(--pedra-100);
+    box-shadow: 0 0 0 1px rgba(214,164,97,.8), 0 0 0 6px rgba(255,255,255,.6), 0 20px 40px -10px rgba(28,25,23,.4);
+    opacity: 0; scale: .6; transition: opacity var(--dur-base) var(--ease-architect), scale var(--dur-base) var(--ease-architect); }
+  .foto-main.is-zoom .lupa { opacity: 1; scale: 1; }
+  .selo { position: absolute; left: var(--s-4); top: var(--s-4); display: inline-flex; align-items: center; gap: var(--s-2); padding: 6px 12px; border-radius: var(--radius-full);
+    background: var(--branco-60); backdrop-filter: blur(var(--blur-glass)); -webkit-backdrop-filter: blur(var(--blur-glass)); border: 1px solid var(--pedra-300); font-size: .5625rem; }
+  .selo .dot { width: 6px; height: 6px; border-radius: var(--radius-full); background: var(--erro); }
+  .lupa-dica { position: absolute; right: var(--s-4); bottom: var(--s-4); font-size: .5rem; color: var(--grafite-80); transition: opacity var(--dur-base); }
+  .foto-main.is-zoom .lupa-dica { opacity: 0; }
+  @media (hover: none) { .lupa-dica { display: none; } .foto-main { cursor: default; } }
+  .thumbs { list-style: none; margin: var(--s-4) 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--s-3); }
+  .thumb { display: block; width: 100%; aspect-ratio: 1; border-radius: var(--radius-md); overflow: hidden; background: var(--pedra-100); border: 1px solid var(--pedra-300);
+    transition: border-color var(--dur-base), transform var(--dur-base) var(--ease-architect), box-shadow .3s ease; }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(.6); transition: filter var(--dur-base); }
+  .thumb:hover { transform: translateY(-3px); }
+  .thumb:hover img, .thumb[aria-pressed="true"] img { filter: none; }
+  .thumb[aria-pressed="true"] { border-color: var(--grafite); box-shadow: 0 0 0 1px var(--grafite), var(--shadow-glow); }
+
+  /* ---------- Informações ---------- */
+  .eyebrow { display: inline-flex; align-items: center; gap: var(--s-3); margin: 0; letter-spacing: var(--tracking-overline); font-size: .6875rem; color: var(--tinta); }
+  .pdp-title { margin: var(--s-4) 0 0; font-size: clamp(3rem, 5.6vw, 5.6rem); font-weight: 600; letter-spacing: var(--tracking-tighter); line-height: .92; }
+  .pdp-title .serif { color: var(--pedra-500); font-size: 1.1em; }
+  .pdp-lede { margin: var(--s-5) 0 0; max-width: 30rem; font-size: 1.0625rem; line-height: 1.6; color: var(--grafite-80); }
+  .preco { margin-top: var(--s-6); display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s-3); }
+  .preco strong { font-size: clamp(2rem, 3vw, 2.6rem); font-weight: 500; letter-spacing: var(--tracking-tighter); font-variant-numeric: tabular-nums; }
+  .preco span { font-size: .875rem; color: var(--grafite-80); }
+  .estoque { display: inline-flex; align-items: center; gap: var(--s-3); margin: var(--s-4) 0 0; padding: 6px 12px; border-radius: var(--radius-full); border: 1px solid rgba(180,67,47,.35); background: rgba(180,67,47,.06); color: var(--erro); font-size: .5625rem; letter-spacing: .14em; }
+
+  .opcoes { margin: var(--s-6) 0 0; padding: 0; border: 0; }
+  .opcoes legend { padding: 0; margin-bottom: var(--s-3); font-size: .5625rem; letter-spacing: .2em; color: var(--grafite-80); }
+  .pontas { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+  .ponta { position: relative; }
+  .ponta input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .ponta span { display: inline-grid; place-items: center; min-width: 56px; height: 40px; padding: 0 var(--s-3); border-radius: var(--radius-full); border: 1px solid var(--pedra-300);
+    font-family: var(--font-mono); font-size: .75rem; cursor: pointer; transition: all var(--dur-base) var(--ease-architect); }
+  .ponta input:checked + span { background: var(--grafite); border-color: var(--grafite); color: var(--branco); box-shadow: 0 0 0 4px var(--lume-40); }
+  .ponta input:focus-visible + span { outline: 2px solid var(--lume); outline-offset: 3px; }
+  .ponta.is-off span { color: var(--pedra-400); border-style: dashed; cursor: not-allowed; text-decoration: line-through; }
+  .opcoes-nota { display: block; margin-top: var(--s-2); font-size: .75rem; color: var(--grafite-80); }
+  .kits { display: grid; gap: var(--s-2); }
+  .kit { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: var(--s-4); padding: var(--s-3) var(--s-4); border: 1px solid var(--pedra-300); border-radius: var(--radius-xl);
+    background: var(--branco-55); cursor: pointer; transition: border-color var(--dur-base), background var(--dur-base), transform .3s ease; }
+  .kit:hover { transform: translateY(-2px); }
+  .kit input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .kit:has(input:checked) { border-color: var(--grafite); background: var(--branco); }
+  .kit:has(input:focus-visible) { outline: 2px solid var(--lume); outline-offset: 3px; }
+  .kit-nome { display: flex; flex-direction: column; font-weight: 500; }
+  .kit-nome small { font-weight: 400; font-size: .8125rem; color: var(--grafite-80); }
+  .kit-preco { font-variant-numeric: tabular-nums; font-weight: 500; }
+
+  .cta { margin-top: var(--s-8); }
+  .cta-nota { margin: var(--s-3) 0 0; font-size: .8125rem; color: var(--grafite-80); }
+  .garantias { list-style: none; margin: var(--s-6) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s-2); }
+  .garantias li { display: inline-flex; align-items: center; gap: var(--s-2); padding: var(--s-2) var(--s-4); border-radius: var(--radius-full); border: 1px solid var(--pedra-300); font-size: .8125rem; }
+  .garantias svg { width: 18px; height: 18px; color: var(--lume-escuro); }
+
+  .sanfonas { margin-top: var(--s-8); border-top: 1px solid var(--pedra-300); }
+  details { border-bottom: 1px solid var(--pedra-300); }
+  summary { list-style: none; display: flex; justify-content: space-between; align-items: center; padding: var(--s-5) 0; cursor: pointer; font-weight: 500; letter-spacing: var(--tracking-tight); }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: ""; width: 10px; height: 10px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg); transition: transform var(--dur-base) var(--ease-architect); margin-right: 4px; }
+  details[open] summary::after { transform: rotate(-135deg); }
+  details p { margin: 0 0 var(--s-5); color: var(--grafite-80); line-height: 1.6; font-size: .9375rem; }
+  .ficha { margin: 0 0 var(--s-5); display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-3) var(--s-5); }
+  .ficha dt { font-size: .5rem; letter-spacing: .18em; color: var(--grafite-80); }
+  .ficha dd { margin: 2px 0 0; font-size: .875rem; }
+
+  /* ---------- Faixa galeria ---------- */
+  .faixa { border-top: 1px solid var(--pedra-300); padding: 12vh 0; }
+  .faixa-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: var(--s-4); }
+  .faixa h2 { margin: 0; font-size: clamp(2.2rem, 4.4vw, 4rem); font-weight: 600; letter-spacing: var(--tracking-tighter); line-height: .95; }
+  .faixa h2 .serif { color: var(--pedra-500); font-size: 1.1em; }
+  .link-seta { font-weight: 500; background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size var(--dur-base) var(--ease-architect); }
+  .link-seta:hover { background-size: 100% 1px; }
+  .faixa-list { list-style: none; margin: var(--s-8) 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-4); }
+  .faixa-list a { display: block; aspect-ratio: 4 / 3; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--pedra-300); }
+  .faixa-list img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 1.2s var(--ease-architect); }
+  .faixa-list a:hover img { transform: scale(1.06); }
+
+  /* ---------- Barra fixa (celular) ---------- */
+  .barra { display: none; }
+
+  /* ---------- Dialog "Avise-me" ---------- */
+  .avise { width: min(560px, calc(100vw - 24px)); max-height: calc(100vh - 24px); padding: 0; border: 0; background: transparent; overflow: visible; }
+  .avise::backdrop { background: rgba(28, 25, 23, .55); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  .avise-panel { position: relative; max-height: calc(100vh - 24px); overflow-y: auto; padding: var(--s-8); border-radius: var(--radius-xl); background: var(--osso);
+    box-shadow: 0 40px 80px -20px rgba(28, 25, 23, .5); }
+  .avise[open] .avise-panel { animation: dlgIn .7s var(--ease-architect); }
+  .avise.is-closing .avise-panel { animation: dlgOut .3s ease-in forwards; }
+  @keyframes dlgIn { from { opacity: 0; transform: translateY(30px) scale(.97); filter: blur(10px); } }
+  @keyframes dlgOut { to { opacity: 0; transform: translateY(16px) scale(.98); filter: blur(6px); } }
+  .avise-close { position: absolute; top: var(--s-4); right: var(--s-4); width: 40px; height: 40px; border-radius: var(--radius-full); display: grid; place-items: center; border: 1px solid var(--pedra-300);
+    transition: transform var(--dur-base) var(--ease-architect), background var(--dur-base), color var(--dur-base); }
+  .avise-close:hover { transform: rotate(90deg); background: var(--grafite); color: var(--branco); }
+  .avise-close svg { width: 18px; height: 18px; }
+  .avise-eyebrow { display: inline-flex; align-items: center; gap: var(--s-2); font-size: .5625rem; letter-spacing: .2em; color: var(--erro); }
+  .avise h2 { margin: var(--s-3) 0 0; font-size: clamp(2rem, 4vw, 2.6rem); font-weight: 600; letter-spacing: var(--tracking-tighter); line-height: 1; }
+  .avise h2 .serif { color: var(--pedra-500); font-size: 1.1em; }
+  .avise-lede { margin: var(--s-4) 0 var(--s-2); color: var(--grafite-80); line-height: 1.6; font-size: .9375rem; }
+
+  /* Campos com rótulo flutuante e barra Lume (input do DS) */
+  .field { position: relative; margin-top: var(--s-4); }
+  /* a linha de foco é um gradiente (metade cor, metade transparente) com o dobro da largura do input:
+     em repouso mostra só a metade transparente; no foco desliza e a cor entra da esquerda, sempre colada na borda */
+  .field input { width: 100%; border: 0; border-bottom: 1px solid var(--pedra-300); border-radius: 0; padding: 1.4rem 0 .6rem; font: inherit; font-size: 1rem; color: var(--tinta); outline: none;
+    background: linear-gradient(to right, var(--tinta) 50%, transparent 50%) 100% 100% / 200% 1px no-repeat; transition: border-color .3s, background-position .6s var(--ease-architect); }
+  .field input:focus { background-position: 0 100%; }
+  .field label { position: absolute; left: 0; top: 1.3rem; font-size: 1rem; color: var(--grafite-80); pointer-events: none; transition: all .4s var(--ease-architect); }
+  .field input:focus + label, .field input:not(:placeholder-shown) + label { top: 0; font-size: .625rem; letter-spacing: .14em; text-transform: uppercase; font-family: var(--font-mono); color: var(--tinta); }
+  .field.is-erro input { border-color: var(--erro); background-image: linear-gradient(to right, var(--erro) 50%, transparent 50%); background-position: 0 100%; }
+  .field.is-ok input { border-color: var(--ok); }
+  .erro { margin: var(--s-2) 0 0; min-height: 1.1em; font-size: .75rem; color: var(--erro); }
+
+  .consent { display: grid; grid-template-columns: auto 1fr; gap: var(--s-3); align-items: start; margin-top: var(--s-6); font-size: .8125rem; line-height: 1.5; color: var(--grafite-80); cursor: pointer; }
+  .consent input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .consent .box { width: 20px; height: 20px; margin-top: 1px; border: 1px solid var(--pedra-400); border-radius: 4px; display: grid; place-items: center; color: var(--branco); transition: all .3s; }
+  .consent .box svg { width: 12px; height: 12px; stroke-dasharray: 20; stroke-dashoffset: 20; transition: stroke-dashoffset .4s var(--ease-architect) .05s; }
+  .consent input:checked + .box { background: var(--grafite); border-color: var(--grafite); }
+  .consent input:checked + .box svg { stroke-dashoffset: 0; }
+  .consent input:focus-visible + .box { outline: 2px solid var(--lume); outline-offset: 2px; }
+  .consent.is-erro .box { border-color: var(--erro); }
+  .avise-actions { margin-top: var(--s-6); }
+
+  .avise-ok { text-align: center; padding: var(--s-4) 0; }
+  .ok-check { width: 84px; height: 84px; }
+  .ok-check circle { fill: none; stroke: var(--lume); stroke-width: 2; stroke-dasharray: 190; stroke-dashoffset: 190; animation: draw 1s var(--ease-architect) forwards; }
+  .ok-check path { fill: none; stroke: var(--grafite); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 50; stroke-dashoffset: 50; animation: draw .6s var(--ease-architect) .5s forwards; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  .avise-ok h2 { margin-top: var(--s-5); outline: none; }
+  .avise-ok p { margin: var(--s-4) auto 0; max-width: 28rem; color: var(--grafite-80); line-height: 1.6; }
+  .avise-ok strong { white-space: nowrap; }
+  .ok-close { margin-top: var(--s-6); padding: var(--s-3) var(--s-6); border-radius: var(--radius-full); border: 1px solid var(--tinta); font-weight: 500;
+    transition: background var(--dur-base) var(--ease-architect), color var(--dur-base); }
+  .ok-close:hover { background: var(--grafite); color: var(--branco); }
+
+  /* ---------- Responsivo ---------- */
+  @media (max-width: 1024px) {
+    .pdp-grid { grid-template-columns: 1fr; }
+    .vitrine { position: static; }
+  }
+  @media (max-width: 768px) {
+    .faixa-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .avise-panel { padding: var(--s-6); }
+    .ficha { grid-template-columns: 1fr; }
+    .barra { position: fixed; z-index: 40; left: 12px; right: 12px; bottom: 12px; display: flex; align-items: center; justify-content: space-between; gap: var(--s-4);
+      padding: var(--s-3) var(--s-3) var(--s-3) var(--s-5); border-radius: var(--radius-full); border: 1px solid var(--pedra-300);
+      background: var(--branco-60); backdrop-filter: blur(var(--blur-glass)); -webkit-backdrop-filter: blur(var(--blur-glass)); box-shadow: 0 20px 40px -20px rgba(28,25,23,.5);
+      transform: translateY(140%); transition: transform var(--dur-base) var(--ease-architect); }
+    .barra.is-on { transform: none; }
+    .barra strong { display: block; font-weight: 500; }
+    .barra .mono { font-size: .5rem; color: var(--erro); }
+    .barra-btn { padding: var(--s-3) var(--s-5); border-radius: var(--radius-full); background: var(--grafite); color: var(--branco); font-weight: 500; font-size: .875rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-reveal] { opacity: 1; transform: none; filter: none; }
+    .ok-check circle, .ok-check path { stroke-dashoffset: 0; }
+  }
+</style>
+
+<script>
+  // ============================================================
+  // Para enviar os cadastros de verdade, coloque aqui a URL de um endpoint
+  // que receba POST com JSON (ex.: Formspree, uma função serverless ou o Supabase).
+  // Enquanto estiver vazio, os dados ficam só neste navegador (localStorage).
+  // [CONFIRMAR] destino dos dados
+  const AVISE_ENDPOINT = '';
+  // ============================================================
+
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
+  const brl = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+  // ---------- Entrada ----------
+  const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } }), { threshold: 0.1 });
+  document.querySelectorAll('[data-reveal]').forEach((el) => io.observe(el));
+
+  // ---------- Vitrine: troca de foto + lupa ----------
+  const main = $('fotoMain'), img = $<HTMLImageElement>('fotoImg'), lupa = $('lupa');
+  const thumbs = [...document.querySelectorAll<HTMLButtonElement>('.thumb')];
+  thumbs.forEach((t) => t.addEventListener('click', () => {
+    if (t.getAttribute('aria-pressed') === 'true') return;
+    thumbs.forEach((x) => x.setAttribute('aria-pressed', String(x === t)));
+    const src = `/assets/img/galeria/${t.dataset.slug}.webp`;
+    img.classList.add('is-swapping');
+    setTimeout(() => {
+      img.src = src; img.alt = t.dataset.alt || ''; img.width = Number(t.dataset.w); img.height = Number(t.dataset.h);
+      main.style.setProperty('--img', `url(${src})`);
+      const show = () => img.classList.remove('is-swapping');
+      if (img.complete) show(); else img.onload = show;
+    }, reduced ? 0 : 220);
+  }));
+  // A lupa mostra a área sob o cursor com 2,2× de zoom (mesmo enquadramento do object-fit: contain)
+  const ZOOM = 2.2;
+  main.addEventListener('pointermove', (e) => {
+    if (e.pointerType !== 'mouse') return;
+    const r = main.getBoundingClientRect();
+    const x = e.clientX - r.left, y = e.clientY - r.top;
+    const escala = Math.min(r.width / img.naturalWidth, r.height / img.naturalHeight);
+    const w = img.naturalWidth * escala, h = img.naturalHeight * escala;
+    const ox = (r.width - w) / 2, oy = (r.height - h) / 2;
+    const dentro = x >= ox && x <= ox + w && y >= oy && y <= oy + h;
+    main.classList.toggle('is-zoom', dentro);
+    lupa.style.transform = `translate(${x}px, ${y}px)`;
+    lupa.style.backgroundSize = `${w * ZOOM}px ${h * ZOOM}px`;
+    lupa.style.backgroundPosition = `${-(x - ox) * ZOOM + 90}px ${-(y - oy) * ZOOM + 90}px`;
+  });
+  main.addEventListener('pointerleave', () => main.classList.remove('is-zoom'));
+
+  // ---------- Kit → preço ----------
+  let kitNome = 'Unidade';
+  document.querySelectorAll<HTMLInputElement>('input[name="kit"]').forEach((r) => r.addEventListener('change', () => {
+    const preco = Number(r.dataset.preco), un = Number(r.dataset.unidades);
+    kitNome = r.dataset.nome || '';
+    $('preco').textContent = brl(preco);
+    $('barraPreco').textContent = brl(preco);
+    $('precoSub').textContent = `ou 3× de ${brl(preco / 3)} sem juros${un > 1 ? ` · ${brl(preco / un)} por caneta` : ''}`;
+  }));
+
+  // ---------- Dialog "Avise-me" ----------
+  const dlg = $<HTMLDialogElement>('avise');
+  const form = $<HTMLFormElement>('aviseForm');
+  const abrir = () => {
+    $('aviseKit').textContent = kitNome;
+    form.hidden = false; $('aviseOk').hidden = true;
+    dlg.showModal();
+    setTimeout(() => $('fNome').focus(), 60);
+  };
+  const fechar = () => {
+    if (reduced) { dlg.close(); return; }
+    dlg.classList.add('is-closing');
+    setTimeout(() => { dlg.classList.remove('is-closing'); dlg.close(); }, 280);
+  };
+  $('abrirAvise').addEventListener('click', abrir);
+  $('barraBtn').addEventListener('click', abrir);
+  $('aviseClose').addEventListener('click', fechar);
+  $('okClose').addEventListener('click', fechar);
+  dlg.addEventListener('click', (e) => { if (e.target === dlg) fechar(); });
+  dlg.addEventListener('cancel', (e) => { e.preventDefault(); fechar(); });
+
+  // Máscara de telefone brasileiro: (11) 98765-4321 ou (11) 3456-7890
+  const tel = $<HTMLInputElement>('fTel');
+  tel.addEventListener('input', () => {
+    const d = tel.value.replace(/\D/g, '').slice(0, 11);
+    let v = d;
+    if (d.length > 2) v = `(${d.slice(0, 2)}) ${d.slice(2)}`;
+    if (d.length > 6) v = d.length === 11 ? `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}` : `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+    tel.value = v;
+  });
+
+  // Validação campo a campo
+  type Regra = { input: HTMLInputElement; erro: HTMLElement; checar: () => string };
+  const regras: Regra[] = [
+    { input: $('fNome'), erro: $('eNome'), checar: () => { const v = $<HTMLInputElement>('fNome').value.trim(); return v.length < 3 ? 'Digite seu nome (pelo menos 3 letras).' : !/\s/.test(v) ? 'Digite nome e sobrenome.' : ''; } },
+    { input: $('fEmail'), erro: $('eEmail'), checar: () => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test($<HTMLInputElement>('fEmail').value.trim()) ? '' : 'Digite um e-mail válido, como nome@exemplo.com.' },
+    { input: tel, erro: $('eTel'), checar: () => { const n = tel.value.replace(/\D/g, '').length; return n === 10 || n === 11 ? '' : 'Digite o telefone com DDD, como (11) 98765-4321.'; } },
+  ];
+  const marcar = (r: Regra) => {
+    const msg = r.checar();
+    r.erro.textContent = msg;
+    r.input.setAttribute('aria-invalid', String(!!msg));
+    const campo = r.input.closest('.field')!;
+    campo.classList.toggle('is-erro', !!msg);
+    campo.classList.toggle('is-ok', !msg);
+    return !msg;
+  };
+  regras.forEach((r) => {
+    r.input.addEventListener('blur', () => { if (r.input.value) marcar(r); });
+    r.input.addEventListener('input', () => { if (r.input.closest('.field')!.classList.contains('is-erro')) marcar(r); });
+  });
+  const consent = $<HTMLInputElement>('fConsent');
+  const marcarConsent = () => {
+    const ok = consent.checked;
+    $('eConsent').textContent = ok ? '' : 'Precisamos da sua autorização para avisar você.';
+    consent.closest('.consent')!.classList.toggle('is-erro', !ok);
+    consent.setAttribute('aria-invalid', String(!ok));
+    return ok;
+  };
+  consent.addEventListener('change', marcarConsent);
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const validos = regras.map(marcar);
+    const okConsent = marcarConsent();
+    const primeiroErro = regras.find((_, i) => !validos[i]);
+    if (primeiroErro) { primeiroErro.input.focus(); return; }
+    if (!okConsent) { consent.focus(); return; }
+
+    const cadastro = {
+      nome: $<HTMLInputElement>('fNome').value.trim(),
+      email: $<HTMLInputElement>('fEmail').value.trim(),
+      telefone: tel.value,
+      produto: 'Pigmentum 0.1',
+      kit: kitNome,
+      consentimento: true,
+      data: new Date().toISOString(),
+    };
+
+    const enviar = $<HTMLButtonElement>('aviseEnviar');
+    enviar.disabled = true;
+    try {
+      if (AVISE_ENDPOINT) {
+        const res = await fetch(AVISE_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cadastro) });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      } else {
+        const lista = JSON.parse(localStorage.getItem('artools:avise-me') || '[]');
+        lista.push(cadastro);
+        localStorage.setItem('artools:avise-me', JSON.stringify(lista));
+      }
+    } catch (err) {
+      console.error('[avise-me] falha ao enviar', err);
+      $('eConsent').textContent = 'Não conseguimos registrar agora. Tente de novo em instantes.';
+      enviar.disabled = false;
+      return;
+    }
+    enviar.disabled = false;
+
+    // passo 2: sucesso
+    $('okNome').textContent = cadastro.nome.split(' ')[0];
+    $('okEmail').textContent = cadastro.email;
+    $('okTel').textContent = cadastro.telefone;
+    form.hidden = true; $('aviseOk').hidden = false;
+    $('okTitle').focus();
+    form.reset();
+    form.querySelectorAll('.field').forEach((f) => f.classList.remove('is-ok', 'is-erro'));
+  });
+
+  // O CTA do cabeçalho ("Avise-me" → /produto) já está nesta página: abre o formulário direto
+  document.querySelectorAll<HTMLAnchorElement>('a[data-cta]').forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); abrir(); }));
+
+  // Vindo da home (/produto?kit=estudio&avise=1): marca o kit escolhido e abre o formulário
+  const params = new URLSearchParams(location.search);
+  const kitRadio = document.querySelector<HTMLInputElement>(`input[name="kit"][value="${CSS.escape(params.get('kit') || '')}"]`);
+  if (kitRadio) { kitRadio.checked = true; kitRadio.dispatchEvent(new Event('change')); }
+  if (params.has('avise')) {
+    history.replaceState(null, '', location.pathname);   // limpa a URL: recarregar não reabre o formulário
+    setTimeout(abrir, reduced ? 0 : 700);
+  }
+
+  // ---------- Barra fixa no celular ----------
+  // Aparece quando o botão principal já passou (rolou para cima) e some quando o rodapé entra na tela.
+  const barra = $('barra');
+  let passouCta = false, noRodape = false;
+  const atualizaBarra = () => {
+    const on = passouCta && !noRodape;
+    barra.classList.toggle('is-on', on);
+    barra.setAttribute('aria-hidden', String(!on));
+    $('barraBtn').tabIndex = on ? 0 : -1;
+  };
+  new IntersectionObserver(([e]) => { passouCta = !e.isIntersecting && e.boundingClientRect.top < 0; atualizaBarra(); }).observe($('ctaPrincipal'));
+  new IntersectionObserver(([e]) => { noRodape = e.isIntersecting; atualizaBarra(); }).observe($('rodape'));
+</script>

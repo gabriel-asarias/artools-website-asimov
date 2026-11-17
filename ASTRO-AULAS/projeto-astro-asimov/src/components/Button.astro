@@ -1,0 +1,148 @@
+---
+// Botão do design system (Monólito).
+//
+//   <Button href="#comprar">Comprar agora</Button>                   → primário (pílula grafite + seta no círculo Lume)
+//   <Button href="#comprar" beam>Comprar agora</Button>              → + anel cônico girando, brilho e efeito magnético
+//   <Button href="#comprar" beam tone="light">Quero essa tinta</Button> → versão clara, para fundos escuros
+//   <Button variant="outline" href="#ponta">Ver detalhes</Button>   → pílula com borda + seta para baixo
+//   <Button type="submit" id="buyBtn" beam>Comprar agora</Button>    → sem href vira <button>
+//   <Button icon="bell" beam>Avise-me</Button>                        → ícone de sino (balança no hover)
+//
+// Qualquer outro atributo (aria-label, data-*, etc.) é repassado para o <a>/<button>.
+
+interface Props {
+  href?: string;
+  type?: 'button' | 'submit' | 'reset';
+  variant?: 'primary' | 'outline';
+  beam?: boolean;
+  tone?: 'dark' | 'light';
+  magnetic?: boolean;
+  icon?: 'arrow-up-right' | 'arrow-down' | 'bell' | 'none';
+  id?: string;
+  class?: string;
+  [attr: string]: unknown;
+}
+
+const {
+  href,
+  type = 'button',
+  variant = 'primary',
+  beam = false,
+  tone = 'dark',
+  magnetic = beam || variant === 'outline',
+  icon = variant === 'outline' ? 'arrow-down' : 'arrow-up-right',
+  id,
+  class: className,
+  ...rest
+} = Astro.props;
+
+const Tag = href ? 'a' : 'button';
+const tagAttrs = href ? { href } : { type };
+const classes = [
+  variant === 'outline' ? 'btn-outline' : 'btn-primary',
+  tone === 'light' && 'btn-light',
+  className,
+].filter(Boolean).join(' ');
+
+// No botão com beam o efeito magnético fica no invólucro (.cta-wrap); nos outros, no próprio botão.
+const magneticAttr = magnetic ? { 'data-magnetic': '' } : {};
+---
+
+{beam ? (
+  <span class="cta-wrap" {...magneticAttr}>
+    <span class="btn-beam">
+      <span class="ring" aria-hidden="true"></span>
+      <Tag class={classes} id={id} {...tagAttrs} {...rest}>
+        <slot />
+        {icon === 'arrow-up-right' && (
+          <span class="circle" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+          </span>
+        )}
+        {icon === 'bell' && (
+          <span class="circle circle-bell" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15L6 16Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg>
+          </span>
+        )}
+        {icon === 'arrow-down' && (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
+        )}
+      </Tag>
+    </span>
+  </span>
+) : (
+  <Tag class={classes} id={id} {...tagAttrs} {...magneticAttr} {...rest}>
+    <slot />
+    {icon === 'arrow-up-right' && (
+      <span class="circle" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+      </span>
+    )}
+    {icon === 'bell' && (
+      <span class="circle circle-bell" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15L6 16Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg>
+      </span>
+    )}
+    {icon === 'arrow-down' && (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
+    )}
+  </Tag>
+)}
+
+<style>
+  /* Primário — pílula grafite com seta em círculo (.glow-on-hover + .beam-button do DS) */
+  .btn-primary {
+    position: relative; overflow: hidden; isolation: isolate;
+    display: inline-flex; align-items: center; gap: var(--s-4); height: 48px; padding: 0 6px 0 var(--s-6);
+    border: 0; border-radius: var(--radius-full); background: var(--grafite); color: var(--branco);
+    font: inherit; font-size: .9375rem; font-weight: 500; white-space: nowrap; cursor: pointer;
+    transition: transform .3s ease, box-shadow .3s ease, background .3s ease;
+  }
+  .btn-primary::before { content: ""; position: absolute; inset: 0; left: -100%; width: 100%; z-index: -1; background: linear-gradient(90deg, transparent, rgba(255,255,255,.3), transparent); transition: left var(--dur-base); }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow-glow); }
+  .btn-primary:hover::before { left: 100%; }
+  .btn-primary:active { transform: scale(.97); }
+  .btn-light { background: var(--branco); color: var(--tinta); }   /* tone="light" */
+
+  .circle { width: 36px; height: 36px; border-radius: var(--radius-full); background: var(--lume); color: var(--grafite); display: grid; place-items: center; overflow: hidden; position: relative; transition: transform var(--dur-base) var(--ease-architect); }
+  .circle svg { width: 16px; height: 16px; transition: transform var(--dur-base) var(--ease-architect); }
+  .circle svg + svg { position: absolute; transform: translate(-150%, 150%); }
+  .btn-primary:hover .circle { transform: scale(1.06); }
+  .btn-primary:hover .circle svg:first-child { transform: translate(150%, -150%); }
+  .btn-primary:hover .circle svg + svg { transform: translate(0, 0); }
+  /* sino: balança no hover em vez de trocar a seta */
+  .circle-bell svg { transform-origin: 50% 15%; }
+  .btn-primary:hover .circle-bell svg:first-child { transform: none; animation: bell-ring .9s var(--ease-architect); }
+  @keyframes bell-ring { 0%, 100% { rotate: 0deg; } 20% { rotate: 16deg; } 40% { rotate: -12deg; } 60% { rotate: 8deg; } 80% { rotate: -4deg; } }
+
+  /* Beam — anel cônico girando + brilho Lume no hover */
+  .btn-beam { position: relative; display: inline-flex; border-radius: var(--radius-full); padding: 1px; overflow: hidden; isolation: isolate; }
+  .ring { position: absolute; inset: -1000%; z-index: -1; background: conic-gradient(from 0deg, transparent 0 300deg, var(--lume) 330deg, var(--branco) 360deg); animation: spin 2.5s linear infinite; }   /* @keyframes spin: CSS global da página */
+  .btn-beam .btn-primary { height: 52px; padding-left: var(--s-6); font-size: .9375rem; }
+  .btn-beam .circle { width: 40px; height: 40px; }
+  .cta-wrap { position: relative; display: inline-flex; }
+  .cta-wrap::before { content: ""; position: absolute; inset: -12px; border-radius: var(--radius-full); background: var(--lume-40); filter: blur(24px); opacity: 0; transition: opacity var(--dur-base); z-index: -1; }
+  .cta-wrap:hover::before { opacity: 1; }
+
+  /* Outline — pílula com borda (vidro claro, legível sobre o vídeo) */
+  .btn-outline {
+    display: inline-flex; align-items: center; gap: var(--s-2); height: 52px; padding: 0 var(--s-6);
+    border: 1px solid var(--tinta); border-radius: var(--radius-full); color: var(--tinta); cursor: pointer;
+    background: var(--branco-55); backdrop-filter: blur(var(--blur-backdrop)); -webkit-backdrop-filter: blur(var(--blur-backdrop));
+    font: inherit; font-size: .8125rem; font-weight: 500; letter-spacing: var(--tracking-widest); text-transform: uppercase;
+    transition: background var(--dur-base) var(--ease-architect), color var(--dur-base) var(--ease-architect);
+  }
+  .btn-outline svg { width: 16px; height: 16px; transition: transform var(--dur-base) var(--ease-architect); }
+  .btn-outline:hover { background: var(--grafite); color: var(--branco); }
+  .btn-outline:hover svg { transform: translateY(3px); }
+  .btn-outline:active { transform: scale(.97); }
+
+  @media (max-width: 768px) {
+    .btn-beam .btn-primary, .btn-outline { height: 50px; }
+    .btn-beam .btn-primary { padding-left: var(--s-5); font-size: .9375rem; }
+    .btn-beam .circle { width: 38px; height: 38px; }
+    .btn-outline { padding: 0 var(--s-5); font-size: .75rem; }
+  }
+</style>

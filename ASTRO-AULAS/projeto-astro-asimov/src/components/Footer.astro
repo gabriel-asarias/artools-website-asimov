@@ -1,0 +1,169 @@
+---
+// Rodapé: traço de tinta, marca, links, newsletter, "ARTOOLS" gigante e voltar ao topo.
+// Comportamentos simples (newsletter, voltar ao topo) ficam aqui. As animações de scroll
+// (traço desenhado, entrada das colunas, "ARTOOLS" preenchendo) ficam no script da página,
+// porque dependem do GSAP e precisam ser criadas depois do pin da ficha técnica.
+
+interface FooterLink {
+  href: string;
+  label: string;
+}
+
+interface Props {
+  tagline?: string;
+  productLinks?: FooterLink[];
+  supportLinks?: FooterLink[];
+  designSystemHref?: string;
+}
+
+const {
+  tagline = 'Pigmentum 0.1 — para quem pensa em décimos de milímetro.',
+  productLinks = [
+    { href: '#hero', label: 'Design' },
+    { href: '#ponta', label: 'Ponta 0.1' },
+    { href: '#tinta', label: 'Tinta' },
+    { href: '#especificacoes', label: 'Especificações' },
+    { href: '/galeria', label: 'Galeria' },
+    { href: '/produto', label: 'Avise-me' },
+  ],
+  supportLinks = [
+    { href: '#rodape', label: 'Central de ajuda' },
+    { href: '#rodape', label: 'Trocas e devoluções' },
+    { href: '#rodape', label: 'Rastrear pedido' },
+  ],
+  designSystemHref = '/design-system/',
+} = Astro.props;
+
+const year = new Date().getFullYear();   // calculado no build
+
+// Âncoras das seções (#ponta…) só existem na home; nas outras páginas viram "/#ponta".
+// (#rodape continua igual: o rodapé existe em todas as páginas.)
+const isHome = Astro.url.pathname === '/' || Astro.url.pathname === '/index.html';
+const toHref = (href: string) => (href.startsWith('#') && href !== '#rodape' && !isHome ? `/${href}` : href);
+---
+
+<footer class="ft" id="rodape">
+  <svg class="ft-ink" viewBox="0 0 1440 120" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <path id="ftInk" d="M-10 70 C 120 20, 220 110, 340 64 S 560 18, 700 62 S 900 110, 1040 58 S 1260 24, 1380 66 L 1452 66" fill="none" stroke="#D6A461" stroke-width="1.6" stroke-linecap="round"/>
+    <circle id="ftInkDot" cx="1380" cy="66" r="3.5" fill="#D6A461"/>
+  </svg>
+
+  <div class="ft-inner">
+    <div class="ft-cols">
+      <div class="ft-brand">
+        <a class="wordmark" href={toHref('#hero')} aria-label="ARTOOLS — voltar ao início">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="2.5"/></svg>
+          ARTOOLS
+        </a>
+        <p>{tagline}</p>
+      </div>
+
+      <nav class="ft-nav" aria-label="Produto">
+        <span class="mono">Produto</span>
+        {productLinks.map((link) => <a href={toHref(link.href)}>{link.label}</a>)}
+      </nav>
+
+      <nav class="ft-nav" aria-label="Atendimento">
+        <span class="mono">Atendimento</span>
+        {supportLinks.map((link) => <a href={link.href}>{link.label}</a>)}
+      </nav>
+
+      <form class="ft-news" id="news">
+        <span class="mono">Lançamentos</span>
+        <div class="ft-field">
+          <input id="newsEmail" type="email" placeholder=" " required autocomplete="email" />
+          <label for="newsEmail">Seu e-mail</label>
+          <span class="bar" aria-hidden="true"></span>
+          <button type="submit" aria-label="Inscrever">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+        </div>
+        <p class="ft-news-msg mono" id="newsMsg" aria-live="polite"></p>
+      </form>
+    </div>
+
+    <div class="ft-giant" aria-hidden="true">ARTOOLS</div>
+
+    <div class="ft-bottom">
+      <span class="mono">© {year} ARTOOLS · Projeto de estudo · Curso Asimov · <a class="ft-ds" href={designSystemHref}>Design system ↗</a></span>
+      <button class="ft-top mono" id="toTop" type="button" data-magnetic>
+        Voltar ao topo
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+      </button>
+    </div>
+  </div>
+</footer>
+
+<style>
+  /* Estilos com escopo: valem só para o rodapé. */
+  .ft { position: relative; z-index: 3; background: var(--grafite); color: rgba(255,255,255,.72); overflow: hidden; }
+  .ft-ink { display: block; width: 100%; height: 120px; margin-bottom: -40px; }
+  .ft-inner { max-width: 1400px; margin: 0 auto; padding: 6vh var(--gutter) var(--s-8); }
+  .ft-cols { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1.4fr; gap: 4vw; padding-bottom: 8vh; border-bottom: 1px solid rgba(255,255,255,.1); }
+  .ft .wordmark { color: var(--branco); }
+  .ft-brand p { margin: var(--s-4) 0 0; max-width: 18rem; font-size: .9375rem; line-height: 1.6; }
+  .ft-nav { display: flex; flex-direction: column; gap: var(--s-3); }
+  .ft .mono { font-size: .5625rem; letter-spacing: .2em; color: rgba(255,255,255,.6); margin-bottom: var(--s-2); }
+  .ft-nav a { width: max-content; font-size: .9375rem; color: rgba(255,255,255,.85); background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size var(--dur-base) var(--ease-architect), color var(--dur-base); }
+  .ft-nav a:hover { color: var(--branco); background-size: 100% 1px; }
+
+  /* Newsletter (input de linha do DS) */
+  .ft-field { position: relative; margin-top: var(--s-2); }
+  .ft-field input { width: 100%; background: transparent; border: 0; border-bottom: 1px solid rgba(255,255,255,.25); padding: 1.3rem 44px .6rem 0; font: inherit; font-size: 1rem; color: var(--branco); outline: none; border-radius: 0; }
+  .ft-field label { position: absolute; left: 0; top: 1.2rem; font-size: 1rem; color: rgba(255,255,255,.6); pointer-events: none; transition: all .4s var(--ease-architect); }
+  .ft-field input:focus + label, .ft-field input:not(:placeholder-shown) + label { top: 0; font-size: .625rem; letter-spacing: .14em; text-transform: uppercase; font-family: var(--font-mono); color: var(--lume); }
+  .ft-field .bar { position: absolute; left: 0; bottom: 0; height: 1px; width: 100%; background: var(--lume); transform: scaleX(0); transform-origin: left; transition: transform .6s var(--ease-architect); }
+  .ft-field input:focus ~ .bar { transform: scaleX(1); }
+  .ft-field button { position: absolute; right: 0; bottom: 6px; width: 36px; height: 36px; border-radius: var(--radius-full); display: grid; place-items: center; color: var(--grafite); background: var(--lume); transition: transform var(--dur-base) var(--ease-architect); }
+  .ft-field button:hover { transform: translateX(3px); }
+  .ft-field button svg { width: 16px; height: 16px; }
+  .ft-news-msg { margin: var(--s-3) 0 0; min-height: 1.2em; color: var(--lume) !important; }
+
+  /* "ARTOOLS" gigante: lettering transparente que se preenche (a página adiciona .is-filled) */
+  .ft-giant {
+    margin: 4vh 0 2vh; text-align: center; white-space: nowrap; user-select: none;
+    font-size: clamp(5rem, 19vw, 19rem); font-weight: 600; letter-spacing: -0.04em; line-height: .9;
+    color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,.22);
+    background: linear-gradient(90deg, rgba(255,255,255,.95) 0 50%, transparent 50% 100%); background-size: 200% 100%; background-position: 100% 0;
+    -webkit-background-clip: text; background-clip: text; transition: background-position 1.4s var(--ease-architect);
+  }
+  .ft-giant:hover, .ft-giant.is-filled { background-position: 0 0; }
+
+  .ft-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--s-4); padding-top: var(--s-6); border-top: 1px solid rgba(255,255,255,.1); }
+  .ft-bottom .mono { margin: 0; }
+  .ft-ds { color: var(--lume); background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size var(--dur-base) var(--ease-architect); }
+  .ft-ds:hover { background-size: 100% 1px; }
+  .ft-top { display: inline-flex; align-items: center; gap: var(--s-2); padding: var(--s-3) var(--s-5); border-radius: var(--radius-full); border: 1px solid rgba(255,255,255,.2); color: var(--branco); font-size: .625rem; letter-spacing: .2em;
+    transition: background var(--dur-base) var(--ease-architect), color var(--dur-base); }
+  .ft-top svg { width: 14px; height: 14px; transition: transform var(--dur-base) var(--ease-architect); }
+  .ft-top:hover { background: var(--branco); color: var(--tinta); }
+  .ft-top:hover svg { transform: translateY(-3px); }
+
+  @media (max-width: 1024px) {
+    .ft-cols { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 768px) {
+    .ft-cols { grid-template-columns: 1fr; gap: var(--s-8); }
+  }
+</style>
+
+<!-- is:inline + bloco { }: roda logo após o rodapé, com variáveis isoladas das da página. -->
+<script is:inline>
+{
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Newsletter (demonstração: não envia para lugar nenhum)
+  const form = document.getElementById('news');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    document.getElementById('newsMsg').textContent = 'Inscrição confirmada ✓';
+    document.getElementById('newsEmail').value = '';
+  });
+
+  // Voltar ao topo (Lenis é criado pela página; sem ele, rolagem nativa)
+  document.getElementById('toTop').addEventListener('click', () => {
+    if (window.__lenis && !reduced) window.__lenis.scrollTo(0, { duration: 2.2 });
+    else window.scrollTo(0, 0);
+  });
+}
+</script>

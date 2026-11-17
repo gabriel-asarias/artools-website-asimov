@@ -1,0 +1,115 @@
+/* =====================================================================
+   ESTILOS GLOBAIS — valem para TODAS as páginas (importado no Layout)
+   Tokens do design system Monólito, base, marca e regras gerais.
+   Estilos de cada página ficam na própria página; os de componentes, no componente.
+   ===================================================================== */
+
+/* =====================================================================
+   TOKENS — extraídos de design_system.html (Monólito DS). Use só estes.
+   ===================================================================== */
+:root {
+  /* Cores base */
+  --osso: #EAEAE5;          /* Neutro · base */
+  --tinta: #1C1C1C;         /* Primária · texto */
+  --grafite: #1C1917;       /* Primária · superfície (stone-900) */
+  --abismo: #050505;        /* Secundária · escuro */
+  --lume: #D6A461;          /* Acento · foco/luz */
+  --lume-escuro: #7A5522;   /* Texto sobre Lume 20% (badge) */
+  --pedra-500: #78716C;
+  --pedra-400: #A8A29E;
+  --pedra-300: #D6D3D1;     /* Bordas */
+  --pedra-100: #F5F5F4;     /* Faixas */
+  --branco: #FFFFFF;
+
+  /* Variações de opacidade (DS: 100/80/60/40/20/10) */
+  --grafite-80: rgba(28, 25, 23, .8);     /* texto secundário — 7.8:1 sobre Osso (AAA) */
+  --grafite-10: rgba(28, 25, 23, .1);
+  --linha-grid: rgba(0, 0, 0, .05);       /* linhas do grid de fundo */
+  --erro: #B4432F;                        /* feedback · erro */
+  --ok: #3F7D58;                          /* feedback · sucesso */
+  --lume-40: rgba(214, 164, 97, .4);
+  --branco-60: rgba(255, 255, 255, .6);
+  --branco-55: rgba(255, 255, 255, .55);  /* .glass-light */
+  --osso-90: rgba(234, 234, 229, .9);     /* véu de imagem (claro) */
+  --osso-80: rgba(234, 234, 229, .8);
+  --osso-60: rgba(234, 234, 229, .6);
+  --osso-0: rgba(234, 234, 229, 0);
+
+  /* Tipografia */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --font-serif: 'Instrument Serif', ui-serif, Georgia, Cambria, serif;
+  --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --tracking-tighter: -0.05em;
+  --tracking-tight: -0.025em;
+  --tracking-widest: 0.1em;
+  --tracking-overline: 0.25em;
+
+  /* Espaçamento (escala 4px do DS) */
+  --s-2: .5rem; --s-3: .75rem; --s-4: 1rem; --s-5: 1.25rem; --s-6: 1.5rem; --s-8: 2rem;
+
+  /* Raios */
+  --radius-md: 6px;
+  --radius-xl: 12px;
+  --radius-full: 9999px;
+
+  /* Sombras / blur */
+  --shadow-glow: 0 0 30px rgba(28, 28, 28, .15), 0 0 60px rgba(214, 164, 97, .18);  /* .glow-on-hover */
+  --shadow-lume: 0 0 12px var(--lume);
+  --blur-glass: 20px;
+  --blur-backdrop: 10px;
+
+  /* Movimento */
+  --ease-architect: cubic-bezier(0.16, 1, 0.3, 1);   /* GSAP: "expo.out" */
+  --dur-fast: .2s;
+  --dur-base: .5s;
+  --dur-reveal: 1.2s;
+  --dur-in: .8s;                                      /* animationIn */
+
+  /* Layout */
+  --nav-h: 88px;
+  --gutter: 40px;
+}
+
+/* =====================================================================
+   BASE
+   ===================================================================== */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  font-family: var(--font-sans);
+  background: var(--osso);
+  color: var(--tinta);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+::selection { background: var(--grafite); color: var(--branco); }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--lume); outline-offset: 3px; border-radius: var(--radius-full); }
+.skip-link { position: fixed; left: var(--s-4); top: -100px; z-index: 200; background: var(--grafite); color: var(--branco); padding: var(--s-3) var(--s-4); border-radius: var(--radius-full); font-size: .875rem; transition: top var(--dur-base) var(--ease-architect); }
+.skip-link:focus { top: var(--s-4); }
+.mono { font-family: var(--font-mono); font-size: .75rem; letter-spacing: var(--tracking-widest); text-transform: uppercase; }
+
+/* =====================================================================
+   MARCA (cabeçalho e rodapé) — os botões ficam em src/components/Button.astro
+   ===================================================================== */
+.wordmark { font-weight: 600; font-size: 1rem; letter-spacing: .42em; display: inline-flex; align-items: center; gap: var(--s-3); justify-self: start; }
+.wordmark svg { width: 18px; height: 18px; transition: transform .7s var(--ease-architect); }
+.wordmark:hover svg { transform: rotate(180deg); }
+
+/* Usado pelo anel do botão beam, pela lente da Tinta, pelo sol e pelo halo da compra */
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Tokens que mudam por largura de tela */
+@media (max-width: 1100px) {
+  :root { --gutter: 28px; }
+}
+@media (max-width: 768px) {
+  :root { --nav-h: 68px; --gutter: 16px; }
+  .wordmark { font-size: .9375rem; }
+}
+
+/* Movimento reduzido: desliga animações e transições em todo o site */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; transition-delay: 0s !important; }
+}
