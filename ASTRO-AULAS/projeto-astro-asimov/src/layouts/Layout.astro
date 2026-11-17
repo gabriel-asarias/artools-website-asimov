@@ -1,0 +1,63 @@
+---
+// Layout base: documento HTML, <head> (SEO, compartilhamento, fontes), cabeçalho e rodapé.
+// Slots da página:
+//   (padrão)        → conteúdo, entre o cabeçalho e o rodapé
+//   slot="head"     → algo extra no <head> (ex.: preload)
+//   slot="scripts"  → scripts que precisam rodar com a página inteira montada (inclusive o rodapé)
+import '../styles/global.css';   // tokens do design system + base: valem para todas as páginas
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
+}
+
+const {
+  title = 'ARTOOLS Pigmentum 0.1 — Caneta de tinta pigmentada',
+  description = 'ARTOOLS Pigmentum 0.1: ponta 0.1 mm e tinta pigmentada para o detalhe do desenho técnico.',
+  ogTitle = 'ARTOOLS Pigmentum 0.1 — Cada traço, preciso.',
+  ogDescription = 'Página de produto conceitual com vídeo controlado pelo scroll, folha de teste interativa e ficha técnica viva.',
+  ogImage = '/assets/img/og-cover.jpg',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#EAEAE5" />
+
+    <!-- Compartilhamento (LinkedIn, WhatsApp, X) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={ogTitle} />
+    <meta property="og:description" content={ogDescription} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content="pt_BR" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231C1917' stroke-width='1.6'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 3v18M3 12h18'/%3E%3Ccircle cx='12' cy='12' r='2.5' stroke='%23D6A461'/%3E%3C/svg%3E" />
+
+    <!-- Fontes do design system (Monólito): Inter 300–600 · Instrument Serif 400 · Geist Mono 300–700 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300..700&family=Instrument+Serif&family=Inter:wght@300..600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.13/dist/lenis.css" />
+
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+    <Header />
+    <slot />
+    <Footer />
+    <slot name="scripts" />
+  </body>
+</html>

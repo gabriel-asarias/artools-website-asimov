@@ -1,0 +1,525 @@
+---
+// Galeria — "caderno de estudos" da Pigmentum 0.1.
+// 1) abertura com filtros · 2) mural em alvenaria · 3) visualizador ampliado (<dialog>)
+// 4) flipbook: folhear os 190 quadros do vídeo · 5) chamada para a compra
+// Todas as imagens são quadros do vídeo da hero (public/assets/img/galeria).
+import Layout from '../layouts/Layout.astro';
+import Button from '../components/Button.astro';
+
+type Colecao = 'produto' | 'detalhes' | 'traco';
+
+interface Obra {
+  slug: string;
+  titulo: string;
+  colecao: Colecao;
+  w: number;
+  h: number;
+  quadro: number;   // segundo do vídeo de onde saiu o quadro
+  alt: string;
+  nota: string;
+}
+
+const colecoes: Record<Colecao, string> = { produto: 'Produto', detalhes: 'Detalhes', traco: 'Traço' };
+
+const obras: Obra[] = [
+  { slug: 'pairando', titulo: 'Pairando', colecao: 'produto', w: 1040, h: 520, quadro: 0.5, alt: 'A Pigmentum 0.1 inteira, flutuando sobre fundo claro', nota: 'O corpo inteiro em suspensão, antes do primeiro gesto.' },
+  { slug: 'em-pe', titulo: 'Em pé', colecao: 'produto', w: 480, h: 720, quadro: 6.0, alt: 'A caneta em pé sobre um caderno de esboços', nota: 'Equilíbrio na vertical: 12 g apoiados num décimo de milímetro.' },
+  { slug: 'clipe', titulo: 'Clipe com mola', colecao: 'detalhes', w: 360, h: 220, quadro: 0.5, alt: 'Detalhe da tampa com clipe metálico', nota: 'Aço inox com mola: prende no bolso sem marcar o tecido.' },
+  { slug: 'esbocos', titulo: 'Esboços', colecao: 'traco', w: 460, h: 330, quadro: 7.875, alt: 'Página de caderno com esboços técnicos e elástico preto', nota: 'Hachuras e perspectivas: o tipo de traço para o qual ela foi feita.' },
+  { slug: 'destampar', titulo: 'Destampar', colecao: 'produto', w: 640, h: 320, quadro: 1.5, alt: 'A tampa se separando do corpo da caneta', nota: 'O primeiro movimento: a tampa se solta e revela a ponta.' },
+  { slug: 'ponta-papel', titulo: 'Toque no papel', colecao: 'detalhes', w: 300, h: 300, quadro: 6.875, alt: 'A ponta de 0.1 mm encostando no papel pontilhado', nota: 'A ponta de aço calibrado encontra a fibra do papel.' },
+  { slug: 'vertical', titulo: 'Vertical', colecao: 'produto', w: 420, h: 720, quadro: 4.5, alt: 'A caneta descendo na vertical sobre o caderno', nota: 'A descida: o eixo alinha antes do contato.' },
+  { slug: 'ultimo-traco', titulo: 'Último traço', colecao: 'traco', w: 440, h: 300, quadro: 7.875, alt: 'A ponta da caneta logo após traçar uma linha, com a tampa ao lado', nota: 'O fim do vídeo: a linha acabou de sair da ponta.' },
+  { slug: 'logo', titulo: 'Assinatura', colecao: 'detalhes', w: 540, h: 210, quadro: 0.5, alt: 'Logotipo ARTOOLS Pigmentum impresso no corpo', nota: 'ARTOOLS em caixa alta, Pigmentum em script: técnica e mão juntas.' },
+  { slug: 'queda', titulo: 'Queda da tampa', colecao: 'produto', w: 560, h: 560, quadro: 2.25, alt: 'A tampa caindo enquanto o corpo segue no ar', nota: 'Tampa e corpo seguem caminhos separados.' },
+  { slug: 'caderno', titulo: 'Caderno aberto', colecao: 'traco', w: 560, h: 420, quadro: 7.875, alt: 'Caderno aberto com esboços e a tampa da caneta', nota: 'Papel pontilhado e esboços de estudo: o habitat natural.' },
+  { slug: 'rodopio', titulo: 'Rodopio', colecao: 'produto', w: 480, h: 640, quadro: 3.0, alt: 'A caneta girando no ar acima do caderno', nota: 'O giro até a posição de escrita.' },
+  { slug: 'tampa', titulo: 'Tampa em repouso', colecao: 'detalhes', w: 300, h: 180, quadro: 7.875, alt: 'A tampa deitada no caderno ao lado da ponta', nota: 'Janela translúcida e clipe: a tampa também foi desenhada.' },
+];
+
+const fmtTempo = (s: number) => `0:${s.toFixed(2).padStart(5, '0')}`;
+const pad = (n: number) => String(n).padStart(2, '0');
+
+// Flipbook: 190 quadros a 24 fps (7,9 s). Régua com marca maior a cada segundo.
+const TOTAL = 190;
+const FPS = 24;
+const reguaPath = Array.from({ length: TOTAL }, (_, i) => `M${i + 0.5} ${i % FPS === 0 ? 0 : 9}V20`).join('');
+const segundos = Array.from({ length: Math.floor(TOTAL / FPS) + 1 }, (_, s) => s);
+const momentos = [
+  { t: 0.3, nome: 'Pairando' }, { t: 1.2, nome: 'Destampa' }, { t: 1.8, nome: 'Tampa cai' }, { t: 2.5, nome: 'Gira' },
+  { t: 3.5, nome: 'Desce' }, { t: 5.0, nome: 'Em pé' }, { t: 6.5, nome: 'Toca o papel' }, { t: 7.85, nome: 'Traço' },
+];
+---
+
+<Layout title="Galeria — ARTOOLS Pigmentum 0.1" description="Estudos visuais da caneta ARTOOLS Pigmentum 0.1: produto, detalhes e traço, quadro a quadro.">
+  <main id="conteudo" class="galeria">
+
+    <!-- ============ 1. ABERTURA ============ -->
+    <section class="g-hero" aria-labelledby="g-title">
+      <div class="g-grid" aria-hidden="true"></div>
+      <div class="g-orb" aria-hidden="true"></div>
+      <span class="g-giant" aria-hidden="true">Galeria</span>
+
+      <div class="g-wrap">
+        <p class="g-eyebrow mono" data-reveal><span class="pulse" aria-hidden="true"></span>Galeria · caderno de estudos</p>
+        <h1 class="g-title" id="g-title">
+          <span class="mask"><span class="line">Estudos de</span></span>
+          <span class="mask"><span class="line serif">precisão<span class="lume-dot">.</span></span></span>
+        </h1>
+        <div class="g-intro">
+          <p class="g-lede" data-reveal style="--i:2">Treze quadros tirados do filme da Pigmentum 0.1. Filtre por coleção, abra para ver a ficha de cada um — ou folheie o movimento inteiro no fim da página.</p>
+          <dl class="g-stats" data-reveal style="--i:3">
+            <div><dt class="mono">Estudos</dt><dd>{pad(obras.length)}</dd></div>
+            <div><dt class="mono">Coleções</dt><dd>{pad(Object.keys(colecoes).length)}</dd></div>
+            <div><dt class="mono">Quadros</dt><dd>{TOTAL}</dd></div>
+          </dl>
+        </div>
+
+        <div class="g-filters" role="group" aria-label="Filtrar por coleção" data-reveal style="--i:4">
+          <span class="g-filter-ind" aria-hidden="true"></span>
+          <button type="button" class="g-filter" data-filter="todos" aria-pressed="true">Todos <span class="mono">{pad(obras.length)}</span></button>
+          {Object.entries(colecoes).map(([id, nome]) => (
+            <button type="button" class="g-filter" data-filter={id} aria-pressed="false">
+              {nome} <span class="mono">{pad(obras.filter((o) => o.colecao === id).length)}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 2. MURAL ============ -->
+    <section class="g-mural" aria-label="Estudos">
+      <ul class="g-list" id="gList">
+        {obras.map((o, i) => (
+          <li class="obra" data-col={o.colecao} data-reveal style={`--i:${i % 3}`}>
+            <button type="button" class="obra-btn" data-index={i} aria-label={`Ampliar: ${o.titulo}`}>
+              <span class="obra-media">
+                <img src={`/assets/img/galeria/${o.slug}.webp`} alt={o.alt} width={o.w} height={o.h} loading="lazy" decoding="async" />
+              </span>
+              <span class="obra-zoom" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+              </span>
+              <span class="obra-num mono" aria-hidden="true">{pad(i + 1)}</span>
+            </button>
+            <div class="obra-cap">
+              <strong>{o.titulo}</strong>
+              <span class="mono">{colecoes[o.colecao]} · {fmtTempo(o.quadro)}</span>
+            </div>
+          </li>
+        ))}
+      </ul>
+      <p class="g-empty mono" id="gEmpty" hidden>Nenhum estudo nesta coleção.</p>
+    </section>
+
+    <!-- ============ 3. FLIPBOOK ============ -->
+    <section class="flip" id="flipbook" aria-labelledby="flip-title">
+      <div class="flip-wrap">
+        <header class="flip-head" data-reveal>
+          <p class="mono flip-eyebrow">Folha de contato · {TOTAL} quadros</p>
+          <h2 id="flip-title">Folheie o <span class="serif">movimento</span><span class="lume-dot">.</span></h2>
+          <p class="flip-lede">Arraste na régua (ou use ← →) para passar quadro a quadro, como num flipbook.</p>
+        </header>
+
+        <div class="flip-stage" data-reveal style="--i:1">
+          <video id="flipVideo" muted playsinline preload="auto" poster="/assets/img/hero-poster-inicio.webp" src="/assets/video/hero-scroll.mp4" aria-label="Vídeo da Pigmentum 0.1, controlado pela régua"></video>
+          <span class="flip-tc mono" id="flipTc">Quadro 001 / {TOTAL} · 0:00.00</span>
+          <span class="flip-stage-label mono" id="flipLabel">Flutuar</span>
+          <button type="button" class="flip-play" id="flipPlay" aria-pressed="false" aria-label="Reproduzir">
+            <svg class="i-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.4-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5Z"/></svg>
+            <svg class="i-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+          </button>
+        </div>
+
+        <div class="flip-ruler" id="flipRuler" role="slider" tabindex="0" aria-label="Quadro do vídeo" aria-valuemin="1" aria-valuemax={TOTAL} aria-valuenow="1" aria-valuetext="Quadro 1">
+          <svg viewBox={`0 0 ${TOTAL} 20`} preserveAspectRatio="none" aria-hidden="true"><path d={reguaPath} /></svg>
+          <div class="flip-secs" aria-hidden="true">
+            {segundos.map((s) => <span style={`left:${((s * FPS) / (TOTAL - 1)) * 100}%`}>{s}s</span>)}
+          </div>
+          <span class="flip-fill" id="flipFill" aria-hidden="true"></span>
+          <span class="flip-playhead" id="flipHead" aria-hidden="true"></span>
+        </div>
+
+        <ol class="flip-thumbs" aria-label="Momentos-chave">
+          {momentos.map((m, i) => (
+            <li>
+              <button type="button" class="thumb" data-t={m.t}>
+                <img src={`/assets/img/galeria/quadros/q-${pad(i + 1)}.webp`} alt="" width="320" height="180" loading="lazy" />
+                <span class="mono">{pad(i + 1)} · {m.nome}</span>
+              </button>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    <!-- ============ 4. CHAMADA ============ -->
+    <section class="g-cta" aria-labelledby="g-cta-title">
+      <div class="g-cta-wrap" data-reveal>
+        <p class="mono g-eyebrow">Gostou do que viu?</p>
+        <h2 id="g-cta-title">Agora é a sua vez <span class="serif">de traçar</span><span class="lume-dot">.</span></h2>
+        <div class="g-cta-actions">
+          <Button href="/produto" beam>Ver a Pigmentum 0.1</Button>
+          <a class="g-back" href="/">Voltar para a página do produto <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ VISUALIZADOR (dialog nativo: Esc e foco já vêm prontos) ============ -->
+  <dialog class="lb" id="lightbox" aria-labelledby="lbTitle">
+    <div class="lb-panel">
+      <figure class="lb-figure">
+        <img id="lbImg" src="" alt="" />
+      </figure>
+      <aside class="lb-meta">
+        <span class="mono lb-count" id="lbCount">01 / 13</span>
+        <h2 id="lbTitle">Título</h2>
+        <span class="mono lb-col" id="lbCol">Coleção</span>
+        <p id="lbNota"></p>
+        <dl class="lb-ficha">
+          <div><dt class="mono">Quadro</dt><dd id="lbQuadro">0:00.50</dd></div>
+          <div><dt class="mono">Recorte</dt><dd id="lbDim">1040 × 520</dd></div>
+        </dl>
+        <div class="lb-nav">
+          <button type="button" class="lb-btn" id="lbPrev" aria-label="Anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+          <button type="button" class="lb-btn" id="lbNext" aria-label="Próximo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+          <span class="mono lb-hint">← → para navegar · Esc fecha</span>
+        </div>
+      </aside>
+      <button type="button" class="lb-close" id="lbClose" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+  </dialog>
+
+  <!-- Dados das obras para o script (o mesmo array do frontmatter, em JSON) -->
+  <script type="application/json" id="obrasData" set:html={JSON.stringify(obras.map((o) => ({ ...o, colecaoNome: colecoes[o.colecao], tempo: fmtTempo(o.quadro) })))}></script>
+</Layout>
+
+<style>
+  /* ---------- Base da página ---------- */
+  .galeria { padding-top: var(--nav-h); }
+  .serif { font-family: var(--font-serif); font-weight: 400; letter-spacing: -0.01em; }
+  .lume-dot { color: var(--lume); }
+  .pulse { position: relative; display: inline-block; width: 6px; height: 6px; border-radius: var(--radius-full); background: var(--lume); }
+  .pulse::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: inherit; animation: ping-soft 1.8s cubic-bezier(0,0,.2,1) infinite; }
+  @keyframes ping-soft { 0% { transform: scale(1); opacity: .7; } 100% { transform: scale(2.6); opacity: 0; } }
+
+  /* Entrada (DS animationIn: sobe 30px, desfoca 10px) — o script adiciona .is-in ao entrar na tela */
+  [data-reveal] { opacity: 0; transform: translateY(30px); filter: blur(10px);
+    transition: opacity .8s ease-out, transform 1s var(--ease-architect), filter .8s ease-out; transition-delay: calc(var(--i, 0) * 90ms); }
+  [data-reveal].is-in { opacity: 1; transform: none; filter: none; }
+
+  /* ---------- 1. Abertura ---------- */
+  .g-hero { position: relative; overflow: hidden; isolation: isolate; border-bottom: 1px solid var(--pedra-300); }
+  .g-grid { position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    background-size: 40px 40px; background-image: linear-gradient(to right, var(--linha-grid) 1px, transparent 1px), linear-gradient(to bottom, var(--linha-grid) 1px, transparent 1px);
+    -webkit-mask-image: radial-gradient(ellipse 70% 80% at 30% 40%, #000 20%, transparent 75%); mask-image: radial-gradient(ellipse 70% 80% at 30% 40%, #000 20%, transparent 75%);
+    animation: gridPan 30s linear infinite; }
+  @keyframes gridPan { to { background-position: 40px 40px; } }
+  .g-orb { position: absolute; z-index: -1; width: 520px; height: 520px; right: -120px; top: -120px; border-radius: var(--radius-full); filter: blur(var(--blur-orb)); background: radial-gradient(circle, rgba(214,164,97,.28), transparent 65%); animation: orbDrift 22s ease-in-out infinite alternate; }
+  @keyframes orbDrift { 50% { transform: translate3d(-8%, 10%, 0) scale(1.15); } 100% { transform: translate3d(6%, -6%, 0) scale(.95); } }
+  .g-giant { /* lettering transparente do DS */
+    position: absolute; z-index: -1; right: -2vw; bottom: -4vw; pointer-events: none; user-select: none;
+    font-size: clamp(7rem, 20vw, 20rem); font-weight: 600; letter-spacing: var(--tracking-tighter); line-height: 1;
+    color: transparent; -webkit-text-stroke: 1px rgba(28, 28, 28, .12);
+  }
+  .g-wrap { max-width: 1400px; margin: 0 auto; padding: 12vh var(--gutter) 8vh; }
+  .g-eyebrow { display: inline-flex; align-items: center; gap: var(--s-3); margin: 0; letter-spacing: var(--tracking-overline); font-size: .6875rem; color: var(--tinta); }
+  .g-title { margin: var(--s-6) 0 0; font-size: clamp(3rem, 8vw, 8rem); font-weight: 600; letter-spacing: var(--tracking-tighter); line-height: .9; }
+  .g-title .mask { display: block; overflow: hidden; padding-top: .14em; margin-top: -.14em; }
+  .g-title .line { display: block; transform: translateY(110%); transition: transform 1.2s var(--ease-architect); }   /* text-reveal do DS */
+  .g-title .mask + .mask .line { transition-delay: .12s; }
+  .g-title .serif { font-size: 1.12em; color: var(--pedra-500); line-height: .95; }
+  .is-ready .g-title .line { transform: none; }
+  .g-intro { margin-top: var(--s-8); display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 4vw; align-items: end; }
+  .g-lede { margin: 0; max-width: 34rem; font-size: 1.0625rem; line-height: 1.6; color: var(--grafite-80); }
+  .g-stats { margin: 0; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--pedra-300); border-bottom: 1px solid var(--pedra-300); }
+  .g-stats > div { padding: var(--s-4) var(--s-4) var(--s-4) 0; }
+  .g-stats > div + div { padding-left: var(--s-4); border-left: 1px solid var(--pedra-300); }
+  .g-stats dt { font-size: .5625rem; letter-spacing: .18em; color: var(--grafite-80); }
+  .g-stats dd { margin: var(--s-2) 0 0; font-size: clamp(1.75rem, 3vw, 2.5rem); font-weight: 500; letter-spacing: var(--tracking-tighter); line-height: 1; font-variant-numeric: tabular-nums; }
+
+  /* Filtros em pílula com indicador deslizante (mesma linguagem do menu) */
+  .g-filters { position: relative; display: inline-flex; flex-wrap: wrap; gap: 2px; margin-top: var(--s-8); padding: 5px;
+    border: 1px solid var(--pedra-300); border-radius: var(--radius-full); background: var(--branco-55); backdrop-filter: blur(var(--blur-glass)); -webkit-backdrop-filter: blur(var(--blur-glass)); }
+  .g-filter { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: var(--s-2); padding: 10px 18px; border-radius: var(--radius-full); font-size: .875rem; font-weight: 500; color: var(--grafite-80); transition: color var(--dur-base) var(--ease-architect); }
+  .g-filter .mono { font-size: .625rem; opacity: .7; }
+  .g-filter:hover { color: var(--tinta); }
+  .g-filter[aria-pressed="true"] { color: var(--branco); }
+  .g-filter-ind { position: absolute; z-index: 0; top: 5px; left: 0; height: calc(100% - 10px); width: 0; border-radius: var(--radius-full); background: var(--grafite);
+    transition: transform var(--dur-base) var(--ease-architect), width var(--dur-base) var(--ease-architect); }
+
+  /* ---------- 2. Mural em alvenaria ---------- */
+  .g-mural { max-width: 1400px; margin: 0 auto; padding: 8vh var(--gutter) 12vh; }
+  .g-list { list-style: none; margin: 0; padding: 0; columns: 3 300px; column-gap: var(--s-6); }
+  .obra { break-inside: avoid; margin: 0 0 var(--s-8); }
+  .obra.is-out { opacity: 0 !important; transform: scale(.96) !important; filter: blur(6px) !important; transition: opacity .35s ease, transform .35s ease, filter .35s ease; transition-delay: 0s !important; }
+  .obra-btn { position: relative; display: block; width: 100%; border-radius: var(--radius-md); overflow: hidden; background: var(--pedra-100); border: 1px solid var(--pedra-300); cursor: zoom-in;
+    box-shadow: 0 30px 60px -40px rgba(28, 25, 23, .35); transition: box-shadow .3s ease, transform .6s var(--ease-architect); }
+  .obra-media { display: block; overflow: hidden; }
+  .obra-media img { display: block; width: 100%; height: auto; transition: transform 1.2s var(--ease-architect), filter 1.2s var(--ease-architect); }
+  .obra-btn::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(28,25,23,.35), transparent 45%); opacity: 0; transition: opacity var(--dur-base) var(--ease-architect); }
+  .obra-zoom { position: absolute; z-index: 1; right: var(--s-4); bottom: var(--s-4); width: 40px; height: 40px; border-radius: var(--radius-full); display: grid; place-items: center;
+    background: var(--lume); color: var(--grafite); transform: scale(.6); opacity: 0; transition: transform var(--dur-base) var(--ease-architect), opacity var(--dur-base); }
+  .obra-zoom svg { width: 18px; height: 18px; }
+  .obra-num { position: absolute; z-index: 1; left: var(--s-3); top: var(--s-3); padding: 3px 8px; border-radius: var(--radius-full); background: var(--branco-60); backdrop-filter: blur(var(--blur-backdrop)); -webkit-backdrop-filter: blur(var(--blur-backdrop)); font-size: .5625rem; }
+  .obra-btn:hover, .obra-btn:focus-visible { transform: translateY(-4px); box-shadow: var(--shadow-glow), 0 30px 60px -40px rgba(28, 25, 23, .35); }
+  .obra-btn:hover img, .obra-btn:focus-visible img { transform: scale(1.05); }
+  .obra-btn:hover::after, .obra-btn:focus-visible::after { opacity: 1; }
+  .obra-btn:hover .obra-zoom, .obra-btn:focus-visible .obra-zoom { transform: none; opacity: 1; }
+  .obra-cap { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s-3); padding: var(--s-3) var(--s-1) 0; }
+  .obra-cap strong { font-weight: 500; letter-spacing: var(--tracking-tight); }
+  .obra-cap .mono { font-size: .5625rem; color: var(--grafite-80); white-space: nowrap; }
+  .g-empty { text-align: center; color: var(--grafite-80); }
+
+  /* ---------- 3. Flipbook (capítulo escuro) ---------- */
+  .flip { background: var(--grafite); color: var(--branco); position: relative; overflow: hidden; isolation: isolate; }
+  .flip::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    background: radial-gradient(60% 50% at 80% 0%, rgba(214,164,97,.16), transparent 70%), radial-gradient(50% 40% at 0% 100%, rgba(138,150,163,.14), transparent 70%); }
+  .flip-wrap { max-width: 1200px; margin: 0 auto; padding: 14vh var(--gutter); }
+  .flip-head { max-width: 40rem; }
+  .flip-eyebrow { margin: 0; color: rgba(255,255,255,.6); letter-spacing: var(--tracking-overline); font-size: .6875rem; }
+  .flip-head h2 { margin: var(--s-5) 0 0; font-size: clamp(2.4rem, 5vw, 4.6rem); font-weight: 600; letter-spacing: var(--tracking-tighter); line-height: .95; }
+  .flip-head h2 .serif { color: var(--lume); font-size: 1.1em; }
+  .flip-lede { margin: var(--s-5) 0 0; color: rgba(255,255,255,.72); line-height: 1.6; }
+  .flip-stage { position: relative; margin-top: var(--s-10, 2.5rem); aspect-ratio: 16 / 9; border-radius: var(--radius-xl); overflow: hidden; background: var(--abismo);
+    box-shadow: 0 40px 80px -30px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.08); }
+  .flip-stage video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .flip-tc, .flip-stage-label { position: absolute; top: var(--s-4); padding: 6px 12px; border-radius: var(--radius-full); font-size: .625rem; letter-spacing: .14em;
+    background: rgba(23,23,23,.6); backdrop-filter: blur(var(--blur-backdrop)); -webkit-backdrop-filter: blur(var(--blur-backdrop)); color: var(--branco); }
+  .flip-tc { left: var(--s-4); font-variant-numeric: tabular-nums; }
+  .flip-stage-label { right: var(--s-4); color: var(--lume); }
+  .flip-play { position: absolute; left: var(--s-4); bottom: var(--s-4); width: 48px; height: 48px; border-radius: var(--radius-full); display: grid; place-items: center; background: var(--branco); color: var(--tinta);
+    transition: transform var(--dur-base) var(--ease-architect), box-shadow .3s ease; }
+  .flip-play:hover { transform: scale(1.06); box-shadow: var(--shadow-glow); }
+  .flip-play svg { width: 18px; height: 18px; }
+  .flip-play .i-pause, .flip-play[aria-pressed="true"] .i-play { display: none; }
+  .flip-play[aria-pressed="true"] .i-pause { display: block; }
+
+  .flip-ruler { position: relative; margin-top: var(--s-6); height: 64px; cursor: ew-resize; touch-action: none; border-radius: var(--radius-md); }
+  .flip-ruler:focus-visible { outline-offset: 6px; }
+  .flip-ruler svg { position: absolute; left: 0; right: 0; top: 0; width: 100%; height: 26px; }
+  .flip-ruler path { stroke: rgba(255,255,255,.35); stroke-width: .35; fill: none; }
+  .flip-secs { position: absolute; left: 0; right: 0; top: 32px; height: 14px; }
+  .flip-secs span { position: absolute; transform: translateX(-50%); font-family: var(--font-mono); font-size: .5625rem; color: rgba(255,255,255,.55); }
+  .flip-secs span:first-child { transform: none; }
+  .flip-fill { position: absolute; left: 0; top: 0; height: 26px; width: 100%; transform-origin: left; transform: scaleX(0); background: linear-gradient(90deg, rgba(214,164,97,.0), rgba(214,164,97,.22)); pointer-events: none; }
+  .flip-playhead { position: absolute; top: -6px; left: 0; width: 2px; height: 38px; margin-left: -1px; background: var(--lume); box-shadow: 0 0 12px var(--lume); pointer-events: none; }
+  .flip-playhead::after { content: ""; position: absolute; left: 50%; top: -6px; width: 10px; height: 10px; transform: translateX(-50%) rotate(45deg); background: var(--lume); }
+
+  .flip-thumbs { list-style: none; margin: var(--s-6) 0 0; padding: 0; display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: var(--s-3); }
+  .thumb { display: block; width: 100%; text-align: left; color: rgba(255,255,255,.72); }
+  .thumb img { display: block; width: 100%; height: auto; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,.12); filter: grayscale(1) brightness(.75);
+    transition: filter var(--dur-base) var(--ease-architect), border-color var(--dur-base), transform var(--dur-base) var(--ease-architect); }
+  .thumb .mono { display: block; margin-top: var(--s-2); font-size: .5rem; letter-spacing: .14em; }
+  .thumb:hover img, .thumb.is-active img { filter: none; border-color: var(--lume); transform: translateY(-3px); }
+  .thumb.is-active { color: var(--lume); }
+
+  /* ---------- 4. Chamada ---------- */
+  .g-cta { border-bottom: 1px solid var(--pedra-300); }
+  .g-cta-wrap { max-width: 1400px; margin: 0 auto; padding: 16vh var(--gutter); text-align: center; }
+  .g-cta h2 { margin: var(--s-5) auto 0; max-width: 16ch; font-size: clamp(2.4rem, 5.4vw, 5.2rem); font-weight: 600; letter-spacing: var(--tracking-tighter); line-height: .95; }
+  .g-cta h2 .serif { color: var(--pedra-500); font-size: 1.1em; }
+  .g-cta-actions { margin-top: var(--s-8); display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: var(--s-8); }
+  .g-back { font-size: .9375rem; font-weight: 500; background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size var(--dur-base) var(--ease-architect); }
+  .g-back:hover { background-size: 100% 1px; }
+
+  /* ---------- Visualizador (<dialog>) ---------- */
+  .lb { width: min(1200px, calc(100vw - 32px)); max-height: calc(100vh - 32px); padding: 0; border: 0; background: transparent; overflow: visible; }
+  .lb::backdrop { background: rgba(28, 25, 23, .55); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  .lb-panel { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 320px; border-radius: var(--radius-xl); overflow: hidden; background: var(--osso);
+    box-shadow: 0 40px 80px -20px rgba(28, 25, 23, .5); }
+  .lb[open] .lb-panel { animation: lbIn .7s var(--ease-architect); }
+  .lb.is-closing .lb-panel { animation: lbOut .3s ease-in forwards; }
+  @keyframes lbIn { from { opacity: 0; transform: translateY(30px) scale(.97); filter: blur(10px); } }
+  @keyframes lbOut { to { opacity: 0; transform: translateY(16px) scale(.98); filter: blur(6px); } }
+  .lb-figure { margin: 0; background: var(--pedra-100); display: grid; place-items: center; min-height: 320px; max-height: calc(100vh - 32px); }
+  .lb-figure img { display: block; max-width: 100%; max-height: calc(100vh - 32px); object-fit: contain; transition: opacity .25s ease, filter .25s ease; }
+  .lb-figure img.is-swapping { opacity: 0; filter: blur(6px); }
+  .lb-meta { display: flex; flex-direction: column; gap: var(--s-3); padding: var(--s-8) var(--s-6); border-left: 1px solid var(--pedra-300); }
+  .lb-count { font-size: .625rem; color: var(--grafite-80); }
+  .lb-meta h2 { margin: var(--s-2) 0 0; font-size: 2rem; font-weight: 500; letter-spacing: var(--tracking-tighter); line-height: 1.05; }
+  .lb-col { align-self: flex-start; padding: 3px 10px; border-radius: var(--radius-full); background: var(--lume-40); color: var(--lume-escuro); font-size: .5625rem; }
+  .lb-meta p { margin: var(--s-2) 0 0; color: var(--grafite-80); line-height: 1.6; font-size: .9375rem; }
+  .lb-ficha { margin: auto 0 0; display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--pedra-300); border-bottom: 1px solid var(--pedra-300); }
+  .lb-ficha > div { padding: var(--s-3) 0; }
+  .lb-ficha > div + div { padding-left: var(--s-3); border-left: 1px solid var(--pedra-300); }
+  .lb-ficha dt { font-size: .5rem; letter-spacing: .18em; color: var(--grafite-80); }
+  .lb-ficha dd { margin: 4px 0 0; font-size: 1rem; font-variant-numeric: tabular-nums; }
+  .lb-nav { display: flex; align-items: center; gap: var(--s-2); margin-top: var(--s-4); }
+  .lb-btn, .lb-close { width: 44px; height: 44px; border-radius: var(--radius-full); display: grid; place-items: center; border: 1px solid var(--pedra-300); background: var(--branco-55); color: var(--tinta);
+    transition: background var(--dur-base) var(--ease-architect), color var(--dur-base), transform var(--dur-base) var(--ease-architect); }
+  .lb-btn:hover, .lb-close:hover { background: var(--grafite); color: var(--branco); }
+  .lb-btn svg, .lb-close svg { width: 18px; height: 18px; }
+  .lb-hint { margin-left: auto; font-size: .5rem; color: var(--grafite-80); }
+  .lb-close { position: absolute; top: var(--s-4); right: var(--s-4); z-index: 2; }
+  .lb-close:hover { transform: rotate(90deg); }
+
+  /* ---------- Responsivo ---------- */
+  @media (max-width: 900px) {
+    .g-intro { grid-template-columns: 1fr; }
+    .flip-thumbs { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .lb-panel { grid-template-columns: 1fr; max-height: calc(100vh - 32px); overflow-y: auto; }
+    .lb-figure { max-height: 55vh; }
+    .lb-figure img { max-height: 55vh; }
+    .lb-meta { border-left: 0; border-top: 1px solid var(--pedra-300); padding: var(--s-6); }
+    .lb-ficha { margin-top: var(--s-4); }
+  }
+  @media (max-width: 600px) {
+    .g-wrap { padding-top: 8vh; }
+    .g-filters { display: flex; }
+    .g-filter { padding: 8px 12px; font-size: .8125rem; }
+    .g-list { column-gap: var(--s-4); }
+    .lb-hint { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-reveal] { opacity: 1; transform: none; filter: none; }
+    .g-title .line { transform: none; }
+  }
+</style>
+
+<script>
+  // Script processado pelo Astro (módulo): roda depois da página montada e tem escopo próprio.
+  type Obra = { slug: string; titulo: string; colecaoNome: string; tempo: string; w: number; h: number; alt: string; nota: string; colecao: string };
+  const obras: Obra[] = JSON.parse(document.getElementById('obrasData')!.textContent || '[]');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const pad = (n: number) => String(n).padStart(2, '0');
+
+  // ---------- Entrada ----------
+  requestAnimationFrame(() => document.querySelector('.galeria')!.classList.add('is-ready'));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } });
+  }, { threshold: 0.12, rootMargin: '0px 0px -5% 0px' });
+  document.querySelectorAll('[data-reveal]').forEach((el) => io.observe(el));
+
+  // ---------- Filtros ----------
+  const filtros = [...document.querySelectorAll<HTMLButtonElement>('.g-filter')];
+  const ind = document.querySelector<HTMLElement>('.g-filter-ind')!;
+  const itens = [...document.querySelectorAll<HTMLElement>('.obra')];
+  const moveInd = (b: HTMLElement) => { ind.style.width = `${b.offsetWidth}px`; ind.style.transform = `translate(${b.offsetLeft}px, ${b.offsetTop - 5}px)`; };
+  const ativo = () => filtros.find((b) => b.getAttribute('aria-pressed') === 'true')!;
+  let filtroAtual = 'todos';
+
+  filtros.forEach((b) => b.addEventListener('click', () => {
+    const f = b.dataset.filter!;
+    if (f === filtroAtual) return;
+    filtroAtual = f;
+    filtros.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    moveInd(b);
+    // some com blur → troca → reaparece com a entrada do DS
+    itens.forEach((it) => it.classList.add('is-out'));
+    setTimeout(() => {
+      let visiveis = 0;
+      itens.forEach((it) => {
+        const mostra = f === 'todos' || it.dataset.col === f;
+        it.hidden = !mostra;
+        it.classList.remove('is-in');
+        if (mostra) visiveis++;
+      });
+      document.getElementById('gEmpty')!.hidden = visiveis > 0;
+      requestAnimationFrame(() => itens.forEach((it, i) => {
+        if (it.hidden) return;
+        it.classList.remove('is-out');
+        it.style.setProperty('--i', String(i % 3));
+        requestAnimationFrame(() => it.classList.add('is-in'));
+      }));
+    }, reduced ? 0 : 320);
+  }));
+  const placeInd = () => { ind.style.transition = 'none'; moveInd(ativo()); void ind.offsetWidth; ind.style.transition = ''; };
+  document.fonts.ready.then(placeInd);
+  addEventListener('resize', placeInd);
+
+  // ---------- Visualizador ----------
+  const lb = document.getElementById('lightbox') as HTMLDialogElement;
+  const lbImg = document.getElementById('lbImg') as HTMLImageElement;
+  let atual = 0;
+  const visiveis = () => itens.map((it, i) => (it.hidden ? -1 : i)).filter((i) => i >= 0);
+
+  function render(i: number, trocar = true) {
+    const o = obras[i];
+    const set = () => {
+      lbImg.src = `/assets/img/galeria/${o.slug}.webp`; lbImg.alt = o.alt; lbImg.width = o.w; lbImg.height = o.h;
+      const lista = visiveis();
+      document.getElementById('lbCount')!.textContent = `${pad(lista.indexOf(i) + 1)} / ${pad(lista.length)}`;
+      document.getElementById('lbTitle')!.textContent = o.titulo;
+      document.getElementById('lbCol')!.textContent = o.colecaoNome;
+      document.getElementById('lbNota')!.textContent = o.nota;
+      document.getElementById('lbQuadro')!.textContent = o.tempo;
+      document.getElementById('lbDim')!.textContent = `${o.w} × ${o.h}`;
+    };
+    if (!trocar || reduced) { set(); return; }
+    lbImg.classList.add('is-swapping');
+    setTimeout(() => { set(); lbImg.onload = () => lbImg.classList.remove('is-swapping'); if (lbImg.complete) lbImg.classList.remove('is-swapping'); }, 180);
+  }
+  const passo = (d: number) => { const l = visiveis(); atual = l[(l.indexOf(atual) + d + l.length) % l.length]; render(atual); };
+  const fechar = () => {
+    if (reduced) { lb.close(); return; }
+    lb.classList.add('is-closing');
+    setTimeout(() => { lb.classList.remove('is-closing'); lb.close(); }, 280);
+  };
+
+  document.querySelectorAll<HTMLButtonElement>('.obra-btn').forEach((b) => b.addEventListener('click', () => {
+    atual = Number(b.dataset.index); render(atual, false); lb.showModal();
+  }));
+  document.getElementById('lbPrev')!.addEventListener('click', () => passo(-1));
+  document.getElementById('lbNext')!.addEventListener('click', () => passo(1));
+  document.getElementById('lbClose')!.addEventListener('click', fechar);
+  lb.addEventListener('click', (e) => { if (e.target === lb) fechar(); });            // clique fora do painel
+  lb.addEventListener('cancel', (e) => { e.preventDefault(); fechar(); });            // Esc (com animação)
+  lb.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight') passo(1); if (e.key === 'ArrowLeft') passo(-1); });
+
+  // ---------- Flipbook ----------
+  const TOTAL = 190, FPS = 24;
+  const video = document.getElementById('flipVideo') as HTMLVideoElement;
+  const ruler = document.getElementById('flipRuler')!;
+  const head = document.getElementById('flipHead')!;
+  const fill = document.getElementById('flipFill')!;
+  const tc = document.getElementById('flipTc')!;
+  const label = document.getElementById('flipLabel')!;
+  const playBtn = document.getElementById('flipPlay')!;
+  const thumbs = [...document.querySelectorAll<HTMLButtonElement>('.thumb')];
+  const etapa = (t: number) => (t < 1 ? 'Flutuar' : t < 2.45 ? 'Destampar' : 'Traçar');
+  let alvo = 0, mostrado = -1;
+
+  function ui(frame: number) {
+    const p = frame / (TOTAL - 1), t = frame / FPS;
+    head.style.left = `${p * 100}%`;
+    fill.style.transform = `scaleX(${p})`;
+    tc.textContent = `Quadro ${String(frame + 1).padStart(3, '0')} / ${TOTAL} · 0:${t.toFixed(2).padStart(5, '0')}`;
+    label.textContent = etapa(t);
+    ruler.setAttribute('aria-valuenow', String(frame + 1));
+    ruler.setAttribute('aria-valuetext', `Quadro ${frame + 1} — ${etapa(t)}`);
+    let maisPerto = 0;
+    thumbs.forEach((b, i) => { if (Number(b.dataset.t) <= t + 0.05) maisPerto = i; });
+    thumbs.forEach((b, i) => b.classList.toggle('is-active', i === maisPerto));
+  }
+  // um único loop: só faz seek quando o quadro muda e o seek anterior terminou
+  function loop() {
+    if (!video.paused) { alvo = Math.min(TOTAL - 1, Math.round(video.currentTime * FPS)); }
+    else if (alvo !== mostrado && !video.seeking) { video.currentTime = (alvo + 0.5) / FPS; }
+    if (alvo !== mostrado) { ui(alvo); mostrado = alvo; }
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  const parar = () => { video.pause(); playBtn.setAttribute('aria-pressed', 'false'); playBtn.setAttribute('aria-label', 'Reproduzir'); };
+  const irPara = (frame: number) => { parar(); alvo = Math.max(0, Math.min(TOTAL - 1, frame)); };
+  const deX = (x: number) => { const r = ruler.getBoundingClientRect(); return Math.round(((x - r.left) / r.width) * (TOTAL - 1)); };
+  let arrastando = false;
+  ruler.addEventListener('pointerdown', (e) => { arrastando = true; ruler.setPointerCapture(e.pointerId); irPara(deX(e.clientX)); });
+  ruler.addEventListener('pointermove', (e) => { if (arrastando) irPara(deX(e.clientX)); });
+  ruler.addEventListener('pointerup', () => { arrastando = false; });
+  ruler.addEventListener('keydown', (e) => {
+    const passos: Record<string, number> = { ArrowRight: 1, ArrowLeft: -1, ArrowUp: FPS, ArrowDown: -FPS };
+    if (e.key in passos) { e.preventDefault(); irPara(alvo + passos[e.key] * (e.shiftKey ? FPS : 1)); }
+    if (e.key === 'Home') { e.preventDefault(); irPara(0); }
+    if (e.key === 'End') { e.preventDefault(); irPara(TOTAL - 1); }
+  });
+  thumbs.forEach((b) => b.addEventListener('click', () => irPara(Math.round(Number(b.dataset.t) * FPS))));
+  playBtn.addEventListener('click', () => {
+    if (!video.paused) { parar(); return; }
+    if (alvo >= TOTAL - 1) { alvo = 0; video.currentTime = 0; }
+    video.loop = true; video.play();
+    playBtn.setAttribute('aria-pressed', 'true'); playBtn.setAttribute('aria-label', 'Pausar');
+  });
+</script>
